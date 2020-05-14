@@ -10,6 +10,7 @@
     <PackageLicenseUrl></PackageLicenseUrl>
     <OutputType>Library</OutputType>
     <IsPackable>true</IsPackable>
+    <Configurations>Debug;Release;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
