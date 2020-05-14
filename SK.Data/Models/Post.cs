@@ -17,7 +17,7 @@ namespace SK.Data.Models
         public PostType Type { get; set; }
         public DateTime? CreatedTime { get; set; }
         public DateTime? VisibleTime { get; set; }
-        public bool? Archived { get; set; }
+        public bool Archived { get; set; }
         public int LocationId { get; set; }
         public int OwnerId { get; set; }
 

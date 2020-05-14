@@ -17,7 +17,7 @@ namespace SK.Data.Models
         public string Code { get; set; }
         public string Description { get; set; }
         public string Phone { get; set; }
-        public bool? Archived { get; set; }
+        public bool Archived { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; }
         public virtual ICollection<Resource> Resources { get; set; }

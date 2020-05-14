@@ -19,7 +19,7 @@ namespace SK.Data.Models
         public int FloorId { get; set; }
         public int BuildingId { get; set; }
         public int LocationId { get; set; }
-        public bool? Archived { get; set; }
+        public bool Archived { get; set; }
 
         public virtual Floor Floor { get; set; }
         public virtual Location Location { get; set; }

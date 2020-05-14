@@ -11,12 +11,6 @@ namespace SK.Data
         public const string CONN_STR = "Server=localhost;Database=SmartKioskDev;Trusted_Connection=False;User Id=sa;Password=123456;MultipleActiveResultSets=true";
     }
 
-    public static class EntityName
-    {
-        public const string POST = "Post";
-        public const string POST_CONTENT = "PostContent";
-    }
-
     public static class RoleName
     {
         public const string ADMIN = "Administrator";

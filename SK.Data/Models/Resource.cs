@@ -19,7 +19,7 @@ namespace SK.Data.Models
         public string Phone { get; set; }
         public string LogoUrl { get; set; }
         public string ImageUrl { get; set; }
-        public bool? Archived { get; set; }
+        public bool Archived { get; set; }
         public int TypeId { get; set; }
         public int OwnerId { get; set; }
         public int LocationId { get; set; }

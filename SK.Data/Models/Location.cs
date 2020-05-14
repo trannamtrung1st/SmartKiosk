@@ -23,7 +23,7 @@ namespace SK.Data.Models
         public string Name { get; set; }
         public string Address { get; set; }
         public string Description { get; set; }
-        public bool? Active { get; set; }
+        public bool Archived { get; set; }
 
         public virtual ICollection<Area> Areas { get; set; }
         public virtual ICollection<Building> Buildings { get; set; }
