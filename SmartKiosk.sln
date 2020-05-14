@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartKiosk", "SmartKiosk\SmartKiosk.csproj", "{CDD456C8-7055-469F-A325-BF82C69D0F6C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SK.Business", "SK.Business\SK.Business.csproj", "{638A093D-A7A6-4E10-8A47-39C2FF80E39D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SK.ConsoleClient", "SK.ConsoleClient\SK.ConsoleClient.csproj", "{A2F467D2-7CFB-4A90-B21C-117B876DE4FA}"
@@ -21,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SK.WebApi", "SK.WebApi\SK.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "elFinder.NetCore", "elFinder.NetCore\elFinder.NetCore.csproj", "{101E511F-F986-43E3-B734-6E5A41925CA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SK", "SK\SK.csproj", "{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,12 +28,6 @@ Global
 		Test|Any CPU = Test|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Test|Any CPU.ActiveCfg = Test|Any CPU
-		{CDD456C8-7055-469F-A325-BF82C69D0F6C}.Test|Any CPU.Build.0 = Test|Any CPU
 		{638A093D-A7A6-4E10-8A47-39C2FF80E39D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{638A093D-A7A6-4E10-8A47-39C2FF80E39D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{638A093D-A7A6-4E10-8A47-39C2FF80E39D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,6 +70,12 @@ Global
 		{101E511F-F986-43E3-B734-6E5A41925CA4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{101E511F-F986-43E3-B734-6E5A41925CA4}.Test|Any CPU.ActiveCfg = Test|Any CPU
 		{101E511F-F986-43E3-B734-6E5A41925CA4}.Test|Any CPU.Build.0 = Test|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD54F120-0B0B-416D-9E0A-DF8571A4BF98}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

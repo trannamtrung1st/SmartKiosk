@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SmartKiosk
+namespace SK
 {
     class Program
     {

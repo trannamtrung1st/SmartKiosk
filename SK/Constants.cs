@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SmartKiosk
+namespace SK
 {
     public static class Lang
     {
