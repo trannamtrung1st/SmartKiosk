@@ -15,7 +15,7 @@ namespace SK.Data.Models
         public int Id { get; set; }
         public string ImageUrl { get; set; }
         public PostType Type { get; set; }
-        public DateTime? CreatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
         public DateTime? VisibleTime { get; set; }
         public bool Archived { get; set; }
         public int LocationId { get; set; }
