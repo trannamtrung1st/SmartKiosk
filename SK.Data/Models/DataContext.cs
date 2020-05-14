@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using System;
@@ -7,7 +8,9 @@ using System.Text;
 
 namespace SK.Data.Models
 {
-    public partial class DataContext : IdentityDbContext<AppUser, AppRole, string>
+    public partial class DataContext : IdentityDbContext<AppUser, AppRole, string,
+        IdentityUserClaim<string>, AppUserRole, IdentityUserLogin<string>,
+        IdentityRoleClaim<string>, IdentityUserToken<string>>
     {
         public DataContext()
         {

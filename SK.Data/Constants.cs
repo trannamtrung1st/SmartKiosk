@@ -48,4 +48,11 @@ namespace SK.Data
         Notification = 2,
     }
 
+    public enum RoleType
+    {
+        [Display(Name = "Thiết bị")]
+        Device = 1,
+        [Display(Name = "Người dùng")]
+        User = 2,
+    }
 }

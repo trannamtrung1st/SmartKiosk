@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SK.Data;
+using System;
 
 namespace SK.ConsoleClient
 {
@@ -6,7 +7,7 @@ namespace SK.ConsoleClient
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine(PostType.Notification);
         }
     }
 }
