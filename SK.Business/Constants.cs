@@ -61,4 +61,9 @@ namespace SK.Business
                 { Lang.EN, TimeZoneInfo.Utc },
             };
     }
+
+    public static class ActivationCodeSecrect
+    {
+        public const string SECRET = "smartkiosk777777";
+    }
 }
