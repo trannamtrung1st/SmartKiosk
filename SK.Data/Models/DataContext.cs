@@ -335,6 +335,11 @@ namespace SK.Data.Models
             {
                 entity.Property(e => e.Name).HasMaxLength(255);
                 entity.Property(e => e.Lang).HasMaxLength(2).IsUnicode(false);
+                entity.HasOne(p => p.EntityCategory)
+                        .WithMany(p => p.Contents)
+                        .HasForeignKey(p => p.CategoryId)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_ECC_Category");
             });
 
             modelBuilder.Entity<ResourceType>(entity => { });
@@ -343,6 +348,11 @@ namespace SK.Data.Models
             {
                 entity.Property(e => e.Name).HasMaxLength(255);
                 entity.Property(e => e.Lang).HasMaxLength(2).IsUnicode(false);
+                entity.HasOne(p => p.ResourceType)
+                        .WithMany(p => p.Contents)
+                        .HasForeignKey(p => p.ResourceTypeId)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_RTC_ResourceType");
             });
 
             modelBuilder.Entity<Resource>(entity =>
@@ -392,6 +402,11 @@ namespace SK.Data.Models
                 entity.Property(e => e.Name).HasMaxLength(255);
                 entity.Property(e => e.Content).HasColumnType("ntext");
                 entity.Property(e => e.Lang).HasMaxLength(2).IsUnicode(false);
+                entity.HasOne(p => p.Resource)
+                        .WithMany(p => p.Contents)
+                        .HasForeignKey(p => p.ResourceId)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_ResourceContent_Resource");
             });
 
             modelBuilder.Entity<ScheduleDetail>(entity =>

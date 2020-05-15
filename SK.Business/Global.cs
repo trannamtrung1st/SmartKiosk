@@ -58,6 +58,7 @@ namespace SK.Business
         {
             FluentMapper.Initialize(cfg =>
             {
+                cfg.AddMap(new PostWithContentMap());
             });
         }
 
