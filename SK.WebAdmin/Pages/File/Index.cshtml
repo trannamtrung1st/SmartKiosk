@@ -1,0 +1,80 @@
+﻿@page
+@model SK.WebAdmin.Pages.File.IndexModel
+@{
+}
+
+@section head {
+    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/theme.min.css" />
+    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/plugins/elfinder/css/elfinder.full.min.css" />
+    <link rel="stylesheet" href="~/plugins/elfinder/css/theme.min.css" /> @* <-- NOTE: This file is new and some of the themes may not look quite right if this is used. *@
+    <link rel="stylesheet" href="~/dist/css/elfinder/themes/material/css/theme-gray.min.css" id="elfinder-theme" />
+    <style>
+        .elfinder-cwd table td {
+            /* fix conflict with Bootstrap CSS. See: https://github.com/Studio-42/elFinder/commit/4f858d5ffc9a8f41b4cc07a063782abe2e722bdf */
+            box-sizing: content-box;
+        }
+    </style>
+}
+
+<div id="elfinder"></div>
+
+@section scripts {
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/elfinder/js/elfinder.full.min.js"></script>
+    <script type="text/javascript">
+        function switchTheme(href) {
+            $('link#elfinder-theme').attr('href', href);
+        }
+        // Documentation for client options:
+        // https://github.com/Studio-42/elFinder/wiki/Client-configuration-options
+        $(document).ready(function () {
+            initElFinder();
+        });
+
+        function initElFinder() {
+            var myCommands = elFinder.prototype._options.commands;
+            var disabled = ['callback', 'chmod', 'editor', 'netmount', 'ping', 'search', 'zipdl', 'help']; // Not yet implemented commands in elFinder.NetCore
+            elFinder.prototype.i18.en.messages.TextArea = "Edit";
+            $.each(disabled, function (i, cmd) {
+                (idx = $.inArray(cmd, myCommands)) !== -1 && myCommands.splice(idx, 1);
+            });
+            var options = {
+                url: '@WebAdmin.Settings.Instance.ApiUrl/@ApiEndpoint.FILE_API/connector', // Default (Local File System)
+                //url: '/el-finder/azure-storage/connector', // Microsoft Azure Connector
+                @*//customData: { folder: '@Model.Folder', subFolder: '@Model.SubFolder' }, // customData passed in every request to the connector as query strings. These values are used in FileController's Index method.*@
+                rememberLastDir: false, // Prevent elFinder saving in the Browser LocalStorage the last visited directory
+                commands: myCommands,
+                //lang: 'pt_BR', // elFinder supports UI and messages localization. Check the folder Content\elfinder\js\i18n for all available languages. Be sure to include the corresponding .js file(s) in the JavaScript bundle.
+                uiOptions: { // UI buttons available to the user
+                    toolbar: [
+                        ['back', 'forward'],
+                        ['reload'],
+                        ['home', 'up'],
+                        ['mkdir', 'mkfile', 'upload'],
+                        ['open', 'download'],
+                        ['undo', 'redo'],
+                        ['info'],
+                        ['quicklook'],
+                        ['copy', 'cut', 'paste'],
+                        ['rm'],
+                        ['duplicate', 'rename', 'edit'],
+                        ['selectall', 'selectnone', 'selectinvert'],
+                        ['view', 'sort']
+                    ]
+                },
+                customHeaders: {
+                    'Authorization': 'Bearer ' + localStorage.access_token
+                },
+                handlers: {
+                    dblclick: (e, fm) => {
+                        var file = fm.file(e.data.file);
+                        console.log(file);
+                    },
+                },
+                //lang: 'vi', // Change language
+            };
+            $('#elfinder').elfinder(options).elfinder('instance');
+        }
+    </script>
+}

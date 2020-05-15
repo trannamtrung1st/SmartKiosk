@@ -1,0 +1,14 @@
+﻿<script>
+    function showFileChooser() {
+        $('html').addClass('overflow-hidden');
+        $('body').addClass('overflow-hidden');
+        $('.modal-file-chooser').show();
+        $('#elfinder').trigger('resize');
+    }
+
+    function closeFileChooser() {
+        $('html').removeClass('overflow-hidden');
+        $('body').removeClass('overflow-hidden');
+        $('.modal-file-chooser').hide();
+    }
+</script>

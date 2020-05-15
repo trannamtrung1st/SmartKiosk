@@ -1,0 +1,257 @@
+﻿@page
+@model SK.WebAdmin.Pages.Post.IndexModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-default collapsed collapsed-card">
+                <div class="card-header clickable" data-card-widget="collapse">
+                    <h3 class="card-title">
+                        <i class="fa fa-filter text-black-50 mr-1"></i>
+                        Filter
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <form id="form-filter">
+                        <div class="form-group w-50">
+                            <label>Language</label>
+                            @{
+                                var supportCultures = Business.Settings.Instance.SupportedCultures;
+                            }
+                            <select class="form-control select2" name="language">
+                                @foreach (var culture in supportCultures)
+                                {
+                                    var langCode = culture.TwoLetterISOLanguageName;
+                                    <!option value="@langCode" @PageHelper.SelectedIfActiveLang(langCode)>
+                                        @culture.DisplayName
+                                    </!option>
+                                }
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary float-right" onclick="reloadTable()">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.card -->
+
+            <div class="card">
+                <div class="card-header">
+                    <a href="@Routing.POST_CREATE" class="btn btn-primary float-right">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="tbl-main" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>No.</th>
+                                <th>Id</th>
+                                <th class="sortable">Title</th>
+                                <th>Created time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>No.</th>
+                                <th>Id</th>
+                                <th>Title</th>
+                                <th>Created time</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->
+
+@section scripts {
+
+    <!-- DataTables -->
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <!-- page script -->
+    <script>
+        let tblMain;
+        $(function () {
+            tblMain = $("#tbl-main").DataTable({
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                autoWidth: false,
+                searching: true,
+                ordering: true,
+                searchDelay: 500,
+                ajax: {
+                    url: '@apiUrl/@ApiEndpoint.POST_API',
+                    data: function (d) {
+                        d.culture = $('#form-filter [name=language]').val();
+                        d.lang = d.culture;
+                        d.count_total = true;
+                        d.title_contains = d.search?.value;
+                        d.page = d.start / d.length + 1;
+                        d.limit = d.length;
+                        if (d.order?.length) {
+                            const sorts = [];
+                            for (var i = 0; i < d.order.length; i++) {
+                                const ord = d.order[i];
+                                const colName = d.columns[ord.column].data;
+                                const dir = ord.dir[0];
+                                sorts.push(dir + colName);
+                            }
+                            d.sorts = sorts.join(',');
+                        }
+                    },
+                    dataFilter: function (json, type) {
+                        let data = JSON.parse(json);
+                        console.log(data);
+                        data = data.results[0].data;
+                        const list = data.results;
+                        const dtData = {};
+                        dtData.recordsTotal = data.total_count;
+                        dtData.recordsFiltered = data.total_count;
+                        dtData.data = list;
+                        return JSON.stringify(dtData);
+                    },
+                    error: function (xhr, error, code) {
+                        const err = { xhr, error, code };
+                        console.log(err);
+                        errorAlert();
+                    }
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        data: "id",
+                        render: function (data, type, row, meta) {
+                            var btn =
+                                "<div class=\"dropdown\">" +
+                                    "<button class=\"btn btn-primary dropdown-toggle btn-sm\"" +
+                                        "type=\"button\" id=\"btn-dropdown\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
+                                        "<i class=\"fa fa-list\"></i>" +
+                                    "</button>" +
+                                    "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
+                                        "<a class=\"dropdown-item\" href=\"@Routing.POST/" + data + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Detail</a>" +
+                                        "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + data + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Remove</button>" +
+                                    "</div>" +
+                                "</div>";
+                            return btn;
+                        }
+                    },
+                    {
+                        targets: 1,
+                        render: function (data, type, row, meta) {
+                            return meta.settings._iDisplayStart + meta.row + 1;
+                        }
+                    },
+                    { targets: 2, data: "id" },
+                    { targets: 3, data: "title", orderable: true },
+                    {
+                        targets: 4,
+                        data: "created_time",
+                        orderable: true,
+                        render: function (data, type, row, meta) {
+                            return data.display;
+                        }
+                    },
+                    { targets: "_all", orderable: false },
+                ],
+                order: [[4, 'desc']]
+            });
+            $('.select2').select2();
+        });
+
+        function reloadTable() {
+            tblMain.ajax.reload();
+        }
+
+
+        function confirmRemove(id) {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitRemove(id);
+            });
+        }
+
+        function submitRemove(id) {
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.POST_API/' + id,
+                type: 'delete',
+                success: (data) => {
+                    successAlert("Remove successfully").then(reloadTable);
+                },
+                error: (data) => {
+                    console.log(data);
+                    if (data.status == 400) {
+                        let html = '';
+                        data = data.responseJSON;
+                        for (var i = 0; i < data.length; i++) {
+                            var result = data[i];
+                            if (isFailValidation(result))
+                                html += 'Some input are not valid<br/>';
+                        }
+                        sorryAlert(html);
+                    } else
+                        errorAlert();
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+    </script>
+}

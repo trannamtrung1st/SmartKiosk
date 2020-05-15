@@ -1,0 +1,12 @@
+﻿<div class="modal-file-chooser" style="display:none">
+    <div style="top: 0; left: 0; z-index: 9998; background: rgba(0,0,0,0.5);"
+         id="elfinder-bg"
+         onclick="closeFileChooser()"
+         class="w-100 h-100 position-fixed d-flex justify-content-center align-items-center flex-column">
+        <h5 class="text-center text-white p-3 w-100 m-0" id="elfinder-bg-title">
+            CHOOSE A FILE
+        </h5>
+        <div id="elfinder" onclick="event.stopPropagation()" 
+             class="elfinder w-75 h-75 m-0"></div>
+    </div>
+</div>

@@ -3,29 +3,45 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Pages
 {
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public class ErrorModel : PageModel
+    public class ErrorModel : SingleHandlePageModel<ErrorModel>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public string RequestId { get; set; }
-
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public string Message { get; set; } = "Empty";
 
-        private readonly ILogger<ErrorModel> _logger;
-
-        public ErrorModel(ILogger<ErrorModel> logger)
+        protected override IActionResult OnAllMethod()
         {
-            _logger = logger;
+            var exceptionHandlerPathFeature =
+                HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            var exception = exceptionHandlerPathFeature?.Error;
+            if (exception == null) return LocalRedirect(Routing.DASHBOARD);
+            SetPageInfo();
+#if !RELEASE
+            Message = exception.Message;
+#else
+            Message = "We will work on fixing that right away.";
+#endif
+            _logger.Error(exception);
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            return Page();
         }
 
-        public void OnGet()
+        protected override void SetPageInfo()
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            Info = new PageInfo
+            {
+                Title = "Error"
+            };
         }
     }
 }
