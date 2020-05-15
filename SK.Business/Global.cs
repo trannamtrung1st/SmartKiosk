@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Dapper.FluentMap;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using SK.Business.Models;
 using SK.Business.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -65,6 +67,13 @@ namespace SK.Business
             InitAutoMapper();
             InitDI(services);
             InitDapper();
+        }
+
+        public static void ParseFirebaseConfig()
+        {
+            var firebaseSecret = Settings.Instance.FirebaseSecret;
+            var secretJson = File.ReadAllText(firebaseSecret);
+            Settings.Instance.FirebaseConfig = JsonConvert.DeserializeObject<FirebaseConfig>(secretJson);
         }
 
     }
