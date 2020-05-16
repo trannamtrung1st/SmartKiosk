@@ -1,4 +1,5 @@
-﻿using SK.Data.Models;
+﻿using Newtonsoft.Json;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,45 @@ using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
+    public class CreateConfigModel : MappingModel<Config>
+    {
+        public CreateConfigModel()
+        {
+        }
+
+        public CreateConfigModel(Config entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("location_id")]
+        public int LocationId { get; set; }
+
+    }
+
+    public class UpdateConfigModel : MappingModel<Config>
+    {
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        public UpdateConfigModel()
+        {
+        }
+
+        public UpdateConfigModel(Config entity) : base(entity)
+        {
+        }
+
+    }
 
     #region Query
     public class ConfigQueryRow

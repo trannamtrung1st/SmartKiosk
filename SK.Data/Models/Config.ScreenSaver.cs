@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SK.Data.Models
 {
-    public class ScreenSaverConfig
+    public class ScreenSaverPlaylist
     {
 
         [JsonProperty("medias")]
@@ -13,7 +13,7 @@ namespace SK.Data.Models
         [JsonProperty("mode")]
         public ScreenSaverPlaylistMode Mode { get; set; }
 
-        public ScreenSaverConfig()
+        public ScreenSaverPlaylist()
         {
             Medias = new List<PlaylistMedia>();
             Mode = ScreenSaverPlaylistMode.InOrder;

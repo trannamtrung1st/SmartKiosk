@@ -18,7 +18,6 @@ namespace SK.Business.Services
         {
         }
 
-
         #region Query Config
         public IDictionary<string, object> GetConfigDynamic(
             ConfigQueryRow row, ConfigQueryProjection projection,
@@ -50,7 +49,7 @@ namespace SK.Business.Services
                     case ConfigQueryProjection.DETAIL:
                         {
                             var entity = row.Config;
-                            var playlist = GetScreenSaverConfig(entity);
+                            var playlist = GetScreenSaverPlaylist(entity);
                             var home = GetHomePageConfig(entity);
                             var peConfig = GetProgramEventConfig(entity);
                             var cConfig = GetContactConfig(entity);
@@ -205,41 +204,82 @@ namespace SK.Business.Services
         }
         #endregion
 
-        public ScreenSaverConfig GetScreenSaverConfig(Config conf)
+        #region Create Config
+        protected void PrepareCreate(Config entity)
         {
-            ScreenSaverConfig playlist = null;
-            if (conf.ScreenSaverPlaylist != null)
-                playlist = JsonConvert.DeserializeObject<ScreenSaverConfig>(conf.ScreenSaverPlaylist);
+        }
+
+        public Config CreateConfig(CreateConfigModel model)
+        {
+            var entity = model.ToDest();
+            PrepareCreate(entity);
+            return context.Config.Add(entity).Entity;
+        }
+        #endregion
+
+        #region Update Config
+        public void UpdateConfig(Config entity, UpdateConfigModel model)
+        {
+            model.CopyTo(entity);
+        }
+
+        public void UpdateScreenSaverPlaylist(Config entity, ScreenSaverPlaylist model)
+        {
+            model.Medias = model.Medias?.OrderBy(m => m.Position).ToList();
+            entity.ScreenSaverPlaylist = JsonConvert.SerializeObject(model);
+        }
+
+        public void UpdateHomePageConfig(Config entity, HomePageConfig model)
+        {
+            entity.HomeConfig = JsonConvert.SerializeObject(model);
+        }
+
+        public void UpdateProgramEventConfig(Config entity, PostsConfig model)
+        {
+            entity.ProgramEventConfig = JsonConvert.SerializeObject(model);
+        }
+
+        public void UpdateContactConfig(Config entity, ContactConfig model)
+        {
+            entity.ContactConfig = JsonConvert.SerializeObject(model);
+        }
+        #endregion
+
+        public ScreenSaverPlaylist GetScreenSaverPlaylist(Config entity)
+        {
+            ScreenSaverPlaylist playlist = null;
+            if (entity.ScreenSaverPlaylist != null)
+                playlist = JsonConvert.DeserializeObject<ScreenSaverPlaylist>(entity.ScreenSaverPlaylist);
             if (playlist == null)
-                playlist = new ScreenSaverConfig();
+                playlist = new ScreenSaverPlaylist();
             return playlist;
         }
 
-        public HomePageConfig GetHomePageConfig(Config conf)
+        public HomePageConfig GetHomePageConfig(Config entity)
         {
             HomePageConfig hpConf = null;
-            if (conf.HomeConfig != null)
-                hpConf = JsonConvert.DeserializeObject<HomePageConfig>(conf.HomeConfig);
+            if (entity.HomeConfig != null)
+                hpConf = JsonConvert.DeserializeObject<HomePageConfig>(entity.HomeConfig);
             if (hpConf == null)
                 hpConf = new HomePageConfig();
             return hpConf;
         }
 
-        public PostsConfig GetProgramEventConfig(Config conf)
+        public PostsConfig GetProgramEventConfig(Config entity)
         {
             PostsConfig peConf = null;
-            if (conf.ProgramEventConfig != null)
-                peConf = JsonConvert.DeserializeObject<PostsConfig>(conf.ProgramEventConfig);
+            if (entity.ProgramEventConfig != null)
+                peConf = JsonConvert.DeserializeObject<PostsConfig>(entity.ProgramEventConfig);
             if (peConf == null)
                 peConf = new PostsConfig();
             return peConf;
         }
 
-        public ContactConfig GetContactConfig(Config conf)
+        public ContactConfig GetContactConfig(Config entity)
         {
             ContactConfig cConfig = null;
-            if (conf.ContactConfig != null)
-                cConfig = JsonConvert.DeserializeObject<ContactConfig>(conf.ContactConfig);
+            if (entity.ContactConfig != null)
+                cConfig = JsonConvert.DeserializeObject<ContactConfig>(entity.ContactConfig);
             if (cConfig == null)
                 cConfig = new ContactConfig();
             return cConfig;
