@@ -314,9 +314,10 @@ namespace SK.Business.Services
 
         protected async Task<int> DeleteAllContentsOfPost(Post entity)
         {
+            var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(PostContent)} WHERE " +
-                $"{nameof(PostContent.PostId)}={entity.Id}";
-            var result = await context.Database.ExecuteSqlRawAsync(sql);
+                $"{nameof(PostContent.PostId)}={id.ParameterName}";
+            var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }
 
