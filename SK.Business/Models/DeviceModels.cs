@@ -1,4 +1,5 @@
-﻿using SK.Data.Models;
+﻿using Newtonsoft.Json;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,35 @@ using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
+    public class UpdateDeviceModel : MappingModel<Device>
+    {
+        public UpdateDeviceModel()
+        {
+        }
 
+        public UpdateDeviceModel(Device src) : base(src)
+        {
+        }
+
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("location_id")]
+        public int LocationId { get; set; }
+        [JsonProperty("building_id")]
+        public int BuildingId { get; set; }
+        [JsonProperty("floor_id")]
+        public int? FloorId { get; set; }
+        [JsonProperty("area_id")]
+        public int? AreaId { get; set; }
+        [JsonProperty("lat")]
+        public double? Lat { get; set; }
+        [JsonProperty("lon")]
+        public double? Lon { get; set; }
+    }
 
     #region Query
     public class DeviceQueryRow

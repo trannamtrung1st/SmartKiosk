@@ -11,9 +11,9 @@ using TNT.Core.Helpers.DI;
 
 namespace SK.Business.Services
 {
-    public class DeviceService : Service
+    public class Deviceervice : Service
     {
-        public DeviceService(ServiceInjection inj) : base(inj)
+        public Deviceervice(ServiceInjection inj) : base(inj)
         {
         }
 
@@ -260,6 +260,13 @@ namespace SK.Business.Services
                 }
             }
             return row;
+        }
+        #endregion
+
+        #region Update Device
+        public void UpdateDevice(Device entity, UpdateDeviceModel model)
+        {
+            model.CopyTo(entity);
         }
         #endregion
 
