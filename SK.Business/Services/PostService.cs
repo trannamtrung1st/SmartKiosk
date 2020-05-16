@@ -42,8 +42,8 @@ namespace SK.Business.Services
         }
 
         #region Query Post
-        public IDictionary<string, object> CreatePostDynamicData(
-            Post entity, PostQueryProjection projection,
+        public IDictionary<string, object> GetPostDynamic(
+            PostQueryRow row, PostQueryProjection projection,
             PostQueryOptions options)
         {
             var obj = new Dictionary<string, object>();
@@ -52,261 +52,177 @@ namespace SK.Business.Services
                 switch (f)
                 {
                     case PostQueryProjection.INFO:
-                        obj["id"] = entity.Id;
-                        obj["image_url"] = entity.ImageUrl;
-                        var time = entity.CreatedTime
-                            .ToTimeZone(options.time_zone, options.culture, Settings.Instance.SupportedLangs[0]);
-                        var timeStr = time.ToString(options.date_format, options.culture, Settings.Instance.SupportedLangs[0]);
-                        obj["created_time"] = new
                         {
-                            display = timeStr,
-                            iso = $"{time.ToUniversalTime():s}Z"
-                        };
+                            var entity = row.Post;
+                            var content = row.Content;
+                            obj["id"] = entity.Id;
+                            obj["image_url"] = entity.ImageUrl;
+                            var time = entity.CreatedTime
+                                .ToTimeZone(options.time_zone, options.culture, content?.Lang);
+                            var timeStr = time.ToString(options.date_format, options.culture, content?.Lang);
+                            obj["created_time"] = new
+                            {
+                                display = timeStr,
+                                iso = $"{time.ToUniversalTime():s}Z"
+                            };
+                        }
                         break;
-                }
-            }
-            return obj;
-        }
-
-        public IDictionary<string, object> CreatePostDynamicData(
-            PostWithContent entity, PostQueryProjection projection,
-            PostQueryOptions options)
-        {
-            var obj = new Dictionary<string, object>();
-            foreach (var f in projection.GetFieldsArr())
-            {
-                switch (f)
-                {
-                    case PostQueryProjection.INFO:
-                        obj["id"] = entity.Id;
-                        obj["image_url"] = entity.ImageUrl;
-                        var time = entity.CreatedTime
-                            .ToTimeZone(options.time_zone, options.culture, entity.Lang);
-                        var timeStr = time.ToString(options.date_format, options.culture, entity.Lang);
-                        obj["created_time"] = new
+                    case PostQueryProjection.CONTENT:
                         {
-                            display = timeStr,
-                            iso = $"{time.ToUniversalTime():s}Z"
-                        };
-                        break;
-                    case PostQueryProjection.CONTENT_OVERVIEW:
-                        obj["content_id"] = entity.ContentId;
-                        obj["lang"] = entity.Lang;
-                        obj["title"] = entity.Title;
+                            var entity = row.Content;
+                            obj["content_id"] = entity.Id;
+                            obj["lang"] = entity.Lang;
+                            obj["title"] = entity.Title;
+                        }
                         break;
                     case PostQueryProjection.CONTENT_CONTENT:
-                        obj["content"] = entity.Content;
+                        {
+                            var entity = row.Content;
+                            obj["content"] = entity.Content;
+                        }
                         break;
                 }
             }
             return obj;
         }
 
-        public QueryResult<object> CreatePostDynamicData(
-            IEnumerable<PostWithContent> entities, PostQueryProjection projection,
+        public QueryResult<IDictionary<string, object>> GetPostDynamic(
+            IEnumerable<PostQueryRow> rows, PostQueryProjection projection,
             PostQueryOptions options, int? totalCount = null)
         {
             var list = new List<IDictionary<string, object>>();
-            foreach (var o in entities)
+            foreach (var o in rows)
             {
-                var obj = CreatePostDynamicData(o, projection, options);
+                var obj = GetPostDynamic(o, projection, options);
                 list.Add(obj);
             }
-            var resp = new QueryResult<object>();
+            var resp = new QueryResult<IDictionary<string, object>>();
             resp.Results = list;
             if (options.count_total)
                 resp.TotalCount = totalCount;
             return resp;
         }
 
-        public QueryResult<object> CreatePostDynamicData(
-            IEnumerable<Post> entities, PostQueryProjection projection,
-            PostQueryOptions options, int? totalCount = null)
+        public async Task<QueryResult<IDictionary<string, object>>> QueryPostDynamic(
+            PostQueryProjection projection,
+            PostQueryOptions options,
+            PostQueryFilter filter = null,
+            PostQuerySort sort = null,
+            PostQueryPaging paging = null)
         {
-            var list = new List<IDictionary<string, object>>();
-            foreach (var o in entities)
+            var conn = context.Database.GetDbConnection();
+            var openConn = conn.OpenAsync();
+            var query = PostQuery.CreateDynamicSql();
+            #region General
+            if (filter != null) query = query.SqlFilter(filter);
+            query = query.SqlJoin(projection, filter);
+            DynamicSql countQuery = null; int? totalCount = null; Task<int> countTask = null;
+            if (options.count_total) countQuery = query.SqlCount("*");
+            query = query.SqlProjectFields(projection);
+            #endregion
+            await openConn;
+            if (!options.single_only)
             {
-                var obj = CreatePostDynamicData(o, projection, options);
-                list.Add(obj);
+                #region List query
+                if (sort != null) query = query.SqlSort(sort);
+                if (paging != null && (!options.load_all || !PostQueryOptions.IsLoadAllAllowed))
+                    query = query.SqlSelectPage(paging.page, paging.limit);
+                #endregion
+                #region Count query
+                if (options.count_total)
+                    countTask = conn.ExecuteScalarAsync<int>(
+                        sql: countQuery.PreparedForm,
+                        param: countQuery.DynamicParameters);
+                #endregion
             }
-            var resp = new QueryResult<object>();
-            resp.Results = list;
-            if (options.count_total)
-                resp.TotalCount = totalCount;
-            return resp;
+            var queryResult = await conn.QueryAsync(
+                sql: query.PreparedForm,
+                types: query.GetTypesArr(),
+                map: (objs) => ProcessMultiResults(query, objs),
+                splitOn: string.Join(',', query.GetSplitOns()),
+                param: query.DynamicParameters);
+            if (options.single_only)
+            {
+                var single = queryResult.SingleOrDefault();
+                if (single == null) return null;
+                var singleResult = GetPostDynamic(single, projection, options);
+                return new QueryResult<IDictionary<string, object>>()
+                {
+                    SingleResult = singleResult
+                };
+            }
+            if (options.count_total) totalCount = await countTask;
+            var result = GetPostDynamic(queryResult, projection, options, totalCount);
+            return result;
         }
 
-        public async Task<Return> GetPostDynamicDataAsync<In, Out, Return>(
+        public async Task<QueryResult<PostQueryRow>> QueryPost(
             PostQueryFilter filter = null,
             PostQuerySort sort = null,
             PostQueryProjection projection = null,
             PostQueryPaging paging = null,
-            PostQueryOptions options = null,
-            Func<In, Out> projectionExpr = null)
-            where Out : class where In : class where Return : class
+            PostQueryOptions options = null)
         {
             var conn = context.Database.GetDbConnection();
             var openConn = conn.OpenAsync();
             var query = PostQuery.CreateDynamicSql();
             #region General
-            query = filter == null ? query : query.SqlFilter(filter);
+            if (filter != null) query = query.SqlFilter(filter);
+            if (projection != null) query = query.SqlJoin(projection, filter);
             DynamicSql countQuery = null; int? totalCount = null; Task<int> countTask = null;
-            if (options != null && options.count_total)
-                countQuery = query.SqlCount($"{nameof(Post)}.{nameof(Post.Id)}");
-            query = projection == null ? query :
-                query.SqlProjectFields(projection).SqlJoin(projection, filter);
+            if (options != null && options.count_total) countQuery = query.SqlCount("*");
+            if (projection != null) query = query.SqlProjectFields(projection);
             #endregion
+            await openConn;
+            if (options != null && !options.single_only)
+            {
+                #region List query
+                if (sort != null) query = query.SqlSort(sort);
+                if (paging != null && (!options.load_all || !PostQueryOptions.IsLoadAllAllowed))
+                    query = query.SqlSelectPage(paging.page, paging.limit);
+                #endregion
+                #region Count query
+                if (options.count_total)
+                    countTask = conn.ExecuteScalarAsync<int>(
+                        sql: countQuery.PreparedForm,
+                        param: countQuery.DynamicParameters);
+                #endregion
+            }
+            var queryResult = await conn.QueryAsync(
+                sql: query.PreparedForm,
+                types: query.GetTypesArr(),
+                map: (objs) => ProcessMultiResults(query, objs),
+                splitOn: string.Join(',', query.GetSplitOns()),
+                param: query.DynamicParameters);
             if (options != null && options.single_only)
             {
-                #region Single query
-                await openConn;
-                if (projection != null && projection.fields.Contains(PostQueryProjection.CONTENT))
+                var single = queryResult.SingleOrDefault();
+                return new QueryResult<PostQueryRow>
                 {
-                    #region Join with content
-                    var singleJoinTask = conn.QueryAsync<PostWithContent>(
-                        sql: query.PreparedForm,
-                        param: query.DynamicParameters);
-                    var singleJoin = (await singleJoinTask).SingleOrDefault();
-                    if (singleJoin == null) return default;
-                    var singleJoinResult = projectionExpr == null ?
-                        singleJoin as Out : projectionExpr(singleJoin as In);
-                    return singleJoinResult as Return;
-                    #endregion
-                }
-                #region No join
-                var singleTask = conn.QueryAsync<Post>(
-                    sql: query.PreparedForm,
-                    param: query.DynamicParameters);
-                var single = (await singleTask).SingleOrDefault();
-                if (single == null) return null;
-                var singleResult = projectionExpr == null ?
-                    single as Out : projectionExpr(single as In);
-                return singleResult as Return;
-                #endregion
-                #endregion
+                    SingleResult = single
+                };
             }
-            #region List query
-            query = sort == null ? query : query.SqlSort(sort);
-            if (options == null || !options.load_all || !PostQueryOptions.IsLoadAllAllowed)
-                query = paging == null ? throw new ArgumentNullException(nameof(paging))
-                    : query.SqlSelectPage(paging.page, paging.limit);
-            #endregion
-            await openConn;
-            #region Count query
-            if (options != null && options.count_total)
-                countTask = conn.ExecuteScalarAsync<int>(
-                    sql: countQuery.PreparedForm,
-                    param: countQuery.DynamicParameters);
-            #endregion
-            if (projection != null && projection.fields.Contains(PostQueryProjection.CONTENT))
+            if (options != null && options.count_total) totalCount = await countTask;
+            return new QueryResult<PostQueryRow>
             {
-                #region Join with content
-                var listJoinTask = conn.QueryAsync<PostWithContent>(
-                    sql: query.PreparedForm,
-                    param: query.DynamicParameters);
-                var listJoin = (await listJoinTask).ToList();
-                if (options != null && options.count_total) totalCount = await countTask;
-                var resultJoin = new QueryResult<Out>();
-                resultJoin.Results = projectionExpr == null ?
-                    listJoin.Select(o => o as Out).ToList() :
-                    listJoin.Select(o => projectionExpr(o as In)).ToList();
-                resultJoin.TotalCount = totalCount;
-                return resultJoin as Return;
-                #endregion
-            }
-            #region No join
-            var listTask = conn.QueryAsync<Post>(
-                sql: query.PreparedForm,
-                param: query.DynamicParameters);
-            if (options.count_total) totalCount = await countTask;
-            var list = (await listTask).ToList();
-            var result = new QueryResult<Out>();
-            result.Results = projectionExpr == null ?
-                    list.Select(o => o as Out).ToList() :
-                    list.Select(o => projectionExpr(o as In)).ToList();
-            result.TotalCount = totalCount;
-            return result as Return;
-            #endregion
+                Results = queryResult,
+                TotalCount = totalCount
+            };
         }
 
-        public async Task<object> GetPostDynamicDataAsync(
-            PostQueryFilter filter,
-            PostQuerySort sort,
-            PostQueryProjection projection,
-            PostQueryPaging paging,
-            PostQueryOptions options)
+        private PostQueryRow ProcessMultiResults(DynamicSql query, object[] objs)
         {
-            var conn = context.Database.GetDbConnection();
-            var openConn = conn.OpenAsync();
-            var query = PostQuery.CreateDynamicSql();
-            #region General
-            query = query.SqlFilter(filter);
-            DynamicSql countQuery = null; int? totalCount = null; Task<int> countTask = null;
-            if (options.count_total)
-                countQuery = query.SqlCount($"{nameof(Post)}.{nameof(Post.Id)}");
-            query = query.SqlProjectFields(projection);
-            query = query.SqlJoin(projection, filter);
-            #endregion
-            if (options.single_only)
+            var row = new PostQueryRow();
+            for (var i = 0; i < query.MultiResults.Count; i++)
             {
-                #region Single query
-                await openConn;
-                if (projection.fields.Contains(PostQueryProjection.CONTENT))
+                var r = query.MultiResults[i];
+                switch (r.Key)
                 {
-                    #region Join with content
-                    var singleJoinTask = conn.QueryAsync<PostWithContent>(
-                        sql: query.PreparedForm,
-                        param: query.DynamicParameters);
-                    var singleJoin = (await singleJoinTask).SingleOrDefault();
-                    if (singleJoin == null) return null;
-                    var singleJoinResult = CreatePostDynamicData(singleJoin, projection, options);
-                    return singleJoinResult;
-                    #endregion
+                    case PostQueryProjection.INFO: row.Post = objs[i] as Post; break;
+                    case PostQueryProjection.CONTENT: row.Content = objs[i] as PostContentRelationship; break;
                 }
-                #region No join
-                var singleTask = conn.QueryAsync<Post>(
-                    sql: query.PreparedForm,
-                    param: query.DynamicParameters);
-                var single = (await singleTask).SingleOrDefault();
-                if (single == null) return null;
-                var singleResult = CreatePostDynamicData(single, projection, options);
-                return singleResult;
-                #endregion
-                #endregion
             }
-            #region List query
-            query = query.SqlSort(sort);
-            if (!options.load_all || !PostQueryOptions.IsLoadAllAllowed)
-                query = query.SqlSelectPage(paging.page, paging.limit);
-            #endregion
-            await openConn;
-            #region Count query
-            if (options.count_total)
-                countTask = conn.ExecuteScalarAsync<int>(
-                    sql: countQuery.PreparedForm,
-                    param: countQuery.DynamicParameters);
-            #endregion
-            if (projection.fields.Contains(PostQueryProjection.CONTENT))
-            {
-                #region Join with content
-                var listJoinTask = conn.QueryAsync<PostWithContent>(
-                    sql: query.PreparedForm,
-                    param: query.DynamicParameters);
-                var listJoin = (await listJoinTask).ToList();
-                if (options.count_total) totalCount = await countTask;
-                var resultJoin = CreatePostDynamicData(listJoin, projection, options, totalCount);
-                return resultJoin;
-                #endregion
-            }
-            #region No join
-            var listTask = conn.QueryAsync<Post>(
-                sql: query.PreparedForm,
-                param: query.DynamicParameters);
-            if (options.count_total) totalCount = await countTask;
-            var list = (await listTask).ToList();
-            var result = CreatePostDynamicData(list, projection, options, totalCount);
-            return result;
-            #endregion
+            return row;
         }
         #endregion
 
@@ -317,7 +233,7 @@ namespace SK.Business.Services
         }
 
         public async Task<Post> CreatePostAsync(CreatePostModel model,
-            FileDestinationMetadata metadata = null)
+            FileDestinationMetadata metadata = null, string userId = null)
         {
             var entity = model.ToDest();
             if (model.Image != null)

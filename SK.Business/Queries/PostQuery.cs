@@ -24,21 +24,6 @@ namespace SK.Business.Queries
             return query.Any(o => o.Id == id);
         }
 
-        public static IQueryable<PostWithContent> ByLang(this IQueryable<PostWithContent> query,
-            string lang)
-        {
-            return query.Where(o => o.Lang == lang);
-        }
-
-        public static IQueryable<PostWithContent> SortByCreatedTime(this IQueryable<PostWithContent> query,
-            bool asc = false)
-        {
-            if (asc)
-                query = query.OrderBy(o => o.CreatedTime);
-            else query = query.OrderByDescending(o => o.CreatedTime);
-            return query;
-        }
-
         public static IQueryable<Post> Ids(this IQueryable<Post> query, IEnumerable<int> ids)
         {
             return query.Where(q => ids.Contains(q.Id));
@@ -125,6 +110,10 @@ namespace SK.Business.Queries
                 query.DynamicForm = query.DynamicForm
                     .Replace(DynamicSql.PROJECTION, projectionClause);
             }
+            var finalResults = model.GetFieldsArr()
+                .Where(f => PostQueryProjection.Results.ContainsKey(f))
+                .Select(f => PostQueryProjection.Results[f]);
+            query.MultiResults.AddRange(finalResults);
             return query;
         }
 

@@ -32,8 +32,7 @@ namespace SK.WebApi
                     new Query{ key = "lang", value = Lang.VI },
                     new Query{ key = "fields", value =
                         $"{PostQueryProjection.INFO}," +
-                        $"{PostQueryProjection.CONTENT}," +
-                        $"{PostQueryProjection.CONTENT_OVERVIEW}" },
+                        $"{PostQueryProjection.CONTENT}" },
                     new Query{ key = "page", value = "1" },
                     new Query{ key = "limit", value = "50" },
                     new Query{ key = "sorts", value = $"d{PostQuerySort.TITLE}" },

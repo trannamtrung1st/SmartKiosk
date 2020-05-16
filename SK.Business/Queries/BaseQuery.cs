@@ -1,4 +1,4 @@
-﻿using SK.Data.Models;
+﻿using SK.Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

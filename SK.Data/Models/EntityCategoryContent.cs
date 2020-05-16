@@ -10,6 +10,6 @@ namespace SK.Data.Models
         public string Name { get; set; }
         public string Lang { get; set; }
         public int CategoryId { get; set; }
-        public EntityCategory EntityCategory { get; set; }
+        public virtual EntityCategory EntityCategory { get; set; }
     }
 }

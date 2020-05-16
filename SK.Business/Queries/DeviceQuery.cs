@@ -99,12 +99,15 @@ namespace SK.Business.Queries
                 query.DynamicForm = query.DynamicForm
                     .Replace(DynamicSql.PROJECTION, projectionClause);
             }
+            var finalResults = model.GetFieldsArr()
+                .Where(f => DeviceQueryProjection.Results.ContainsKey(f))
+                .Select(f => DeviceQueryProjection.Results[f]);
+            query.MultiResults.AddRange(finalResults);
             return query;
         }
 
         public static DynamicSql SqlJoin(
-            this DynamicSql query, DeviceQueryProjection model,
-            DeviceQueryFilter filter)
+            this DynamicSql query, DeviceQueryProjection model)
         {
             query = DynamicSql.DeepClone(query);
             var joins = model.GetFieldsArr()

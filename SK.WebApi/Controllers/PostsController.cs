@@ -39,8 +39,8 @@ namespace SK.WebApi.Controllers
                 User, filter, sort, projection, paging, options);
             if (!validationResult.Valid)
                 return BadRequest(validationResult.Result);
-            var result = await _service.GetPostDynamicDataAsync(
-                filter, sort, projection, paging, options);
+            var result = await _service.QueryPostDynamic(
+                projection, options, filter, sort, paging);
             if (options.single_only && result == null)
                 return NotFound(new AppResultBuilder().NotFound());
             return Ok(new AppResultBuilder().Success(result));

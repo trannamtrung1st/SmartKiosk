@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SK.Business.Models;
 using SK.Business.Services;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,7 +59,12 @@ namespace SK.Business
         {
             FluentMapper.Initialize(cfg =>
             {
-                cfg.AddMap(new PostWithContentMap());
+                var relType = typeof(IDapperRelationship);
+                var modelTypes = AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(t => t.GetTypes())
+                    .Where(t => relType.IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+                foreach (var t in modelTypes)
+                    cfg.AddMap(DapperMapProvider.From((dynamic)Activator.CreateInstance(t)));
             });
         }
 

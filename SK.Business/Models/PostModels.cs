@@ -82,25 +82,16 @@ namespace SK.Business.Models
     }
 
     #region Query
-    public class PostWithContent
+    public class PostQueryRow
     {
-        public int Id { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public int ContentId { get; set; }
-        public string ImageUrl { get; set; }
-        public string Lang { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
-
-        #region Join
         public Post Post { get; set; }
-        public PostContent PostContent { get; set; }
-        #endregion
+        public PostContentRelationship Content { get; set; }
+        public AppUserRelationship CreatedByUser { get; set; }
     }
 
     public class PostQueryProjection
     {
-        private const string DEFAULT = INFO + "," + CONTENT + "," + CONTENT_OVERVIEW;
+        private const string DEFAULT = INFO + "," + CONTENT;
         private string _fields = DEFAULT;
         public string fields
         {
@@ -113,7 +104,7 @@ namespace SK.Business.Models
                 if (value?.Length > 0)
                 {
                     _fields = value;
-                    _fieldsArr = value.Split(',');
+                    _fieldsArr = value.Split(',').OrderBy(v => v).ToArray();
                 }
             }
         }
@@ -128,11 +119,11 @@ namespace SK.Business.Models
 
         public const string INFO = "info";
         public const string CONTENT = "content";
-        public const string CONTENT_OVERVIEW = "content.overview";
         public const string CONTENT_CONTENT = "content.content";
 
         private const string P = nameof(Post);
         private const string C = nameof(PostContent);
+        private const string U = AppUser.TBL_NAME;
         public static readonly IDictionary<string, string> Projections =
             new Dictionary<string, string>()
             {
@@ -141,16 +132,15 @@ namespace SK.Business.Models
                     $"{P}.{nameof(Post.ImageUrl)}"
                 },
                 {
-                    CONTENT_OVERVIEW,
-                    $"{C}.{nameof(PostContent.Id)} " +
-                    $"as [{C}.{nameof(PostContent.Id)}]," +
-                    $"{C}.{nameof(PostContent.Lang)}," +
-                    $"{C}.{nameof(PostContent.Title)}"
+                    CONTENT,
+                    $"{C}.{nameof(PostContent.Id)} as [{C}.{nameof(PostContent.Id)}]," +
+                    $"{C}.{nameof(PostContent.Lang)} as [{C}.{nameof(PostContent.Lang)}]," +
+                    $"{C}.{nameof(PostContent.Title)} as [{C}.{nameof(PostContent.Title)}]"
                 },
                 {
                     CONTENT_CONTENT,
-                    $"{C}.{nameof(PostContent.Content)}"
-                }
+                    $"{C}.{nameof(PostContent.Content)} as [{C}.{nameof(PostContent.Content)}]"
+                },
             };
 
         public static readonly IDictionary<string, string> Joins =
@@ -160,8 +150,21 @@ namespace SK.Business.Models
                     CONTENT, $"LEFT JOIN (SELECT * FROM {C} " +
                     $"{PostQueryPlaceholder.POST_CONTENT_FILTER}) as {C} " +
                     $"ON {C}.{nameof(PostContent.PostId)}={P}.{nameof(Post.Id)}"
-                }
+                },
             };
+
+        public static readonly IDictionary<string, PartialResult> Results =
+             new Dictionary<string, PartialResult>()
+             {
+                 {
+                     INFO, new PartialResult(key: INFO, type: typeof(Post),
+                         splitOn: $"{nameof(Post.Id)}")
+                 },
+                 {
+                     CONTENT, new PartialResult(key: CONTENT, type: typeof(PostContentRelationship),
+                         splitOn: $"{C}.{nameof(PostContent.Id)}")
+                 },
+             };
     }
 
     public class PostQuerySort

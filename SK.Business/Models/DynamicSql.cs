@@ -7,8 +7,20 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TNT.Core.Helpers.Data;
 
-namespace SK.Data.Models
+namespace SK.Business.Models
 {
+    public class PartialResult
+    {
+        public PartialResult(string key, Type type, string splitOn)
+        {
+            Key = key;
+            Type = type;
+            SplitOn = splitOn;
+        }
+        public string Key { get; set; }
+        public string SplitOn { get; set; }
+        public Type Type { get; set; }
+    }
 
     public class DynamicSql
     {
@@ -27,7 +39,6 @@ namespace SK.Data.Models
             }
         }
         public List<SqlParameter> Parameters { get; set; }
-
         public DynamicParameters DynamicParameters
         {
             get
@@ -37,6 +48,7 @@ namespace SK.Data.Models
                 return dynamicParam;
             }
         }
+        public List<PartialResult> MultiResults { get; set; }
 
         public const string PROJECTION = "$(projection)";
         public const string JOIN = "$(join)";
@@ -44,10 +56,21 @@ namespace SK.Data.Models
         public const string GROUP = "$(group)";
         public const string SORT = "$(sort)";
         public const string PAGING = "$(paging)";
-
         public DynamicSql()
         {
             Parameters = new List<SqlParameter>();
+            MultiResults = new List<PartialResult>();
+        }
+
+        public IEnumerable<string> GetSplitOns()
+        {
+            var splitOns = MultiResults.Where(r => r.SplitOn != null).Select(r => r.SplitOn);
+            return splitOns;
+        }
+
+        public Type[] GetTypesArr()
+        {
+            return MultiResults.Select(r => r.Type).ToArray();
         }
 
         public static DynamicSql DeepClone(DynamicSql src)
@@ -55,17 +78,16 @@ namespace SK.Data.Models
             return new DynamicSql
             {
                 DynamicForm = src.DynamicForm,
+                MultiResults = src.MultiResults.ToList(),
                 Parameters = src.Parameters.ToList()
             };
         }
-
         public string AddAutoIncrParam(object val)
         {
             var paramName = Parameters.Count.ToString();
             Parameters.Add(new SqlParameter(paramName, val));
             return paramName;
         }
-
         public ListDataParameters AddAutoIncrSqlInParam<T>(IEnumerable<T> vals)
         {
             var paramName = Parameters.Count.ToString();
@@ -75,6 +97,5 @@ namespace SK.Data.Models
             Parameters.AddRange(listSqlParams);
             return listDataParams;
         }
-
     }
 }

@@ -9,10 +9,15 @@ namespace SK.Business.Models
 
 
     #region Query
-    public class DeviceQueryResult : Device
+    public class DeviceQueryRow
     {
-        public virtual Floor Floor { get; set; }
-        public virtual Building Building { get; set; }
+        public Device Device { get; set; }
+        public AreaRelationship Area { get; set; }
+        public FloorRelationship Floor { get; set; }
+        public BuildingRelationship Building { get; set; }
+        public LocationRelationship Location { get; set; }
+        public ScheduleRelationship Schedule { get; set; }
+        public AppUserRelationship DeviceAccount { get; set; }
     }
 
     public class DeviceQueryProjection
@@ -30,7 +35,7 @@ namespace SK.Business.Models
                 if (value?.Length > 0)
                 {
                     _fields = value;
-                    _fieldsArr = value.Split(',');
+                    _fieldsArr = value.Split(',').OrderBy(v => v).ToArray();
                 }
             }
         }
@@ -129,6 +134,39 @@ namespace SK.Business.Models
                     $"ON {U}.{nameof(AppUser.Id)}={D}.{nameof(Device.Id)}"
                 },
             };
+
+        public static readonly IDictionary<string, PartialResult> Results =
+             new Dictionary<string, PartialResult>()
+             {
+                 {
+                     INFO, new PartialResult(key: INFO, type: typeof(Device),
+                         splitOn: $"{nameof(Device.Id)}")
+                 },
+                 {
+                     AREA, new PartialResult(key: AREA, type: typeof(AreaRelationship),
+                         splitOn: $"{A}.{nameof(Area.Id)}")
+                 },
+                 {
+                     FLOOR, new PartialResult(key: FLOOR, type: typeof(FloorRelationship),
+                         splitOn: $"{F}.{nameof(Floor.Id)}")
+                 },
+                 {
+                     BUILDING, new PartialResult(key: BUILDING, type: typeof(BuildingRelationship),
+                         splitOn: $"{B}.{nameof(Building.Id)}")
+                 },
+                 {
+                     LOCATION, new PartialResult(key: LOCATION, type: typeof(LocationRelationship),
+                         splitOn: $"{L}.{nameof(Location.Id)}")
+                 },
+                 {
+                     SCHEDULE, new PartialResult(key: SCHEDULE, type: typeof(ScheduleRelationship),
+                         splitOn: $"{S}.{nameof(Schedule.Id)}")
+                 },
+                 {
+                     ACCOUNT, new PartialResult(key: ACCOUNT, type: typeof(AppUserRelationship),
+                         splitOn: $"{U}.{nameof(AppUser.Id)}")
+                 },
+             };
     }
 
     public class DeviceQuerySort
@@ -211,7 +249,6 @@ namespace SK.Business.Models
 
     public class DeviceQueryPlaceholder
     {
-        public const string POST_CONTENT_FILTER = "$(post_content_filter)";
     }
     #endregion
 }

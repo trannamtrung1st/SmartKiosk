@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -111,4 +112,11 @@ namespace SK.Business.Models
         [JsonProperty("refresh_token")]
         public string refresh_token { get; set; }
     }
+
+    #region Query
+    public class AppUserRelationship : AppUser, IDapperRelationship
+    {
+        public string GetTableName() => AppUser.TBL_NAME;
+    }
+    #endregion
 }
