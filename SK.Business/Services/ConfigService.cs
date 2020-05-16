@@ -19,6 +19,14 @@ namespace SK.Business.Services
         }
 
         #region Query Config
+        public IQueryable<Config> Configs
+        {
+            get
+            {
+                return context.Config;
+            }
+        }
+
         public IDictionary<string, object> GetConfigDynamic(
             ConfigQueryRow row, ConfigQueryProjection projection,
             ConfigQueryOptions options)

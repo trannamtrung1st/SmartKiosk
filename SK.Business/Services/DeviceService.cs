@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using FirebaseAdmin.Messaging;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using SK.Business.Models;
 using SK.Business.Queries;
@@ -6,18 +8,27 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
 namespace SK.Business.Services
 {
-    public class Deviceervice : Service
+    public class DeviceService : Service
     {
-        public Deviceervice(ServiceInjection inj) : base(inj)
+        public DeviceService(ServiceInjection inj) : base(inj)
         {
         }
 
         #region Query Device
+        public IQueryable<Device> Devices
+        {
+            get
+            {
+                return context.Device;
+            }
+        }
+
         public IDictionary<string, object> GetDeviceDynamic(
             DeviceQueryRow row, DeviceQueryProjection projection,
             DeviceQueryOptions options)
@@ -263,12 +274,63 @@ namespace SK.Business.Services
         }
         #endregion
 
+        #region Create Device
+        protected void PrepareCreate(Device entity)
+        {
+        }
+
+        public Device CreateDevice(CreateDeviceModel model, string accountId)
+        {
+            var entity = model.ToDest();
+            entity.Id = accountId;
+            PrepareCreate(entity);
+            return context.Device.Add(entity).Entity;
+        }
+        #endregion
+
         #region Update Device
         public void UpdateDevice(Device entity, UpdateDeviceModel model)
         {
             model.CopyTo(entity);
         }
+        public void ChangeDeviceToken(Device entity, string newFCMToken, string newAccessToken)
+        {
+            entity.CurrentFcmToken = newFCMToken;
+            entity.AccessToken = newAccessToken;
+        }
+        public void SetScheduleForDevices(Schedule schedule, IEnumerable<string> deviceIds)
+        {
+            var entities = Devices.IdOnly().Ids(deviceIds).ToList();
+            foreach (var e in entities)
+                e.ScheduleId = schedule?.Id;
+        }
         #endregion
 
+        #region Control Device
+        public async Task<BatchResponse> TriggerReloadDevicesAsync(TriggerReloadDevicesModel model)
+        {
+            var messages = model.DeviceIds.Select(id => new Message
+            {
+                Topic = id,
+                Data = new Dictionary<string, string>()
+                {
+                    { "action", model.Action }
+                }
+            });
+            return await FirebaseMessaging.DefaultInstance.SendAllAsync(messages);
+        }
+        #endregion
+
+        public string GetActivationCode(string username)
+        {
+            var bytes = Encoding.ASCII.GetBytes(ActivationCodeSecrect.SECRET);
+            string code = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    username,
+                    bytes,
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 10000,
+                    numBytesRequested: 256 / 8));
+            return code;
+        }
     }
 }

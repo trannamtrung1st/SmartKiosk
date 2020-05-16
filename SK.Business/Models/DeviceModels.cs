@@ -2,11 +2,63 @@
 using SK.Data.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
+    public class CreateDeviceModel : MappingModel<Device>
+    {
+        public CreateDeviceModel()
+        {
+        }
+
+        public CreateDeviceModel(Device entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("username")]
+        [Required]
+        [StringLength(100, MinimumLength = 5)]
+        [Display(Name = "Username")]
+        public string username { get; set; }
+
+        [JsonProperty("password")]
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string password { get; set; }
+
+        [JsonProperty("confirm_password")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string confirm_password { get; set; }
+
+        [JsonProperty("activation_code")]
+        public string ActivationCode { get; set; }
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("location_id")]
+        public int LocationId { get; set; }
+        [JsonProperty("building_id")]
+        public int BuildingId { get; set; }
+        [JsonProperty("floor_id")]
+        public int? FloorId { get; set; }
+        [JsonProperty("area_id")]
+        public int? AreaId { get; set; }
+        [JsonProperty("lat")]
+        public double? Lat { get; set; }
+        [JsonProperty("lon")]
+        public double? Lon { get; set; }
+    }
+
     public class UpdateDeviceModel : MappingModel<Device>
     {
         public UpdateDeviceModel()
@@ -35,6 +87,14 @@ namespace SK.Business.Models
         public double? Lat { get; set; }
         [JsonProperty("lon")]
         public double? Lon { get; set; }
+    }
+
+    public class TriggerReloadDevicesModel
+    {
+        [JsonProperty("device_ids")]
+        public IEnumerable<string> DeviceIds { get; set; }
+        [JsonProperty("action")]
+        public string Action { get; set; }
     }
 
     #region Query
