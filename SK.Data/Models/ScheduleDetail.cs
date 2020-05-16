@@ -16,7 +16,7 @@ namespace SK.Data.Models
         public DateTime? FromTime { get; set; }
         public DateTime? ToTime { get; set; }
         public bool? IsDefault { get; set; }
-        public int? ScheduleId { get; set; }
+        public int ScheduleId { get; set; }
 
         public virtual Schedule Schedule { get; set; }
         public virtual ICollection<ScheduleWeekConfig> ScheduleWeekConfigs { get; set; }
