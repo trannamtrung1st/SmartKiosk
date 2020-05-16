@@ -12,7 +12,7 @@ namespace SK.Data.Models
         public bool? AllDay { get; set; }
         public int? FromDayOfWeek { get; set; }
         public int? ToDayOfWeek { get; set; }
-        public int? ScheduleDetailId { get; set; }
+        public int ScheduleDetailId { get; set; }
         public int ConfigId { get; set; }
 
         public virtual Config Config { get; set; }

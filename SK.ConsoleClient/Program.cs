@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QuerySchedule(provider);
+            QueryScheduleDetail(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -97,5 +97,37 @@ namespace SK.ConsoleClient
                 _logger.Info("Query schedule data");
             }
         }
+
+        static void QueryScheduleDetail(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<ScheduleDetailService>();
+                var results = sdService.QueryScheduleDetailDynamic(
+                    projection: new ScheduleDetailQueryProjection()
+                    {
+                        fields =
+                        $"{ScheduleDetailQueryProjection.CONFIGS}," +
+                        $"{ScheduleDetailQueryProjection.INFO}," +
+                        $"{ScheduleDetailQueryProjection.SCHEDULE}"
+                    },
+                    options: new ScheduleDetailQueryOptions() { count_total = true },
+                    filter: new ScheduleDetailQueryFilter(),
+                    sort: new ScheduleDetailQuerySort()
+                    {
+                        sorts = "a" + ScheduleDetailQuerySort.START_TIME
+                    },
+                    paging: new ScheduleDetailQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query schedule detail data");
+            }
+        }
+
     }
 }

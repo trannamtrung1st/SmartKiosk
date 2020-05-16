@@ -161,7 +161,7 @@ namespace SK.Business.Services
                     switch (key)
                     {
                         case ScheduleQueryProjection.DETAILS:
-                            details = multipleResult.Read<ScheduleDetailRelationship>().ToList();
+                            details = multipleResult.Read<ScheduleDetail>().ToList();
                             break;
                     }
                 }

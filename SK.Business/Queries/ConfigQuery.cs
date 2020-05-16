@@ -9,6 +9,12 @@ namespace SK.Business.Queries
 {
     public static class ConfigQuery
     {
+        public static IEnumerable<IGrouping<int, ScheduleWeekConfig>> GroupByScheduleDetail(
+            this IEnumerable<ScheduleWeekConfig> query)
+        {
+            return query.GroupBy(o => o.ScheduleDetailId);
+        }
+
         public static IQueryable<Config> Id(this IQueryable<Config> query, int id)
         {
             return query.Where(o => o.Id == id);
