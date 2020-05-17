@@ -47,6 +47,12 @@ namespace SK.Business.Models
         public string Description { get; set; }
     }
 
+    public class UpdateFloorPlanModel
+    {
+        [JsonProperty("file")]
+        public FileDestination File { get; set; }
+    }
+
     #region Query
 
     public class FloorQueryRow

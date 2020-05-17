@@ -1,4 +1,5 @@
 ﻿using elFinder.NetCore;
+using elFinder.NetCore.Drivers;
 using elFinder.NetCore.Drivers.FileSystem;
 using SK.Business.Models;
 using System;
@@ -47,6 +48,21 @@ namespace SK.Business.Services
                 return metadata.SourceUrl + relPath;
             }
             return fileDest.Url;
+        }
+
+        public async Task<IFile> GetFileAsync(FileDestination fileDest,
+            FileDestinationMetadata metadata)
+        {
+            if (fileDest.RelativePath != null)
+                return new FileSystemFile(metadata.RootPath + "/" + fileDest.RelativePath);
+            else if (fileDest.EFHash != null)
+            {
+                var driver = GetFileSystemDriver(metadata.RootVolume);
+                var fullPath = await driver.ParsePathAsync(fileDest.EFHash);
+                var file = fullPath.File;
+                return file;
+            }
+            return null;
         }
 
     }

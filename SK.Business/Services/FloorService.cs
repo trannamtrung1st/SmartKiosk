@@ -1,10 +1,12 @@
 ﻿using Dapper;
+using elFinder.NetCore.Drivers;
 using Microsoft.EntityFrameworkCore;
 using SK.Business.Models;
 using SK.Business.Queries;
 using SK.Data.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
@@ -13,6 +15,9 @@ namespace SK.Business.Services
 {
     public class FloorService : Service
     {
+        [Inject]
+        protected readonly FileService fileService;
+
         public FloorService(ServiceInjection inj) : base(inj)
         {
         }
@@ -236,6 +241,23 @@ namespace SK.Business.Services
         {
             model.CopyTo(entity);
         }
+
+        public async Task UpdateFloorPlanSvgAsync(Floor entity, UpdateFloorPlanModel model,
+            IFile file)
+        {
+            using (var stream = await file.OpenReadAsync())
+            using (var reader = new StreamReader(stream))
+            {
+                var svg = await reader.ReadToEndAsync();
+                UpdateFloorPlanSvg(entity, svg);
+            }
+        }
+
+        public void UpdateFloorPlanSvg(Floor entity, string svg)
+        {
+            entity.FloorPlanSvg = svg;
+        }
+
         #endregion
     }
 }
