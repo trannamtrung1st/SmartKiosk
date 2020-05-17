@@ -25,6 +25,7 @@ namespace SK.Business.Services
         {
         }
 
+        #region Query Post
         public IQueryable<Post> Posts
         {
             get
@@ -41,7 +42,6 @@ namespace SK.Business.Services
             }
         }
 
-        #region Query Post
         public IDictionary<string, object> GetPostDynamic(
             PostQueryRow row, PostQueryProjection projection,
             PostQueryOptions options)
