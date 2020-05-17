@@ -11,47 +11,57 @@ using TNT.Core.Helpers.DI;
 
 namespace SK.Business.Services
 {
-    public class LocationService : Service
+    public class BuildingService : Service
     {
-        public LocationService(ServiceInjection inj) : base(inj)
+        public BuildingService(ServiceInjection inj) : base(inj)
         {
         }
 
-        #region Query Location
-        public IQueryable<Location> Locations
+        #region Query
+        public IQueryable<Building> Buildings
         {
             get
             {
-                return context.Location;
+                return context.Building;
             }
         }
 
-        public IDictionary<string, object> GetLocationDynamic(
-            LocationQueryRow row, LocationQueryProjection projection,
-            LocationQueryOptions options)
+        public IDictionary<string, object> GetBuildingDynamic(
+           BuildingQueryRow row, BuildingQueryProjection projection,
+           BuildingQueryOptions options)
         {
             var obj = new Dictionary<string, object>();
             foreach (var f in projection.GetFieldsArr())
             {
                 switch (f)
                 {
-                    case LocationQueryProjection.INFO:
+                    case BuildingQueryProjection.INFO:
                         {
-                            var entity = row.Location;
+                            var entity = row.Building;
                             obj["id"] = entity.Id;
                             obj["code"] = entity.Code;
                             obj["name"] = entity.Name;
-                            obj["address"] = entity.Address;
                             obj["description"] = entity.Description;
-                            obj["archived"] = entity.Archived;
+                            obj["location_id"] = entity.LocationId;
                         }
                         break;
-                    case LocationQueryProjection.SELECT:
+                    case BuildingQueryProjection.LOCATION:
                         {
                             var entity = row.Location;
+                            obj["location"] = new
+                            {
+                                id = entity.Id,
+                                name = entity.Name,
+                                code = entity.Code
+                            };
+                        }
+                        break;
+                    case BuildingQueryProjection.SELECT:
+                        {
+                            var entity = row.Building;
                             obj["id"] = entity.Id;
-                            obj["code"] = entity.Code;
                             obj["name"] = entity.Name;
+                            obj["code"] = entity.Code;
                         }
                         break;
                 }
@@ -59,14 +69,14 @@ namespace SK.Business.Services
             return obj;
         }
 
-        public QueryResult<IDictionary<string, object>> GetLocationDynamic(
-            IEnumerable<LocationQueryRow> rows, LocationQueryProjection projection,
-            LocationQueryOptions options, int? totalCount = null)
+        public QueryResult<IDictionary<string, object>> GetBuildingDynamic(
+            IEnumerable<BuildingQueryRow> rows, BuildingQueryProjection projection,
+            BuildingQueryOptions options, int? totalCount = null)
         {
             var list = new List<IDictionary<string, object>>();
             foreach (var o in rows)
             {
-                var obj = GetLocationDynamic(o, projection, options);
+                var obj = GetBuildingDynamic(o, projection, options);
                 list.Add(obj);
             }
             var resp = new QueryResult<IDictionary<string, object>>();
@@ -76,16 +86,16 @@ namespace SK.Business.Services
             return resp;
         }
 
-        public async Task<QueryResult<IDictionary<string, object>>> QueryLocationDynamic(
-            LocationQueryProjection projection,
-            LocationQueryOptions options,
-            LocationQueryFilter filter = null,
-            LocationQuerySort sort = null,
-            LocationQueryPaging paging = null)
+        public async Task<QueryResult<IDictionary<string, object>>> QueryBuildingDynamic(
+            BuildingQueryProjection projection,
+            BuildingQueryOptions options,
+            BuildingQueryFilter filter = null,
+            BuildingQuerySort sort = null,
+            BuildingQueryPaging paging = null)
         {
             var conn = context.Database.GetDbConnection();
             var openConn = conn.OpenAsync();
-            var query = LocationQuery.CreateDynamicSql();
+            var query = BuildingQuery.CreateDynamicSql();
             #region General
             if (filter != null) query = query.SqlFilter(filter);
             query = query.SqlJoin(projection);
@@ -98,7 +108,7 @@ namespace SK.Business.Services
             {
                 #region List query
                 if (sort != null) query = query.SqlSort(sort);
-                if (paging != null && (!options.load_all || !LocationQueryOptions.IsLoadAllAllowed))
+                if (paging != null && (!options.load_all || !BuildingQueryOptions.IsLoadAllAllowed))
                     query = query.SqlSelectPage(paging.page, paging.limit);
                 #endregion
                 #region Count query
@@ -118,27 +128,27 @@ namespace SK.Business.Services
             {
                 var single = queryResult.SingleOrDefault();
                 if (single == null) return null;
-                var singleResult = GetLocationDynamic(single, projection, options);
+                var singleResult = GetBuildingDynamic(single, projection, options);
                 return new QueryResult<IDictionary<string, object>>()
                 {
                     SingleResult = singleResult
                 };
             }
             if (options.count_total) totalCount = await countTask;
-            var result = GetLocationDynamic(queryResult, projection, options, totalCount);
+            var result = GetBuildingDynamic(queryResult, projection, options, totalCount);
             return result;
         }
 
-        public async Task<QueryResult<LocationQueryRow>> QueryLocation(
-            LocationQueryFilter filter = null,
-            LocationQuerySort sort = null,
-            LocationQueryProjection projection = null,
-            LocationQueryPaging paging = null,
-            LocationQueryOptions options = null)
+        public async Task<QueryResult<BuildingQueryRow>> QueryBuilding(
+            BuildingQueryFilter filter = null,
+            BuildingQuerySort sort = null,
+            BuildingQueryProjection projection = null,
+            BuildingQueryPaging paging = null,
+            BuildingQueryOptions options = null)
         {
             var conn = context.Database.GetDbConnection();
             var openConn = conn.OpenAsync();
-            var query = LocationQuery.CreateDynamicSql();
+            var query = BuildingQuery.CreateDynamicSql();
             #region General
             if (filter != null) query = query.SqlFilter(filter);
             if (projection != null) query = query.SqlJoin(projection);
@@ -151,7 +161,7 @@ namespace SK.Business.Services
             {
                 #region List query
                 if (sort != null) query = query.SqlSort(sort);
-                if (paging != null && (!options.load_all || !LocationQueryOptions.IsLoadAllAllowed))
+                if (paging != null && (!options.load_all || !BuildingQueryOptions.IsLoadAllAllowed))
                     query = query.SqlSelectPage(paging.page, paging.limit);
                 #endregion
                 #region Count query
@@ -170,46 +180,47 @@ namespace SK.Business.Services
             if (options != null && options.single_only)
             {
                 var single = queryResult.SingleOrDefault();
-                return new QueryResult<LocationQueryRow>
+                return new QueryResult<BuildingQueryRow>
                 {
                     SingleResult = single
                 };
             }
             if (options != null && options.count_total) totalCount = await countTask;
-            return new QueryResult<LocationQueryRow>
+            return new QueryResult<BuildingQueryRow>
             {
                 Results = queryResult,
                 TotalCount = totalCount
             };
         }
 
-        private LocationQueryRow ProcessMultiResults(DynamicSql query, object[] objs)
+        private BuildingQueryRow ProcessMultiResults(DynamicSql query, object[] objs)
         {
-            var row = new LocationQueryRow();
+            var row = new BuildingQueryRow();
             for (var i = 0; i < query.MultiResults.Count; i++)
             {
                 var r = query.MultiResults[i];
                 switch (r.Key)
                 {
-                    case LocationQueryProjection.INFO:
-                    case LocationQueryProjection.SELECT:
-                        row.Location = objs[i] as Location; break;
+                    case BuildingQueryProjection.INFO:
+                    case BuildingQueryProjection.SELECT: 
+                        row.Building = objs[i] as Building; break;
+                    case BuildingQueryProjection.LOCATION: row.Location = objs[i] as LocationRelationship; break;
                 }
             }
             return row;
         }
         #endregion
 
-        #region Create Location
-        protected void PrepareCreate(Location entity)
+        #region Create Building
+        protected void PrepareCreate(Building entity)
         {
         }
 
-        public Location CreateLocation(CreateLocationModel model)
+        public Building CreateBuilding(CreateBuildingModel model)
         {
             var entity = model.ToDest();
             PrepareCreate(entity);
-            return context.Location.Add(entity).Entity;
+            return context.Building.Add(entity).Entity;
         }
         #endregion
     }

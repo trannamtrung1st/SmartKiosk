@@ -266,7 +266,9 @@ namespace SK.Business.Services
                 var r = query.MultiResults[i];
                 switch (r.Key)
                 {
-                    case ScheduleQueryProjection.INFO: row.Schedule = objs[i] as Schedule; break;
+                    case ScheduleQueryProjection.INFO:
+                    case ScheduleQueryProjection.SELECT:
+                        row.Schedule = objs[i] as Schedule; break;
                     case ScheduleQueryProjection.LOCATION: row.Location = objs[i] as LocationRelationship; break;
                 }
             }
