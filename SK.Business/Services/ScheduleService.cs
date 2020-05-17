@@ -307,7 +307,6 @@ namespace SK.Business.Services
         {
             model.CopyTo(entity);
         }
-
         #endregion
 
     }

@@ -306,7 +306,7 @@ namespace SK.Business.Services
         #endregion
 
         #region Update ScheduleDetail
-        public async Task<ScheduleDetail> UpdateScheduleDetailTransactionAsync(ScheduleDetail entity, UpdateScheduleDetailModel model)
+        public async Task UpdateScheduleDetailTransactionAsync(ScheduleDetail entity, UpdateScheduleDetailModel model)
         {
             model.CopyTo(entity);
             if (entity.IsDefault == false)
@@ -324,7 +324,6 @@ namespace SK.Business.Services
             var deleteTask = DeleteAllConfigsOfScheduleDetailAsync(entity);
             var insertTask = context.BulkInsertAsync(weekConfigs);
             await deleteTask; await insertTask;
-            return entity;
         }
 
         protected async Task<int> DeleteAllConfigsOfScheduleDetailAsync(ScheduleDetail entity)

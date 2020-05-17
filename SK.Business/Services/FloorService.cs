@@ -232,10 +232,9 @@ namespace SK.Business.Services
         #endregion
 
         #region Update Floor
-        public Floor UpdateFloor(Floor entity, UpdateFloorModel model)
+        public void UpdateFloor(Floor entity, UpdateFloorModel model)
         {
             model.CopyTo(entity);
-            return entity;
         }
         #endregion
     }
