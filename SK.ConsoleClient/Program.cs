@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryFloor(provider);
+            QueryArea(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -219,5 +219,35 @@ namespace SK.ConsoleClient
             }
         }
 
+        static void QueryArea(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<AreaService>();
+                var results = sdService.QueryAreaDynamic(
+                    projection: new AreaQueryProjection()
+                    {
+                        fields =
+                        $"{AreaQueryProjection.INFO}," +
+                        $"{AreaQueryProjection.FLOOR}," +
+                        $"{AreaQueryProjection.BUILDING}"
+                    },
+                    options: new AreaQueryOptions() { count_total = true },
+                    filter: new AreaQueryFilter(),
+                    sort: new AreaQuerySort()
+                    {
+                        sorts = "a" + AreaQuerySort.NAME
+                    },
+                    paging: new AreaQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query area data");
+            }
+        }
     }
 }
