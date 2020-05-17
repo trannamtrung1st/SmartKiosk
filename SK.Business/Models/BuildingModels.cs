@@ -98,12 +98,16 @@ namespace SK.Business.Models
                 },
             };
 
+        private static readonly PartialResult infoResult =
+            new PartialResult(key: INFO, type: typeof(Building), splitOn: $"{nameof(Building.Id)}");
         public static readonly IDictionary<string, PartialResult> Results =
              new Dictionary<string, PartialResult>()
              {
                  {
-                     INFO, new PartialResult(key: INFO, type: typeof(Building),
-                         splitOn: $"{nameof(Building.Id)}")
+                     INFO, infoResult
+                 },
+                 {
+                     SELECT, infoResult
                  },
                  {
                      LOCATION, new PartialResult(key: LOCATION, type: typeof(LocationRelationship),

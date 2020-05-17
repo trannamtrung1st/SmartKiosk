@@ -85,13 +85,17 @@ namespace SK.Business.Models
         public static readonly IDictionary<string, string> Joins =
             new Dictionary<string, string>();
 
+        private static readonly PartialResult infoResult =
+            new PartialResult(key: INFO, type: typeof(Location), splitOn: $"{nameof(Location.Id)}");
         public static readonly IDictionary<string, PartialResult> Results =
              new Dictionary<string, PartialResult>()
              {
                  {
-                     INFO, new PartialResult(key: INFO, type: typeof(Location),
-                         splitOn: $"{nameof(Location.Id)}")
+                     INFO, infoResult
                  },
+                 {
+                     SELECT, infoResult
+                 }
              };
     }
 

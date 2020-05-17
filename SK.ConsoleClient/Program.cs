@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryBuilding(provider);
+            QueryFloor(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -185,6 +185,37 @@ namespace SK.ConsoleClient
 
                 Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
                 _logger.Info("Query building data");
+            }
+        }
+
+        static void QueryFloor(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<FloorService>();
+                var results = sdService.QueryFloorDynamic(
+                    projection: new FloorQueryProjection()
+                    {
+                        fields =
+                        $"{FloorQueryProjection.INFO}," +
+                        $"{FloorQueryProjection.FLOOR_PLAN}," +
+                        $"{FloorQueryProjection.BUILDING}"
+                    },
+                    options: new FloorQueryOptions() { count_total = true },
+                    filter: new FloorQueryFilter(),
+                    sort: new FloorQuerySort()
+                    {
+                        sorts = "a" + FloorQuerySort.NAME
+                    },
+                    paging: new FloorQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query floor data");
             }
         }
 
