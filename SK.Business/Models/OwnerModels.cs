@@ -152,6 +152,8 @@ namespace SK.Business.Models
     {
         public int? id { get; set; }
         public string name_contains { get; set; }
+        //0: false, 1: true, 2: both => default: false
+        public byte archived { get; set; }
     }
 
     public class OwnerQueryPaging

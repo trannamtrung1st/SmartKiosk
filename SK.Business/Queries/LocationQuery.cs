@@ -73,6 +73,11 @@ namespace SK.Business.Queries
                 listFilters.Add($"CHARINDEX(@{paramName}, {nameof(Location)}" +
                     $".{nameof(Location.Name)}) > 0");
             }
+            if (filter.archived != 2)
+            {
+                var paramName = query.AddAutoIncrParam(filter.archived);
+                listFilters.Add($"{nameof(Location)}.{nameof(Location.Archived)}=@{paramName}");
+            }
             if (listFilters.Any())
             {
                 var whereClause = "WHERE " + string.Join(" AND ", listFilters);

@@ -89,6 +89,11 @@ namespace SK.Business.Queries
                 var listDataParams = query.AddAutoIncrSqlInParam(filter.ids);
                 listFilters.Add($"{nameof(Post)}.{nameof(Post.Id)} IN ({listDataParams.Placeholder})");
             }
+            if (filter.archived != 2)
+            {
+                var paramName = query.AddAutoIncrParam(filter.archived);
+                listFilters.Add($"{nameof(Post)}.{nameof(Post.Archived)}=@{paramName}");
+            }
             if (listFilters.Any())
             {
                 var whereClause = "WHERE " + string.Join(" AND ", listFilters);

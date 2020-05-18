@@ -196,6 +196,8 @@ namespace SK.Business.Models
         public string name_contains { get; set; }
         public int? floor_id { get; set; }
         public int? loc_id { get; set; }
+        //0: false, 1: true, 2: both => default: false
+        public byte archived { get; set; }
     }
 
     public class AreaQueryPaging

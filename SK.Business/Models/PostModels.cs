@@ -238,6 +238,8 @@ namespace SK.Business.Models
         public int? not_eq_id { get; set; }
         public string title_contains { get; set; }
         public string lang { get; set; }
+        //0: false, 1: true, 2: both => default: false
+        public byte archived { get; set; }
     }
 
     public class PostQueryPaging

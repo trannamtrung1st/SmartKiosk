@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryPost(provider);
+            QueryResourceType(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -307,6 +307,40 @@ namespace SK.ConsoleClient
 
                 Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
                 _logger.Info("Query post data");
+            }
+        }
+
+        static void QueryResourceType(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<ResourceTypeService>();
+                var results = sdService.QueryResourceTypeDynamic(
+                    projection: new ResourceTypeQueryProjection()
+                    {
+                        fields =
+                        $"{ResourceTypeQueryProjection.INFO}," +
+                        $"{ResourceTypeQueryProjection.CONTENT}"
+                    },
+                    options: new ResourceTypeQueryOptions() { count_total = true },
+                    filter: new ResourceTypeQueryFilter()
+                    {
+                        lang = Lang.EN,
+                        archived = 0
+                    },
+                    sort: new ResourceTypeQuerySort()
+                    {
+                        sorts = "a" + ResourceTypeQuerySort.NAME
+                    },
+                    paging: new ResourceTypeQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query resource type data");
             }
         }
     }

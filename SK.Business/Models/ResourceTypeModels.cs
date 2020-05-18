@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using SK.Data.Models;
+﻿using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,36 +6,17 @@ using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
-    public class CreateLocationModel : MappingModel<Location>
-    {
-        public CreateLocationModel()
-        {
-        }
-
-        public CreateLocationModel(Location src) : base(src)
-        {
-        }
-
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("address")]
-        public string Address { get; set; }
-        [JsonProperty("description")]
-        public string Description { get; set; }
-    }
-
 
     #region Query
-    public class LocationQueryRow
+    public class ResourceTypeQueryRow
     {
-        public Location Location { get; set; }
+        public ResourceType ResourceType { get; set; }
+        public ResourceTypeContentRelationship Content { get; set; }
     }
 
-    public class LocationQueryProjection
+    public class ResourceTypeQueryProjection
     {
-        private const string DEFAULT = INFO;
+        private const string DEFAULT = INFO + "," + CONTENT;
         private string _fields = DEFAULT;
         public string fields
         {
@@ -63,43 +43,50 @@ namespace SK.Business.Models
         //---------------------------------------
 
         public const string INFO = "info";
-        public const string SELECT = "select";
+        public const string CONTENT = "content";
 
-        private const string L = nameof(Location);
+        private const string RT = nameof(ResourceType);
+        private const string C = nameof(ResourceTypeContent);
         public static readonly IDictionary<string, string> Projections =
             new Dictionary<string, string>()
             {
                 {
-                    INFO,$"{L}.{nameof(Location.Id)},{L}.{nameof(Location.Code)}," +
-                    $"{L}.{nameof(Location.Name)}," +
-                    $"{L}.{nameof(Location.Address)}," +
-                    $"{L}.{nameof(Location.Description)}," +
-                    $"{L}.{nameof(Location.Archived)}"
+                    INFO,$"{RT}.{nameof(ResourceType.Id)}," +
+                    $"{RT}.{nameof(ResourceType.Archived)}"
                 },
                 {
-                    SELECT,$"{L}.{nameof(Location.Id)},{L}.{nameof(Location.Code)}," +
-                    $"{L}.{nameof(Location.Name)}"
-                },
+                    CONTENT,
+                    $"{C}.{nameof(ResourceTypeContent.Id)} as [{C}.{nameof(ResourceTypeContent.Id)}]," +
+                    $"{C}.{nameof(ResourceTypeContent.Lang)} as [{C}.{nameof(ResourceTypeContent.Lang)}]," +
+                    $"{C}.{nameof(ResourceTypeContent.Name)} as [{C}.{nameof(ResourceTypeContent.Name)}]"
+                }
             };
 
         public static readonly IDictionary<string, string> Joins =
-            new Dictionary<string, string>();
+            new Dictionary<string, string>()
+            {
+                {
+                    CONTENT, $"LEFT JOIN (SELECT * FROM {C} " +
+                    $"{ResourceTypeQueryPlaceholder.RES_TYPE_CONTENT_FILTER}) as {C} " +
+                    $"ON {C}.{nameof(ResourceTypeContent.ResourceTypeId)}={RT}.{nameof(ResourceType.Id)}"
+                },
+            };
 
-        private static readonly PartialResult infoResult =
-            new PartialResult(key: INFO, type: typeof(Location), splitOn: $"{nameof(Location.Id)}");
         public static readonly IDictionary<string, PartialResult> Results =
              new Dictionary<string, PartialResult>()
              {
                  {
-                     INFO, infoResult
+                     INFO, new PartialResult(key: INFO, type: typeof(ResourceType),
+                         splitOn: $"{nameof(ResourceType.Id)}")
                  },
                  {
-                     SELECT, infoResult
-                 }
+                     CONTENT, new PartialResult(key: CONTENT, type: typeof(ResourceTypeContentRelationship),
+                         splitOn: $"{C}.{nameof(ResourceTypeContent.Id)}")
+                 },
              };
     }
 
-    public class LocationQuerySort
+    public class ResourceTypeQuerySort
     {
         public const string NAME = "name";
         private const string DEFAULT = "a" + NAME;
@@ -128,15 +115,16 @@ namespace SK.Business.Models
 
     }
 
-    public class LocationQueryFilter
+    public class ResourceTypeQueryFilter
     {
         public int? id { get; set; }
         public string name_contains { get; set; }
+        public string lang { get; set; }
         //0: false, 1: true, 2: both => default: false
         public byte archived { get; set; }
     }
 
-    public class LocationQueryPaging
+    public class ResourceTypeQueryPaging
     {
         private int _page = 1;
         public int page
@@ -166,7 +154,7 @@ namespace SK.Business.Models
         }
     }
 
-    public class LocationQueryOptions
+    public class ResourceTypeQueryOptions
     {
         public bool count_total { get; set; }
         public string date_format { get; set; }
@@ -178,13 +166,9 @@ namespace SK.Business.Models
         public const bool IsLoadAllAllowed = true;
     }
 
-    public class LocationQueryPlaceholder
+    public class ResourceTypeQueryPlaceholder
     {
-    }
-
-    public class LocationRelationship : Location, IDapperRelationship
-    {
-        public string GetTableName() => nameof(Location);
+        public const string RES_TYPE_CONTENT_FILTER = "$(res_type_content_filter)";
     }
     #endregion
 }

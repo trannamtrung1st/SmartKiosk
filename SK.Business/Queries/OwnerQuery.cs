@@ -73,6 +73,11 @@ namespace SK.Business.Queries
                 listFilters.Add($"CHARINDEX(@{paramName}, {nameof(Owner)}" +
                     $".{nameof(Owner.Name)}) > 0");
             }
+            if (filter.archived != 2)
+            {
+                var paramName = query.AddAutoIncrParam(filter.archived);
+                listFilters.Add($"{nameof(Owner)}.{nameof(Owner.Archived)}=@{paramName}");
+            }
             if (listFilters.Any())
             {
                 var whereClause = "WHERE " + string.Join(" AND ", listFilters);
