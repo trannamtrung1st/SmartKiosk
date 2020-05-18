@@ -200,5 +200,30 @@ namespace SK.Business.Services
         }
         #endregion
 
+        #region Create Owner
+        protected void PrepareCreate(Owner entity)
+        {
+        }
+
+        public Owner CreateOwner(CreateOwnerModel model)
+        {
+            var entity = model.ToDest();
+            PrepareCreate(entity);
+            return context.Owner.Add(entity).Entity;
+        }
+        #endregion
+
+        #region Update Owner
+        public void UpdateOwner(Owner entity, UpdateOwnerModel model)
+        {
+            model.CopyTo(entity);
+        }
+
+        public void ChangeArchivedState(Owner entity, bool archived)
+        {
+            entity.Archived = archived;
+        }
+        #endregion
+
     }
 }

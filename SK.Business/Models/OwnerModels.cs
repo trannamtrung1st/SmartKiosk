@@ -1,4 +1,5 @@
-﻿using SK.Data.Models;
+﻿using Newtonsoft.Json;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,8 +7,48 @@ using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
-    #region Query
+    public class CreateOwnerModel : MappingModel<Owner>
+    {
+        public CreateOwnerModel()
+        {
+        }
 
+        public CreateOwnerModel(Owner src) : base(src)
+        {
+        }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("phone")]
+        public string Phone { get; set; }
+    }
+
+    public class UpdateOwnerModel : MappingModel<Owner>
+    {
+        public UpdateOwnerModel()
+        {
+        }
+
+        public UpdateOwnerModel(Owner src) : base(src)
+        {
+        }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("code")]
+        public string Code { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
+        [JsonProperty("phone")]
+        public string Phone { get; set; }
+    }
+
+    #region Query
     public class OwnerQueryRow
     {
         public Owner Owner { get; set; }
