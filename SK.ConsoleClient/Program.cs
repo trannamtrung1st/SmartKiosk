@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryArea(provider);
+            QueryOwner(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -247,6 +247,35 @@ namespace SK.ConsoleClient
 
                 Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
                 _logger.Info("Query area data");
+            }
+        }
+
+        static void QueryOwner(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<OwnerService>();
+                var results = sdService.QueryOwnerDynamic(
+                    projection: new OwnerQueryProjection()
+                    {
+                        fields =
+                        $"{OwnerQueryProjection.INFO}"
+                    },
+                    options: new OwnerQueryOptions() { count_total = true },
+                    filter: new OwnerQueryFilter(),
+                    sort: new OwnerQuerySort()
+                    {
+                        sorts = "a" + OwnerQuerySort.NAME
+                    },
+                    paging: new OwnerQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query location data");
             }
         }
     }
