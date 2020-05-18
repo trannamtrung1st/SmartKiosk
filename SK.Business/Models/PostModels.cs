@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SK.Data;
 using SK.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,16 @@ namespace SK.Business.Models
         {
         }
 
+        [JsonProperty("type")]
+        public PostType Type { get; set; }
+        [JsonProperty("created_time")]
+        public DateTime CreatedTime { get; set; }
+        [JsonProperty("visible_time")]
+        public DateTime? VisibleTime { get; set; }
+        [JsonProperty("location_id")]
+        public int LocationId { get; set; }
+        [JsonProperty("owner_id")]
+        public int OwnerId { get; set; }
         [JsonProperty("image")]
         public FileDestination Image { get; set; }
         [JsonProperty("contents")]
@@ -40,6 +51,8 @@ namespace SK.Business.Models
         public string Title { get; set; }
         [JsonProperty("content")]
         public string Content { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
     }
 
     public class UpdatePostModel : MappingModel<Post>
@@ -86,7 +99,7 @@ namespace SK.Business.Models
     {
         public Post Post { get; set; }
         public PostContentRelationship Content { get; set; }
-        public AppUserRelationship CreatedByUser { get; set; }
+        public OwnerRelationship Owner { get; set; }
     }
 
     public class PostQueryProjection
@@ -120,27 +133,40 @@ namespace SK.Business.Models
         public const string INFO = "info";
         public const string CONTENT = "content";
         public const string CONTENT_CONTENT = "content.content";
+        public const string OWNER = "owner";
 
         private const string P = nameof(Post);
         private const string C = nameof(PostContent);
-        private const string U = AppUser.TBL_NAME;
+        private const string O = nameof(Owner);
         public static readonly IDictionary<string, string> Projections =
             new Dictionary<string, string>()
             {
                 {
                     INFO,$"{P}.{nameof(Post.Id)},{P}.{nameof(Post.CreatedTime)}," +
+                    $"{P}.{nameof(Post.VisibleTime)}," +
+                    $"{P}.{nameof(Post.Archived)}," +
+                    $"{P}.{nameof(Post.LocationId)}," +
+                    $"{P}.{nameof(Post.OwnerId)}," +
+                    $"{P}.{nameof(Post.Type)}," +
                     $"{P}.{nameof(Post.ImageUrl)}"
                 },
                 {
                     CONTENT,
                     $"{C}.{nameof(PostContent.Id)} as [{C}.{nameof(PostContent.Id)}]," +
                     $"{C}.{nameof(PostContent.Lang)} as [{C}.{nameof(PostContent.Lang)}]," +
+                    $"{C}.{nameof(PostContent.Description)} as [{C}.{nameof(PostContent.Description)}]," +
                     $"{C}.{nameof(PostContent.Title)} as [{C}.{nameof(PostContent.Title)}]"
                 },
                 {
                     CONTENT_CONTENT,
                     $"{C}.{nameof(PostContent.Content)} as [{C}.{nameof(PostContent.Content)}]"
                 },
+                {
+                    OWNER,
+                    $"{O}.{nameof(Owner.Id)} as [{O}.{nameof(Owner.Id)}]," +
+                    $"{O}.{nameof(Owner.Name)} as [{O}.{nameof(Owner.Name)}]," +
+                    $"{O}.{nameof(Owner.Code)} as [{O}.{nameof(Owner.Code)}]"
+                }
             };
 
         public static readonly IDictionary<string, string> Joins =
@@ -150,6 +176,10 @@ namespace SK.Business.Models
                     CONTENT, $"LEFT JOIN (SELECT * FROM {C} " +
                     $"{PostQueryPlaceholder.POST_CONTENT_FILTER}) as {C} " +
                     $"ON {C}.{nameof(PostContent.PostId)}={P}.{nameof(Post.Id)}"
+                },
+                {
+                    OWNER, $"INNER JOIN {O} " +
+                    $"ON {O}.{nameof(Owner.Id)}={P}.{nameof(Post.OwnerId)}"
                 },
             };
 
@@ -163,6 +193,10 @@ namespace SK.Business.Models
                  {
                      CONTENT, new PartialResult(key: CONTENT, type: typeof(PostContentRelationship),
                          splitOn: $"{C}.{nameof(PostContent.Id)}")
+                 },
+                 {
+                     OWNER, new PartialResult(key: OWNER, type: typeof(OwnerRelationship),
+                         splitOn: $"{O}.{nameof(Owner.Id)}")
                  },
              };
     }

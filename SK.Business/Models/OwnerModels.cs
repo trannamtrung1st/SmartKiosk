@@ -200,5 +200,10 @@ namespace SK.Business.Models
     {
     }
 
+    public class OwnerRelationship : Owner, IDapperRelationship
+    {
+        public string GetTableName() => nameof(Owner);
+    }
+
     #endregion
 }

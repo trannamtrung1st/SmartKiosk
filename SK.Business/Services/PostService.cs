@@ -56,14 +56,25 @@ namespace SK.Business.Services
                             var entity = row.Post;
                             var content = row.Content;
                             obj["id"] = entity.Id;
+                            obj["owner_id"] = entity.OwnerId;
+                            obj["type"] = entity.Type;
+                            obj["archived"] = entity.Archived;
                             obj["image_url"] = entity.ImageUrl;
-                            var time = entity.CreatedTime
+                            var createdTime = entity.CreatedTime
                                 .ToTimeZone(options.time_zone, options.culture, content?.Lang);
-                            var timeStr = time.ToString(options.date_format, options.culture, content?.Lang);
+                            var createdTimeStr = createdTime.ToString(options.date_format, options.culture, content?.Lang);
                             obj["created_time"] = new
                             {
-                                display = timeStr,
-                                iso = $"{time.ToUniversalTime():s}Z"
+                                display = createdTimeStr,
+                                iso = $"{createdTime.ToUniversalTime():s}Z"
+                            };
+                            var visibleTime = entity.VisibleTime?
+                                .ToTimeZone(options.time_zone, options.culture, content?.Lang);
+                            var visibleTimeStr = visibleTime?.ToString(options.date_format, options.culture, content?.Lang);
+                            if (visibleTimeStr != null) obj["visible_time"] = new
+                            {
+                                display = visibleTimeStr,
+                                iso = $"{visibleTime?.ToUniversalTime():s}Z"
                             };
                         }
                         break;
@@ -72,6 +83,7 @@ namespace SK.Business.Services
                             var entity = row.Content;
                             obj["content_id"] = entity.Id;
                             obj["lang"] = entity.Lang;
+                            obj["description"] = entity.Description;
                             obj["title"] = entity.Title;
                         }
                         break;
@@ -79,6 +91,17 @@ namespace SK.Business.Services
                         {
                             var entity = row.Content;
                             obj["content"] = entity.Content;
+                        }
+                        break;
+                    case PostQueryProjection.OWNER:
+                        {
+                            var entity = row.Owner;
+                            obj["owner"] = new
+                            {
+                                id = entity.Id,
+                                code = entity.Code,
+                                name = entity.Name,
+                            };
                         }
                         break;
                 }
@@ -220,6 +243,7 @@ namespace SK.Business.Services
                 {
                     case PostQueryProjection.INFO: row.Post = objs[i] as Post; break;
                     case PostQueryProjection.CONTENT: row.Content = objs[i] as PostContentRelationship; break;
+                    case PostQueryProjection.OWNER: row.Owner = objs[i] as OwnerRelationship; break;
                 }
             }
             return row;
@@ -233,30 +257,13 @@ namespace SK.Business.Services
         }
 
         public async Task<Post> CreatePostAsync(CreatePostModel model,
-            FileDestinationMetadata metadata = null, string userId = null)
+            FileDestinationMetadata metadata = null)
         {
             var entity = model.ToDest();
             if (model.Image != null)
                 await SetPostImageUrlAsync(entity, model.Image, metadata);
             PrepareCreate(entity);
             return context.Post.Add(entity).Entity;
-        }
-
-        public async Task CreatePostContentsAsync(IList<PostContent> entities,
-            TransDbContextOptions transOpt = null)
-        {
-            if (transOpt != null)
-            {
-                using (var context = new DataContext(transOpt.Options))
-                {
-                    context.Database.UseTransaction(transOpt.Transaction);
-                    await context.BulkInsertAsync(entities);
-                }
-            }
-            else
-            {
-                await context.BulkInsertAsync(entities);
-            }
         }
         #endregion
 

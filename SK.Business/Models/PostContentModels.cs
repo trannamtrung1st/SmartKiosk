@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace SK.Business.Models
 {
     #region Query
-    public class PostContentRelationship : PostContent
+    public class PostContentRelationship : PostContent, IDapperRelationship
     {
+        public string GetTableName() => nameof(PostContent);
     }
     #endregion
 }
