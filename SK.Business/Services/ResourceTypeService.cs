@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SK.Business.Models;
 using SK.Business.Queries;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TNT.Core.Helpers.Data;
 using TNT.Core.Helpers.DI;
 
 namespace SK.Business.Services
@@ -200,6 +202,92 @@ namespace SK.Business.Services
                 }
             }
             return row;
+        }
+        #endregion
+
+
+        #region Create ResourceType
+        protected void PrepareCreate(ResourceType entity)
+        {
+        }
+
+        public ResourceType CreateResourceType(CreateResourceTypeModel model,
+            FileDestinationMetadata metadata = null)
+        {
+            var entity = model.ToDest();
+            PrepareCreate(entity);
+            return context.ResourceType.Add(entity).Entity;
+        }
+        #endregion
+
+        #region Update ResourceType
+        private void CreateResourceTypeContents(IList<CreateResourceTypeContentModel> model, ResourceType entity)
+        {
+            var entities = model.Select(o =>
+            {
+                var content = o.ToDest();
+                content.ResourceTypeId = entity.Id;
+                return content;
+            }).ToList();
+            context.ResourceTypeContent.AddRange(entities);
+        }
+
+        private void UpdateResourceTypeContents(IList<UpdateResourceTypeContentModel> model)
+        {
+            foreach (var o in model)
+            {
+                var entity = new ResourceTypeContent();
+                entity.Id = o.Id;
+                context.Attach(entity);
+                o.CopyTo(entity);
+            }
+        }
+
+        public async Task UpdateResourceTypeTransactionAsync(ResourceType entity,
+            UpdateResourceTypeModel model,
+            FileDestinationMetadata metadata = null)
+        {
+            if (model.NewResourceTypeContents != null)
+                CreateResourceTypeContents(model.NewResourceTypeContents, entity);
+            if (model.UpdateResourceTypeContents != null)
+                UpdateResourceTypeContents(model.UpdateResourceTypeContents);
+            if (model.DeleteResourceTypeContentIds != null)
+                await DeleteResourceTypeContentByIdsAsync(model.DeleteResourceTypeContentIds);
+        }
+
+        public void ChangeArchivedState(ResourceType entity, bool archived)
+        {
+            entity.Archived = archived;
+        }
+        #endregion
+
+        #region Delete ResourceType
+        protected async Task<int> DeleteResourceTypeContentByIdsAsync(IEnumerable<int> ids)
+        {
+            var parameters = ids.GetDataParameters("id");
+            var sql = $"DELETE FROM {nameof(ResourceTypeContent)} WHERE " +
+                $"{nameof(ResourceTypeContent.Id)} IN " +
+                $"({parameters.Placeholder})";
+            var sqlParams = parameters.Parameters
+                .Select(p => new SqlParameter(p.Name, p.Value));
+            var result = await context.Database
+                .ExecuteSqlRawAsync(sql, sqlParams);
+            return result;
+        }
+
+        protected async Task<int> DeleteAllContentsOfResourceType(ResourceType entity)
+        {
+            var id = new SqlParameter("id", entity.Id);
+            var sql = $"DELETE FROM {nameof(ResourceTypeContent)} WHERE " +
+                $"{nameof(ResourceTypeContent.ResourceTypeId)}={id.ParameterName}";
+            var result = await context.Database.ExecuteSqlRawAsync(sql, id);
+            return result;
+        }
+
+        public async Task<ResourceType> DeleteResourceTypeTransactionAsync(ResourceType entity)
+        {
+            await DeleteAllContentsOfResourceType(entity);
+            return context.ResourceType.Remove(entity).Entity;
         }
         #endregion
 

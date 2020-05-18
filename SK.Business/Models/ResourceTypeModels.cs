@@ -1,4 +1,5 @@
-﻿using SK.Data.Models;
+﻿using Newtonsoft.Json;
+using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,72 @@ using System.Threading.Tasks;
 
 namespace SK.Business.Models
 {
+
+    public class CreateResourceTypeModel : MappingModel<ResourceType>
+    {
+        public CreateResourceTypeModel()
+        {
+        }
+
+        public CreateResourceTypeModel(ResourceType entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("contents")]
+        public IList<CreateResourceTypeContentModel> ResourceTypeContents { get; set; }
+
+    }
+
+    public class CreateResourceTypeContentModel : MappingModel<ResourceTypeContent>
+    {
+        public CreateResourceTypeContentModel()
+        {
+        }
+
+        public CreateResourceTypeContentModel(ResourceTypeContent entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("lang")]
+        public string Lang { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
+
+    public class UpdateResourceTypeModel : MappingModel<ResourceType>
+    {
+        public UpdateResourceTypeModel()
+        {
+        }
+
+        public UpdateResourceTypeModel(ResourceType entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("new_contents")]
+        public IList<CreateResourceTypeContentModel> NewResourceTypeContents { get; set; }
+        [JsonProperty("update_contents")]
+        public IList<UpdateResourceTypeContentModel> UpdateResourceTypeContents { get; set; }
+        [JsonProperty("delete_content_ids")]
+        public IList<int> DeleteResourceTypeContentIds { get; set; }
+
+    }
+
+    public class UpdateResourceTypeContentModel : MappingModel<ResourceTypeContent>
+    {
+        public UpdateResourceTypeContentModel()
+        {
+        }
+
+        public UpdateResourceTypeContentModel(ResourceTypeContent entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("id")]
+        public int Id { get; set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
 
     #region Query
     public class ResourceTypeQueryRow
