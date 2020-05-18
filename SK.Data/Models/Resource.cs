@@ -10,7 +10,6 @@ namespace SK.Data.Models
         public Resource()
         {
             CategoriesOfResources = new HashSet<CategoriesOfResources>();
-            PostResources = new HashSet<PostResource>();
             Contents = new HashSet<ResourceContent>();
         }
 
@@ -30,7 +29,6 @@ namespace SK.Data.Models
         public virtual Owner Owner { get; set; }
         public virtual ResourceType ResourceType { get; set; }
         public virtual ICollection<CategoriesOfResources> CategoriesOfResources { get; set; }
-        public virtual ICollection<PostResource> PostResources { get; set; }
         public virtual ICollection<ResourceContent> Contents { get; set; }
     }
 }

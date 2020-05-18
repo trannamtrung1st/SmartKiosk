@@ -8,7 +8,6 @@ namespace SK.Data.Models
     {
         public Post()
         {
-            PostResources = new HashSet<PostResource>();
             Contents = new HashSet<PostContent>();
         }
 
@@ -24,6 +23,5 @@ namespace SK.Data.Models
         public virtual Location Location { get; set; }
         public virtual Owner Owner { get; set; }
         public virtual ICollection<PostContent> Contents { get; set; }
-        public virtual ICollection<PostResource> PostResources { get; set; }
     }
 }

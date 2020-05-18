@@ -29,7 +29,6 @@ namespace SK.Data.Models
         public virtual DbSet<Floor> Floor { get; set; }
         public virtual DbSet<Location> Location { get; set; }
         public virtual DbSet<Owner> Owner { get; set; }
-        public virtual DbSet<PostResource> PostResource { get; set; }
         public virtual DbSet<Post> Post { get; set; }
         public virtual DbSet<PostContent> PostContent { get; set; }
         public virtual DbSet<EntityCategory> EntityCategory { get; set; }
@@ -275,24 +274,6 @@ namespace SK.Data.Models
                 entity.Property(e => e.Name).HasMaxLength(255);
 
                 entity.Property(e => e.Phone).HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<PostResource>(entity =>
-            {
-                entity.HasKey(e => new { e.PostId, e.ResourceId })
-                    .HasName("PK_PostResource");
-
-                entity.HasOne(e => e.Post)
-                    .WithMany(p => p.PostResources)
-                    .HasForeignKey(e => e.PostId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("FK_PostResource_Post");
-
-                entity.HasOne(d => d.Resource)
-                    .WithMany(p => p.PostResources)
-                    .HasForeignKey(d => d.ResourceId)
-                    .HasConstraintName("FK_PostResource_Resource")
-                    .HasConstraintName("FK_PostResource_Resource");
             });
 
             modelBuilder.Entity<Post>(entity =>
