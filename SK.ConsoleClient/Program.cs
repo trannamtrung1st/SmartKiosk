@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryResourceType(provider);
+            QueryEntityCategory(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -341,6 +341,40 @@ namespace SK.ConsoleClient
 
                 Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
                 _logger.Info("Query resource type data");
+            }
+        }
+
+        static void QueryEntityCategory(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<EntityCategoryService>();
+                var results = sdService.QueryEntityCategoryDynamic(
+                    projection: new EntityCategoryQueryProjection()
+                    {
+                        fields =
+                        $"{EntityCategoryQueryProjection.INFO}," +
+                        $"{EntityCategoryQueryProjection.CONTENT}"
+                    },
+                    options: new EntityCategoryQueryOptions() { count_total = true },
+                    filter: new EntityCategoryQueryFilter()
+                    {
+                        lang = Lang.EN,
+                        archived = 0
+                    },
+                    sort: new EntityCategoryQuerySort()
+                    {
+                        sorts = "a" + EntityCategoryQuerySort.NAME
+                    },
+                    paging: new EntityCategoryQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query entity category data");
             }
         }
     }
