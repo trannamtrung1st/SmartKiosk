@@ -22,6 +22,8 @@ namespace SK.Data.Models
         public int TypeId { get; set; }
         public int OwnerId { get; set; }
         public int LocationId { get; set; }
+        public int BuildingId { get; set; }
+        public int FloorId { get; set; }
         public int AreaId { get; set; }
 
         public virtual Area Area { get; set; }
