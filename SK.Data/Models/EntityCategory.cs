@@ -12,6 +12,7 @@ namespace SK.Data.Models
         }
 
         public int Id { get; set; }
+        public bool Archived { get; set; }
 
         public virtual ICollection<CategoriesOfResources> CategoriesOfResources { get; set; }
         public virtual ICollection<EntityCategoryContent> Contents { get; set; }
