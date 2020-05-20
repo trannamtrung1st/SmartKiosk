@@ -31,7 +31,7 @@ namespace SK.Business.Models
         [JsonProperty("image")]
         public FileDestination Image { get; set; }
         [JsonProperty("contents")]
-        public IList<CreatePostContentModel> PostContents { get; set; }
+        public IList<CreatePostContentModel> Contents { get; set; }
 
     }
 

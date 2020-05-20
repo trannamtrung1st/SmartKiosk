@@ -41,7 +41,7 @@ namespace SK.Business.Models
         [JsonProperty("category_ids")]
         public IList<int> CategoryIds { get; set; }
         [JsonProperty("contents")]
-        public IList<CreateResourceContentModel> ResourceContents { get; set; }
+        public IList<CreateResourceContentModel> Contents { get; set; }
 
     }
 

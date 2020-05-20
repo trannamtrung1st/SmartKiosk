@@ -19,7 +19,7 @@ namespace SK.Business.Models
         }
 
         [JsonProperty("contents")]
-        public IList<CreateEntityCategoryContentModel> EntityCategoryContents { get; set; }
+        public IList<CreateEntityCategoryContentModel> Contents { get; set; }
 
     }
 

@@ -19,7 +19,7 @@ namespace SK.Business.Models
         }
 
         [JsonProperty("contents")]
-        public IList<CreateResourceTypeContentModel> ResourceTypeContents { get; set; }
+        public IList<CreateResourceTypeContentModel> Contents { get; set; }
 
     }
 

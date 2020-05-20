@@ -46,7 +46,7 @@ namespace SK.WebApi
 
             var createPostModel = new CreatePostModel
             {
-                PostContents = new List<CreatePostContentModel>
+                Contents = new List<CreatePostContentModel>
                 {
                     new CreatePostContentModel
                     {
