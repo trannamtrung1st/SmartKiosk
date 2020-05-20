@@ -6,6 +6,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -221,6 +222,25 @@ namespace SK.Business.Services
             var entity = model.ToDest();
             PrepareCreate(entity);
             return context.Building.Add(entity).Entity;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetBuildings(
+            ClaimsPrincipal principal,
+            BuildingQueryFilter filter,
+            BuildingQuerySort sort,
+            BuildingQueryProjection projection,
+            BuildingQueryPaging paging,
+            BuildingQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateBuilding(ClaimsPrincipal principal,
+            CreateBuildingModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
     }
