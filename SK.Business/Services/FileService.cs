@@ -28,7 +28,7 @@ namespace SK.Business.Services
         {
             return new Connector(driver)
             {
-                MimeDetect = MimeDetect.INTERNAL
+                MimeDetect = MimeDetectOption.Internal
             };
         }
 

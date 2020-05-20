@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\elFinder.NetCore\elFinder.NetCore.csproj" />
     <ProjectReference Include="..\SK.Business\SK.Business.csproj" />
     <ProjectReference Include="..\SK.WebHelpers\SK.WebHelpers.csproj" />
     <ProjectReference Include="..\SK\SK.csproj" />
