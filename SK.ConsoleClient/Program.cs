@@ -29,7 +29,7 @@ namespace SK.ConsoleClient
             Business.Global.Init(services);
             services.AddServiceInjection();
             var provider = services.BuildServiceProvider();
-            QueryEntityCategory(provider);
+            QueryResource(provider);
         }
 
         static void QueryDevice(IServiceProvider provider)
@@ -375,6 +375,45 @@ namespace SK.ConsoleClient
 
                 Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
                 _logger.Info("Query entity category data");
+            }
+        }
+
+        static void QueryResource(IServiceProvider provider)
+        {
+            using (var scope = provider.CreateScope())
+            {
+                provider = scope.ServiceProvider;
+                var sdService = provider.GetRequiredService<ResourceService>();
+                var results = sdService.QueryResourceDynamic(
+                    projection: new ResourceQueryProjection()
+                    {
+                        fields =
+                        $"{ResourceQueryProjection.INFO}," +
+                        $"{ResourceQueryProjection.AREA}," +
+                        $"{ResourceQueryProjection.CATEGORIES}," +
+                        $"{ResourceQueryProjection.CONTENT}," +
+                        $"{ResourceQueryProjection.CONTENT_CONTENT}," +
+                        $"{ResourceQueryProjection.LOCATION}," +
+                        $"{ResourceQueryProjection.OWNER}"
+                    },
+                    options: new ResourceQueryOptions() { count_total = true },
+                    filter: new ResourceQueryFilter()
+                    {
+                        lang = Lang.EN,
+                        archived = 0
+                    },
+                    sort: new ResourceQuerySort()
+                    {
+                        sorts = "a" + ResourceQuerySort.NAME
+                    },
+                    paging: new ResourceQueryPaging()
+                    {
+                        limit = 100,
+                        page = 1
+                    }).Result;
+
+                Console.WriteLine(JsonConvert.SerializeObject(results, Formatting.Indented));
+                _logger.Info("Query resource data");
             }
         }
     }

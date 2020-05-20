@@ -75,6 +75,11 @@ namespace SK.Business.Models
     }
 
     #region Query
+    public class EntityCategoryRelationship : EntityCategory, IDapperRelationship
+    {
+        public string GetTableName() => nameof(EntityCategory);
+    }
+
     public class EntityCategoryQueryRow
     {
         public EntityCategory EntityCategory { get; set; }
