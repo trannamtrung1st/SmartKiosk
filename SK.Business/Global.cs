@@ -76,10 +76,9 @@ namespace SK.Business
             InitDapper();
         }
 
-        public static void ParseFirebaseConfig()
+        public static void ParseFirebaseConfig(string secretFile)
         {
-            var firebaseSecret = Settings.Instance.FirebaseSecret;
-            var secretJson = File.ReadAllText(firebaseSecret);
+            var secretJson = File.ReadAllText(secretFile);
             Settings.Instance.FirebaseConfig = JsonConvert.DeserializeObject<FirebaseConfig>(secretJson);
         }
 

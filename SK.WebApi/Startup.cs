@@ -33,7 +33,7 @@ namespace SK.WebApi
             Configuration = configuration;
             configuration.Bind("BusinessSettings", Business.Settings.Instance);
             configuration.Bind("WebApiSettings", WebApi.Settings.Instance);
-            Business.Global.ParseFirebaseConfig();
+            Business.Global.ParseFirebaseConfig(WebApi.Settings.Instance.FirebaseSecret);
         }
 
         public IConfiguration Configuration { get; }
@@ -64,20 +64,15 @@ namespace SK.WebApi
             connStr = connStr.Replace("{envConfig}", "");
 #endif
             services.AddDbContext<DataContext>(options =>
-            {
-                options.UseSqlServer(connStr);
-                options.UseLazyLoadingProxies();
-            });
+                options.UseSqlServer(connStr).UseLazyLoadingProxies());
             services.Configure<ApiBehaviorOptions>(options =>
-            {
-                options.SuppressModelStateInvalidFilter = true;
-            });
+                options.SuppressModelStateInvalidFilter = true);
             Data.Global.Init(services);
             Business.Global.Init(services);
             //Firebase
             FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromFile(Business.Settings.Instance.FirebaseSecret),
+                Credential = GoogleCredential.FromFile(WebApi.Settings.Instance.FirebaseSecret),
             });
             #region OAuth
             services.AddIdentityCore<AppUser>(options =>

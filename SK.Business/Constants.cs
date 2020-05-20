@@ -48,6 +48,7 @@ namespace SK.Business
         public const string ROLE_API = "api/roles";
         public const string USER_API = "api/users";
         public const string POST_API = "api/posts";
+        public const string AREA_API = "api/areas";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }

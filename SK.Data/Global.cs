@@ -17,7 +17,7 @@ namespace SK.Data
         private static void InitDI(IServiceCollection services)
         {
             services.AddScoped<DataContext>()
-                .AddScoped<DbContext, DataContext>();
+                .AddScoped<DbContext>(p => p.GetRequiredService<DataContext>());
             ServiceInjection.Register(new List<Assembly>()
             {
                 Assembly.GetExecutingAssembly()

@@ -25,7 +25,6 @@ namespace SK.Business
         }
         public CultureInfo[] SupportedCultures { get; set; }
         public string Name { get; set; }
-        public string FirebaseSecret { get; set; }
         public FirebaseConfig FirebaseConfig { get; set; }
 
         private static Settings _instance;

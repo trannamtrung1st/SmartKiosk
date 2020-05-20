@@ -6,6 +6,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -244,6 +245,49 @@ namespace SK.Business.Services
         {
             model.CopyTo(entity);
         }
+
+        public void ChangeArchivedState(Area entity, ChangeArchivedStateModel model)
+        {
+            ChangeArchivedState(entity, model.Archived);
+        }
+
+        public void ChangeArchivedState(Area entity, bool archived)
+        {
+            entity.Archived = archived;
+        }
         #endregion
+
+
+        #region Validation
+        public ValidationResult ValidateGetAreas(
+            ClaimsPrincipal principal,
+            AreaQueryFilter filter,
+            AreaQuerySort sort,
+            AreaQueryProjection projection,
+            AreaQueryPaging paging,
+            AreaQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateChangeArchivedState(ClaimsPrincipal principal,
+            Area entity, ChangeArchivedStateModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateArea(ClaimsPrincipal principal,
+            CreateAreaModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateArea(ClaimsPrincipal principal,
+            Area entity, UpdateAreaModel model)
+        {
+            return ValidationResult.Pass();
+        }
+        #endregion
+
     }
 }
