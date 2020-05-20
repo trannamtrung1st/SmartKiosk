@@ -9,6 +9,16 @@ namespace SK.Business.Queries
 {
     public static class DeviceQuery
     {
+        public static IQueryable<Device> SelectTokenOnly(this IQueryable<Device> query)
+        {
+            return query.Select(q => new Device
+            {
+                Id = q.Id,
+                AccessToken = q.AccessToken,
+                CurrentFcmToken = q.CurrentFcmToken
+            });
+        }
+
         public static IQueryable<Device> Id(this IQueryable<Device> query, string id)
         {
             return query.Where(o => o.Id == id);

@@ -13,7 +13,17 @@ namespace SK.Data
 
     public static class RoleName
     {
-        public const string ADMIN = "Administrator";
+        public const string UserManager = "UserManager";
+        public const string LocationManager = "LocationManager";
+        public const string BuildingManager = "BuildingManager";
+        public const string ConfigManager = "ConfigManager";
+        public const string ReportManager = "ReportManager";
+        public const string Device = "Device";
+        public const string OwnerManager = "OwnerManager";
+        public const string DeviceManager = "DeviceManager";
+        public const string AppManager = "AppManager";
+        public const string DataManager = "DataManager";
+        public const string ScheduleManager = "ScheduleManager";
     }
 
     public enum PostsConfigMode

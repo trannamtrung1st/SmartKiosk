@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,6 +33,7 @@ namespace SK.WebApi
             Configuration = configuration;
             configuration.Bind("BusinessSettings", Business.Settings.Instance);
             configuration.Bind("WebApiSettings", WebApi.Settings.Instance);
+            Business.Global.ParseFirebaseConfig();
         }
 
         public IConfiguration Configuration { get; }
@@ -71,6 +74,11 @@ namespace SK.WebApi
             });
             Data.Global.Init(services);
             Business.Global.Init(services);
+            //Firebase
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(Business.Settings.Instance.FirebaseSecret),
+            });
             #region OAuth
             services.AddIdentityCore<AppUser>(options =>
             {
