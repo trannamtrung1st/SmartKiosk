@@ -7,6 +7,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -228,7 +229,11 @@ namespace SK.Business.Services
         #region Update Config
         public void UpdateConfig(Config entity, UpdateConfigModel model)
         {
-            model.CopyTo(entity);
+            if (model.Info != null) model.Info.CopyTo(entity);
+            if (model.SSP != null) UpdateScreenSaverPlaylist(entity, model.SSP);
+            if (model.HomePage != null) UpdateHomePageConfig(entity, model.HomePage);
+            if (model.ProgramEvent != null) UpdateProgramEventConfig(entity, model.ProgramEvent);
+            if (model.Contact != null) UpdateContactConfig(entity, model.Contact);
         }
 
         public void UpdateScreenSaverPlaylist(Config entity, ScreenSaverPlaylist model)
@@ -250,6 +255,31 @@ namespace SK.Business.Services
         public void UpdateContactConfig(Config entity, ContactConfig model)
         {
             entity.ContactConfig = JsonConvert.SerializeObject(model);
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetConfigs(
+            ClaimsPrincipal principal,
+            ConfigQueryFilter filter,
+            ConfigQuerySort sort,
+            ConfigQueryProjection projection,
+            ConfigQueryPaging paging,
+            ConfigQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateConfig(ClaimsPrincipal principal,
+            CreateConfigModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateConfig(ClaimsPrincipal principal,
+            Config entity, UpdateConfigModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

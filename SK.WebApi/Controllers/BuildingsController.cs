@@ -40,8 +40,11 @@ namespace SK.WebApi.Controllers
                 return BadRequest(validationResult.Result);
             var result = await _service.QueryBuildingDynamic(
                 projection, options, filter, sort, paging);
-            if (options.single_only && result == null)
-                return NotFound(new AppResultBuilder().NotFound());
+            if (options.single_only)
+            {
+                if (result == null) return NotFound(new AppResultBuilder().NotFound());
+                return Ok(new AppResultBuilder().Success(result.SingleResult));
+            }
             return Ok(new AppResultBuilder().Success(result));
         }
 

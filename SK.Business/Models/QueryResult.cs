@@ -8,7 +8,7 @@ namespace SK.Business.Models
 {
     public class QueryResult<T>
     {
-        [JsonProperty("results")]
+        [JsonProperty("results", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<T> Results { get; set; }
         [JsonProperty("single_result", NullValueHandling = NullValueHandling.Ignore)]
         public T SingleResult { get; set; }

@@ -28,23 +28,36 @@ namespace SK.Business.Models
 
     }
 
-    public class UpdateConfigModel : MappingModel<Config>
+    public class UpdateConfigModel
     {
+        [JsonProperty("info")]
+        public UpdateConfigInfoModel Info { get; set; }
+        [JsonProperty("ssp_config")]
+        public ScreenSaverPlaylist SSP { get; set; }
+        [JsonProperty("home_page_config")]
+        public HomePageConfig HomePage { get; set; }
+        [JsonProperty("pe_config")]
+        public PostsConfig ProgramEvent { get; set; }
+        [JsonProperty("contact_config")]
+        public ContactConfig Contact { get; set; }
+    }
+
+    public class UpdateConfigInfoModel : MappingModel<Config>
+    {
+        public UpdateConfigInfoModel()
+        {
+        }
+
+        public UpdateConfigInfoModel(Config src) : base(src)
+        {
+        }
+
         [JsonProperty("code")]
         public string Code { get; set; }
         [JsonProperty("name")]
         public string Name { get; set; }
         [JsonProperty("description")]
         public string Description { get; set; }
-
-        public UpdateConfigModel()
-        {
-        }
-
-        public UpdateConfigModel(Config entity) : base(entity)
-        {
-        }
-
     }
 
     #region Query
