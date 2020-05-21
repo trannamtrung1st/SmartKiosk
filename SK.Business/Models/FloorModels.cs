@@ -26,7 +26,7 @@ namespace SK.Business.Models
         [JsonProperty("location_id")]
         public int LocationId { get; set; }
         [JsonProperty("building_id")]
-        public int FloorId { get; set; }
+        public int BuildingId { get; set; }
     }
 
     public class UpdateFloorModel : MappingModel<Floor>

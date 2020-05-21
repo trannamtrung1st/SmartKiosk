@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -258,6 +259,47 @@ namespace SK.Business.Services
             entity.FloorPlanSvg = svg;
         }
 
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetFloors(
+            ClaimsPrincipal principal,
+            FloorQueryFilter filter,
+            FloorQuerySort sort,
+            FloorQueryProjection projection,
+            FloorQueryPaging paging,
+            FloorQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateFloorPlan(
+            ClaimsPrincipal principal,
+            Floor entity,
+            UpdateFloorPlanModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateFloorPlanConfig(
+            ClaimsPrincipal principal,
+            Floor entity,
+            string svg)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateFloor(ClaimsPrincipal principal,
+            CreateFloorModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateFloor(ClaimsPrincipal principal,
+            Floor entity, UpdateFloorModel model)
+        {
+            return ValidationResult.Pass();
+        }
         #endregion
     }
 }

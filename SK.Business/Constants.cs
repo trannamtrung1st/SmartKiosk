@@ -54,6 +54,7 @@ namespace SK.Business
         public const string CONFIG_API = "api/configs";
         public const string BUILDING_API = "api/buildings";
         public const string DEVICE_API = "api/devices";
+        public const string FLOOR_API = "api/floors";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }
