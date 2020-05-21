@@ -6,6 +6,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -222,6 +223,31 @@ namespace SK.Business.Services
         public void ChangeArchivedState(Owner entity, bool archived)
         {
             entity.Archived = archived;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetOwners(
+            ClaimsPrincipal principal,
+            OwnerQueryFilter filter,
+            OwnerQuerySort sort,
+            OwnerQueryProjection projection,
+            OwnerQueryPaging paging,
+            OwnerQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateOwner(ClaimsPrincipal principal,
+            CreateOwnerModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateOwner(ClaimsPrincipal principal,
+            Owner entity, UpdateOwnerModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 
