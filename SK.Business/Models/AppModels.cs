@@ -73,6 +73,17 @@ namespace SK.Business.Models
             return this;
         }
 
+        public AppResultBuilder InvalidActivationCode(object data = null, string mess = null)
+        {
+            Results.Add(new AppResult
+            {
+                Code = AppResultCode.InvalidActivationCode,
+                Message = mess ?? AppResultCode.InvalidActivationCode.DisplayName(),
+                Data = data,
+            });
+            return this;
+        }
+
         public AppResultBuilder NotFound(object data = null, string mess = null)
         {
             Results.Add(new AppResult

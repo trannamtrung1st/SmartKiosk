@@ -8,6 +8,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
@@ -279,6 +280,17 @@ namespace SK.Business.Services
         {
         }
 
+        public AppUser MakeDeviceAccount(CreateDeviceModel model)
+        {
+            var entity = new AppUser
+            {
+                UserName = model.username,
+                PasswordHash = model.password,
+                ActivationCode = model.ActivationCode
+            };
+            return entity;
+        }
+
         public Device CreateDevice(CreateDeviceModel model, string accountId)
         {
             var entity = model.ToDest();
@@ -298,16 +310,20 @@ namespace SK.Business.Services
             entity.CurrentFcmToken = newFCMToken;
             entity.AccessToken = newAccessToken;
         }
+
         public void SetScheduleForDevices(Schedule schedule, IEnumerable<string> deviceIds)
         {
             var entities = Devices.IdOnly().Ids(deviceIds).ToList();
             foreach (var e in entities)
+            {
                 e.ScheduleId = schedule?.Id;
+                context.Entry(e).Property(o => o.ScheduleId).IsModified = true;
+            }
         }
         #endregion
 
         #region Control Device
-        public async Task<BatchResponse> TriggerReloadDevicesAsync(TriggerReloadDevicesModel model)
+        public async Task<BatchResponse> TriggerDevicesAsync(TriggerDevicesModel model)
         {
             var messages = model.DeviceIds.Select(id => new Message
             {
@@ -318,6 +334,36 @@ namespace SK.Business.Services
                 }
             });
             return await FirebaseMessaging.DefaultInstance.SendAllAsync(messages);
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetDevices(
+            ClaimsPrincipal principal,
+            DeviceQueryFilter filter,
+            DeviceQuerySort sort,
+            DeviceQueryProjection projection,
+            DeviceQueryPaging paging,
+            DeviceQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateDevice(ClaimsPrincipal principal,
+            CreateDeviceModel model, string validActCode)
+        {
+            var builder = new AppResultBuilder();
+            if (model.ActivationCode != validActCode)
+                builder = builder.InvalidActivationCode();
+            if (builder.Results.Any())
+                return ValidationResult.Fail(builder);
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateDevice(ClaimsPrincipal principal,
+            Device entity, UpdateDeviceModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

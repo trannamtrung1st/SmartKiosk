@@ -15,6 +15,7 @@ using SK.Business.Models;
 using SK.Business.Services;
 using SK.Data.Helpers;
 using SK.Data.Models;
+using SK.WebApi.Helpers;
 using TNT.Core.Helpers.DI;
 using TNT.Core.Http.DI;
 
@@ -135,19 +136,7 @@ namespace SK.WebApi.Controllers
                 foreach (var err in result.Errors)
                     ModelState.AddModelError(err.Code, err.Description);
             }
-            var builder = new AppResultBuilder();
-            if (ModelState.ContainsKey("password")
-                && ModelState["password"].ValidationState == ModelValidationState.Invalid)
-                builder.FailValidation(mess: "Invalid password");
-            if (ModelState.ContainsKey("confirm_password")
-                && ModelState["confirm_password"].ValidationState == ModelValidationState.Invalid)
-                builder.FailValidation(mess: "The password and confirm password are not matched");
-            if (ModelState.ContainsKey("username")
-                && ModelState["username"].ValidationState == ModelValidationState.Invalid)
-                builder.FailValidation(mess: "Invalid username");
-            if (ModelState.ContainsKey("DuplicateUserName")
-                && ModelState["DuplicateUserName"].ValidationState == ModelValidationState.Invalid)
-                builder.DuplicatedUsername();
+            var builder = ResultHelper.MakeInvalidAccountRegistrationResults(ModelState);
             return BadRequest(builder.Results);
         }
 

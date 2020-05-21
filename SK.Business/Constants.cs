@@ -23,7 +23,9 @@ namespace SK.Business
         [Display(Name = "Unauthorized")]
         Unauthorized = 7,
         [Display(Name = "Username has already existed")]
-        DuplicatedUsername = 8
+        DuplicatedUsername = 8,
+        [Display(Name = "Invalid activation code")]
+        InvalidActivationCode = 9
 
     }
 
@@ -51,6 +53,7 @@ namespace SK.Business
         public const string AREA_API = "api/areas";
         public const string CONFIG_API = "api/configs";
         public const string BUILDING_API = "api/buildings";
+        public const string DEVICE_API = "api/devices";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }

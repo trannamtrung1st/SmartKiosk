@@ -78,7 +78,7 @@ namespace SK.WebApi.Controllers
 
         [AppAuthorize(Roles = Data.RoleName.BuildingManager)]
         [HttpPatch("{id}/archived")]
-        public IActionResult ChangeArchivedState(int id, ChangeArchivedStateModel model)
+        public IActionResult ChangeArchivedState(int id, ChangeAreaArchivedStateModel model)
         {
             var entity = _service.Areas.Id(id).FirstOrDefault();
             if (entity == null)

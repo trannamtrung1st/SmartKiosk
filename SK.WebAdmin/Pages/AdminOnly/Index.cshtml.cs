@@ -10,7 +10,7 @@ using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Pages.AdminOnly
 {
-    [Authorize(Roles = RoleName.ADMIN)]
+    [Authorize(Roles = RoleName.AppManager)]
     public class IndexModel : BasePageModel<IndexModel>
     {
         public void OnGet()

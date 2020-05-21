@@ -89,12 +89,20 @@ namespace SK.Business.Models
         public double? Lon { get; set; }
     }
 
-    public class TriggerReloadDevicesModel
+    public class TriggerDevicesModel
     {
         [JsonProperty("device_ids")]
         public IEnumerable<string> DeviceIds { get; set; }
         [JsonProperty("action")]
         public string Action { get; set; }
+    }
+
+    public class SetScheduleForDevicesModel
+    {
+        [JsonProperty("schedule_id")]
+        public int? ScheduleId { get; set; }
+        [JsonProperty("device_ids")]
+        public IEnumerable<string> DeviceIds { get; set; }
     }
 
     #region Query

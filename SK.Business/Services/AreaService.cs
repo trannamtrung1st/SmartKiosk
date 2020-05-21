@@ -246,7 +246,7 @@ namespace SK.Business.Services
             model.CopyTo(entity);
         }
 
-        public void ChangeArchivedState(Area entity, ChangeArchivedStateModel model)
+        public void ChangeArchivedState(Area entity, ChangeAreaArchivedStateModel model)
         {
             ChangeArchivedState(entity, model.Archived);
         }
@@ -256,7 +256,6 @@ namespace SK.Business.Services
             entity.Archived = archived;
         }
         #endregion
-
 
         #region Validation
         public ValidationResult ValidateGetAreas(
@@ -271,7 +270,7 @@ namespace SK.Business.Services
         }
 
         public ValidationResult ValidateChangeArchivedState(ClaimsPrincipal principal,
-            Area entity, ChangeArchivedStateModel model)
+            Area entity, ChangeAreaArchivedStateModel model)
         {
             return ValidationResult.Pass();
         }

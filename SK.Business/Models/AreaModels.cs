@@ -49,7 +49,7 @@ namespace SK.Business.Models
         public string Code { get; set; }
     }
 
-    public class ChangeArchivedStateModel
+    public class ChangeAreaArchivedStateModel
     {
         [JsonProperty("archived")]
         public bool Archived { get; set; }
