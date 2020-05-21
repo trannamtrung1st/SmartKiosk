@@ -98,6 +98,8 @@ namespace SK.Business.Models
         public string Title { get; set; }
         [JsonProperty("content")]
         public string Content { get; set; }
+        [JsonProperty("description")]
+        public string Description { get; set; }
     }
 
     #region Query
