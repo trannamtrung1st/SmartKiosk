@@ -330,7 +330,7 @@ namespace SK.Business.Services
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(ScheduleWeekConfig)} WHERE " +
-                $"{nameof(ScheduleWeekConfig.ScheduleDetailId)}={id.ParameterName}";
+                $"{nameof(ScheduleWeekConfig.ScheduleDetailId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }

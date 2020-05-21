@@ -13,6 +13,9 @@ namespace SK.WebApi
     {
         public static void Main(string[] args)
         {
+#if TEST
+            PostmanGenerator.Generate();
+#endif
             CreateHostBuilder(args).Build().Run();
         }
 

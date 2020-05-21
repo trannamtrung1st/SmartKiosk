@@ -34,6 +34,14 @@ namespace SK.Business.Services
             }
         }
 
+        public IQueryable<ResourceContent> ResourceContents
+        {
+            get
+            {
+                return context.ResourceContent;
+            }
+        }
+
         public IDictionary<string, object> GetResourceDynamic(
             ResourceQueryRow row, ResourceQueryProjection projection,
             ResourceQueryOptions options)
@@ -374,14 +382,18 @@ namespace SK.Business.Services
             context.ResourceContent.AddRange(entities);
         }
 
-        private void UpdateResourceContents(IList<UpdateResourceContentModel> model)
+        private void UpdateResourceContents(IList<UpdateResourceContentModel> model, int refId)
         {
             foreach (var o in model)
             {
-                var entity = new ResourceContent();
-                entity.Id = o.Id;
-                context.Attach(entity);
+                var entity = ResourceContents.ByLang(o.Lang)
+                    .OfResource(refId).IdOnly().FirstOrDefault();
+                //not found => null => exception
                 o.CopyTo(entity);
+                var entry = context.Entry(entity);
+                entry.Property(nameof(UpdateResourceContentModel.Content)).IsModified = true;
+                entry.Property(nameof(UpdateResourceContentModel.Description)).IsModified = true;
+                entry.Property(nameof(UpdateResourceContentModel.Name)).IsModified = true;
             }
         }
 
@@ -399,9 +411,9 @@ namespace SK.Business.Services
             if (model.NewResourceContents != null)
                 CreateResourceContents(model.NewResourceContents, entity);
             if (model.UpdateResourceContents != null)
-                UpdateResourceContents(model.UpdateResourceContents);
-            if (model.DeleteResourceContentIds != null)
-                await DeleteResourceContentByIdsAsync(model.DeleteResourceContentIds);
+                UpdateResourceContents(model.UpdateResourceContents, entity.Id);
+            if (model.DeleteResourceContentLangs != null)
+                await DeleteContentsOfResourceAsync(model.DeleteResourceContentLangs, entity.Id);
             if (model.CategoryIds != null)
             {
                 await DeleteAllCategoriesOfResourceAsync(entity);
@@ -428,11 +440,27 @@ namespace SK.Business.Services
             return result;
         }
 
+        protected async Task<int> DeleteContentsOfResourceAsync(IEnumerable<string> langs, int refId)
+        {
+            var parameters = langs.GetDataParameters("lang");
+            var refIdParam = new SqlParameter("refId", refId);
+            var sql = $"DELETE FROM {nameof(ResourceContent)} WHERE " +
+                $"{nameof(ResourceContent.Lang)} IN " +
+                $"({parameters.Placeholder}) AND {nameof(ResourceContent.ResourceId)}=@{refIdParam.ParameterName}";
+            var sqlParams = parameters.Parameters
+                .Select(p => new SqlParameter(p.Name, p.Value))
+                .ToList();
+            sqlParams.Add(refIdParam);
+            var result = await context.Database
+                .ExecuteSqlRawAsync(sql, sqlParams);
+            return result;
+        }
+
         protected async Task<int> DeleteAllContentsOfResourceAsync(Resource entity)
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(ResourceContent)} WHERE " +
-                $"{nameof(ResourceContent.ResourceId)}={id.ParameterName}";
+                $"{nameof(ResourceContent.ResourceId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }
@@ -441,7 +469,7 @@ namespace SK.Business.Services
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(CategoriesOfResources)} WHERE " +
-                $"{nameof(CategoriesOfResources.ResourceId)}={id.ParameterName}";
+                $"{nameof(CategoriesOfResources.ResourceId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }

@@ -232,14 +232,17 @@ namespace SK.Business.Services
             context.ResourceTypeContent.AddRange(entities);
         }
 
-        private void UpdateResourceTypeContents(IList<UpdateResourceTypeContentModel> model)
+        private void UpdateResourceTypeContents(
+            IList<UpdateResourceTypeContentModel> model, int refId)
         {
             foreach (var o in model)
             {
-                var entity = new ResourceTypeContent();
-                entity.Id = o.Id;
-                context.Attach(entity);
+                var entity = ResourceTypeContents.ByLang(o.Lang)
+                    .OfResourceType(refId).IdOnly().FirstOrDefault();
+                //not found => null => exception
                 o.CopyTo(entity);
+                var entry = context.Entry(entity);
+                entry.Property(nameof(UpdateResourceTypeContentModel.Name)).IsModified = true;
             }
         }
 
@@ -250,9 +253,9 @@ namespace SK.Business.Services
             if (model.NewResourceTypeContents != null)
                 CreateResourceTypeContents(model.NewResourceTypeContents, entity);
             if (model.UpdateResourceTypeContents != null)
-                UpdateResourceTypeContents(model.UpdateResourceTypeContents);
-            if (model.DeleteResourceTypeContentIds != null)
-                await DeleteResourceTypeContentByIdsAsync(model.DeleteResourceTypeContentIds);
+                UpdateResourceTypeContents(model.UpdateResourceTypeContents, entity.Id);
+            if (model.DeleteResourceTypeContentLangs != null)
+                await DeleteContentsOfResourceTypeAsync(model.DeleteResourceTypeContentLangs, entity.Id);
         }
 
         public void ChangeArchivedState(ResourceType entity, bool archived)
@@ -275,18 +278,34 @@ namespace SK.Business.Services
             return result;
         }
 
-        protected async Task<int> DeleteAllContentsOfResourceType(ResourceType entity)
+        protected async Task<int> DeleteContentsOfResourceTypeAsync(IEnumerable<string> langs, int refId)
+        {
+            var parameters = langs.GetDataParameters("lang");
+            var refIdParam = new SqlParameter("refId", refId);
+            var sql = $"DELETE FROM {nameof(ResourceTypeContent)} WHERE " +
+                $"{nameof(ResourceTypeContent.Lang)} IN " +
+                $"({parameters.Placeholder}) AND {nameof(ResourceTypeContent.ResourceTypeId)}=@{refIdParam.ParameterName}";
+            var sqlParams = parameters.Parameters
+                .Select(p => new SqlParameter(p.Name, p.Value))
+                .ToList();
+            sqlParams.Add(refIdParam);
+            var result = await context.Database
+                .ExecuteSqlRawAsync(sql, sqlParams);
+            return result;
+        }
+
+        protected async Task<int> DeleteAllContentsOfResourceTypeAsync(ResourceType entity)
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(ResourceTypeContent)} WHERE " +
-                $"{nameof(ResourceTypeContent.ResourceTypeId)}={id.ParameterName}";
+                $"{nameof(ResourceTypeContent.ResourceTypeId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }
 
         public async Task<ResourceType> DeleteResourceTypeTransactionAsync(ResourceType entity)
         {
-            await DeleteAllContentsOfResourceType(entity);
+            await DeleteAllContentsOfResourceTypeAsync(entity);
             return context.ResourceType.Remove(entity).Entity;
         }
         #endregion

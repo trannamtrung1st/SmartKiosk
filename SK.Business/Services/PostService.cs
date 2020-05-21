@@ -279,14 +279,18 @@ namespace SK.Business.Services
             context.PostContent.AddRange(entities);
         }
 
-        private void UpdatePostContents(IList<UpdatePostContentModel> model)
+        private void UpdatePostContents(IList<UpdatePostContentModel> model, int refId)
         {
             foreach (var o in model)
             {
-                var entity = new PostContent();
-                entity.Id = o.Id;
-                context.Attach(entity);
+                var entity = PostContents.ByLang(o.Lang)
+                    .OfPost(refId).IdOnly().FirstOrDefault();
+                //not found => null => exception
                 o.CopyTo(entity);
+                var entry = context.Entry(entity);
+                entry.Property(nameof(UpdatePostContentModel.Content)).IsModified = true;
+                entry.Property(nameof(UpdatePostContentModel.Title)).IsModified = true;
+                entry.Property(nameof(UpdatePostContentModel.Description)).IsModified = true;
             }
         }
 
@@ -298,9 +302,9 @@ namespace SK.Business.Services
             if (model.NewPostContents != null)
                 CreatePostContents(model.NewPostContents, entity);
             if (model.UpdatePostContents != null)
-                UpdatePostContents(model.UpdatePostContents);
-            if (model.DeletePostContentIds != null)
-                await DeletePostContentByIdsAsync(model.DeletePostContentIds);
+                UpdatePostContents(model.UpdatePostContents, entity.Id);
+            if (model.DeletePostContentLangs != null)
+                await DeleteContentsOfPostAsync(model.DeletePostContentLangs, entity.Id);
             if (model.Image != null)
                 await SetPostImageUrlAsync(entity, model.Image, metadata);
         }
@@ -320,18 +324,34 @@ namespace SK.Business.Services
             return result;
         }
 
-        protected async Task<int> DeleteAllContentsOfPost(Post entity)
+        protected async Task<int> DeleteContentsOfPostAsync(IEnumerable<string> langs, int refId)
+        {
+            var parameters = langs.GetDataParameters("lang");
+            var refIdParam = new SqlParameter("refId", refId);
+            var sql = $"DELETE FROM {nameof(PostContent)} WHERE " +
+                $"{nameof(PostContent.Lang)} IN " +
+                $"({parameters.Placeholder}) AND {nameof(PostContent.PostId)}=@{refIdParam.ParameterName}";
+            var sqlParams = parameters.Parameters
+                .Select(p => new SqlParameter(p.Name, p.Value))
+                .ToList();
+            sqlParams.Add(refIdParam);
+            var result = await context.Database
+                .ExecuteSqlRawAsync(sql, sqlParams);
+            return result;
+        }
+
+        protected async Task<int> DeleteAllContentsOfPostAsync(Post entity)
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(PostContent)} WHERE " +
-                $"{nameof(PostContent.PostId)}={id.ParameterName}";
+                $"{nameof(PostContent.PostId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }
 
         public async Task<Post> DeletePostTransactionAsync(Post entity)
         {
-            await DeleteAllContentsOfPost(entity);
+            await DeleteAllContentsOfPostAsync(entity);
             return context.Post.Remove(entity).Entity;
         }
         #endregion

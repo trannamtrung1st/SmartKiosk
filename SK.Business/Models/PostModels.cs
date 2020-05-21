@@ -63,8 +63,8 @@ namespace SK.Business.Models
         public IList<CreatePostContentModel> NewPostContents { get; set; }
         [JsonProperty("update_contents")]
         public IList<UpdatePostContentModel> UpdatePostContents { get; set; }
-        [JsonProperty("delete_content_ids")]
-        public IList<int> DeletePostContentIds { get; set; }
+        [JsonProperty("delete_content_langs")]
+        public IList<string> DeletePostContentLangs { get; set; }
 
     }
 
@@ -92,8 +92,8 @@ namespace SK.Business.Models
         {
         }
 
-        [JsonProperty("id")]
-        public int Id { get; set; }
+        [JsonProperty("lang")]
+        public string Lang { get; set; }
         [JsonProperty("title")]
         public string Title { get; set; }
         [JsonProperty("content")]

@@ -232,27 +232,29 @@ namespace SK.Business.Services
             context.EntityCategoryContent.AddRange(entities);
         }
 
-        private void UpdateEntityCategoryContents(IList<UpdateEntityCategoryContentModel> model)
+        private void UpdateEntityCategoryContents(
+            IList<UpdateEntityCategoryContentModel> model, int refId)
         {
             foreach (var o in model)
             {
-                var entity = new EntityCategoryContent();
-                entity.Id = o.Id;
-                context.Attach(entity);
+                var entity = EntityCategoryContents.ByLang(o.Lang)
+                    .OfCategory(refId).IdOnly().FirstOrDefault();
+                //not found => null => exception
                 o.CopyTo(entity);
+                var entry = context.Entry(entity);
+                entry.Property(nameof(UpdateEntityCategoryContentModel.Name)).IsModified = true;
             }
         }
 
         public async Task UpdateEntityCategoryTransactionAsync(EntityCategory entity,
-            UpdateEntityCategoryModel model,
-            FileDestinationMetadata metadata = null)
+            UpdateEntityCategoryModel model)
         {
             if (model.NewEntityCategoryContents != null)
                 CreateEntityCategoryContents(model.NewEntityCategoryContents, entity);
             if (model.UpdateEntityCategoryContents != null)
-                UpdateEntityCategoryContents(model.UpdateEntityCategoryContents);
-            if (model.DeleteEntityCategoryContentIds != null)
-                await DeleteEntityCategoryContentByIdsAsync(model.DeleteEntityCategoryContentIds);
+                UpdateEntityCategoryContents(model.UpdateEntityCategoryContents, entity.Id);
+            if (model.DeleteEntityCategoryContentLangs != null)
+                await DeleteContentsOfCategoryAsync(model.DeleteEntityCategoryContentLangs, entity.Id);
         }
 
         public void ChangeArchivedState(EntityCategory entity, bool archived)
@@ -275,18 +277,34 @@ namespace SK.Business.Services
             return result;
         }
 
-        protected async Task<int> DeleteAllContentsOfEntityCategory(EntityCategory entity)
+        protected async Task<int> DeleteContentsOfCategoryAsync(IEnumerable<string> langs, int refId)
+        {
+            var parameters = langs.GetDataParameters("lang");
+            var refIdParam = new SqlParameter("refId", refId);
+            var sql = $"DELETE FROM {nameof(EntityCategoryContent)} WHERE " +
+                $"{nameof(EntityCategoryContent.Lang)} IN " +
+                $"({parameters.Placeholder}) AND {nameof(EntityCategoryContent.CategoryId)}=@{refIdParam.ParameterName}";
+            var sqlParams = parameters.Parameters
+                .Select(p => new SqlParameter(p.Name, p.Value))
+                .ToList();
+            sqlParams.Add(refIdParam);
+            var result = await context.Database
+                .ExecuteSqlRawAsync(sql, sqlParams);
+            return result;
+        }
+
+        protected async Task<int> DeleteAllContentsOfEntityCategoryAsync(EntityCategory entity)
         {
             var id = new SqlParameter("id", entity.Id);
             var sql = $"DELETE FROM {nameof(EntityCategoryContent)} WHERE " +
-                $"{nameof(EntityCategoryContent.CategoryId)}={id.ParameterName}";
+                $"{nameof(EntityCategoryContent.CategoryId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
         }
 
         public async Task<EntityCategory> DeleteEntityCategoryTransactionAsync(EntityCategory entity)
         {
-            await DeleteAllContentsOfEntityCategory(entity);
+            await DeleteAllContentsOfEntityCategoryAsync(entity);
             return context.EntityCategory.Remove(entity).Entity;
         }
         #endregion

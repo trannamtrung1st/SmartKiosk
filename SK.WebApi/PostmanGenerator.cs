@@ -80,14 +80,14 @@ namespace SK.WebApi
                 {
                     new UpdatePostContentModel
                     {
-                        Id = 1,
+                        Lang = "vi",
                         Title = "Bài viết " + Guid.NewGuid().ToString(),
                         Content = "Nội dung " + Guid.NewGuid().ToString(),
                     }
                 },
-                DeletePostContentIds = new List<int>
+                DeletePostContentLangs = new List<string>
                 {
-                    2
+                    "en"
                 }
             };
             var updatePostJson = JsonConvert.SerializeObject(updatePostModel, Formatting.Indented);

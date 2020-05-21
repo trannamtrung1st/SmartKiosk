@@ -95,8 +95,8 @@ namespace SK.Business.Models
         public IList<CreateResourceContentModel> NewResourceContents { get; set; }
         [JsonProperty("update_contents")]
         public IList<UpdateResourceContentModel> UpdateResourceContents { get; set; }
-        [JsonProperty("delete_content_ids")]
-        public IList<int> DeleteResourceContentIds { get; set; }
+        [JsonProperty("delete_content_langs")]
+        public IList<string> DeleteResourceContentLangs { get; set; }
 
     }
 
@@ -110,8 +110,8 @@ namespace SK.Business.Models
         {
         }
 
-        [JsonProperty("id")]
-        public int Id { get; set; }
+        [JsonProperty("lang")]
+        public string Lang { get; set; }
         [JsonProperty("name")]
         public string Name { get; set; }
         [JsonProperty("description")]
