@@ -6,6 +6,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -210,6 +211,25 @@ namespace SK.Business.Services
             var entity = model.ToDest();
             PrepareCreate(entity);
             return context.Location.Add(entity).Entity;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetLocations(
+            ClaimsPrincipal principal,
+            LocationQueryFilter filter,
+            LocationQuerySort sort,
+            LocationQueryProjection projection,
+            LocationQueryPaging paging,
+            LocationQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateLocation(ClaimsPrincipal principal,
+            CreateLocationModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
     }
