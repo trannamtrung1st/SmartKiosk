@@ -20,8 +20,6 @@ namespace SK.Business.Models
 
         [JsonProperty("type")]
         public PostType Type { get; set; }
-        [JsonProperty("created_time")]
-        public DateTime CreatedTime { get; set; }
         [JsonProperty("visible_time")]
         public DateTime? VisibleTime { get; set; }
         [JsonProperty("location_id")]
@@ -55,16 +53,10 @@ namespace SK.Business.Models
         public string Description { get; set; }
     }
 
-    public class UpdatePostModel : MappingModel<Post>
+    public class UpdatePostModel
     {
-        public UpdatePostModel()
-        {
-        }
-
-        public UpdatePostModel(Post entity) : base(entity)
-        {
-        }
-
+        [JsonProperty("info")]
+        public UpdatePostInfoModel Info { get; set; }
         [JsonProperty("image")]
         public FileDestination Image { get; set; }
         [JsonProperty("new_contents")]
@@ -74,6 +66,20 @@ namespace SK.Business.Models
         [JsonProperty("delete_content_ids")]
         public IList<int> DeletePostContentIds { get; set; }
 
+    }
+
+    public class UpdatePostInfoModel : MappingModel<Post>
+    {
+        public UpdatePostInfoModel()
+        {
+        }
+
+        public UpdatePostInfoModel(Post src) : base(src)
+        {
+        }
+
+        [JsonProperty("visible_time")]
+        public DateTime? VisibleTime { get; set; }
     }
 
     public class UpdatePostContentModel : MappingModel<PostContent>

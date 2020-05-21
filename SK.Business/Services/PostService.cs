@@ -294,6 +294,7 @@ namespace SK.Business.Services
             UpdatePostModel model,
             FileDestinationMetadata metadata = null)
         {
+            if (model.Info != null) model.Info.CopyTo(entity);
             if (model.NewPostContents != null)
                 CreatePostContents(model.NewPostContents, entity);
             if (model.UpdatePostContents != null)
