@@ -7,6 +7,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.Data;
 using TNT.Core.Helpers.DI;
@@ -247,8 +248,7 @@ namespace SK.Business.Services
         }
 
         public async Task UpdateResourceTypeTransactionAsync(ResourceType entity,
-            UpdateResourceTypeModel model,
-            FileDestinationMetadata metadata = null)
+            UpdateResourceTypeModel model)
         {
             if (model.NewResourceTypeContents != null)
                 CreateResourceTypeContents(model.NewResourceTypeContents, entity);
@@ -307,6 +307,31 @@ namespace SK.Business.Services
         {
             await DeleteAllContentsOfResourceTypeAsync(entity);
             return context.ResourceType.Remove(entity).Entity;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetResourceTypes(
+            ClaimsPrincipal principal,
+            ResourceTypeQueryFilter filter,
+            ResourceTypeQuerySort sort,
+            ResourceTypeQueryProjection projection,
+            ResourceTypeQueryPaging paging,
+            ResourceTypeQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateResourceType(ClaimsPrincipal principal,
+            CreateResourceTypeModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateResourceType(ClaimsPrincipal principal,
+            ResourceType entity, UpdateResourceTypeModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

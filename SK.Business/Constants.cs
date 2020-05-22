@@ -59,6 +59,7 @@ namespace SK.Business
         public const string OWNER_API = "api/owners";
         public const string ENTITY_CATE_API = "api/entity_categories";
         public const string RESOURCE_API = "api/resources";
+        public const string RES_TYPE_API = "api/resource_types";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }
