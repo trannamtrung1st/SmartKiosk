@@ -7,6 +7,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -306,6 +307,31 @@ namespace SK.Business.Services
         public void UpdateSchedule(Schedule entity, UpdateScheduleModel model)
         {
             model.CopyTo(entity);
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetSchedules(
+            ClaimsPrincipal principal,
+            ScheduleQueryFilter filter,
+            ScheduleQuerySort sort,
+            ScheduleQueryProjection projection,
+            ScheduleQueryPaging paging,
+            ScheduleQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateSchedule(ClaimsPrincipal principal,
+            CreateScheduleModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateSchedule(ClaimsPrincipal principal,
+            Schedule entity, UpdateScheduleModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

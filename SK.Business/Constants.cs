@@ -63,6 +63,7 @@ namespace SK.Business
         public const string RESOURCE_API = "api/resources";
         public const string RES_TYPE_API = "api/resource_types";
         public const string SCHEDULE_DETAIL_API = "api/schedule_details";
+        public const string SCHEDULE_API = "api/schedules";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }
