@@ -7,6 +7,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.Data;
 using TNT.Core.Helpers.DI;
@@ -20,7 +21,7 @@ namespace SK.Business.Services
         }
 
         #region Query EntityCategory
-        public IQueryable<EntityCategory> EntityCategorys
+        public IQueryable<EntityCategory> EntityCategories
         {
             get
             {
@@ -308,6 +309,32 @@ namespace SK.Business.Services
             return context.EntityCategory.Remove(entity).Entity;
         }
         #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetEntityCategories(
+            ClaimsPrincipal principal,
+            EntityCategoryQueryFilter filter,
+            EntityCategoryQuerySort sort,
+            EntityCategoryQueryProjection projection,
+            EntityCategoryQueryPaging paging,
+            EntityCategoryQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateEntityCategory(ClaimsPrincipal principal,
+            CreateEntityCategoryModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateEntityCategory(ClaimsPrincipal principal,
+            EntityCategory entity, UpdateEntityCategoryModel model)
+        {
+            return ValidationResult.Pass();
+        }
+        #endregion
+
 
     }
 }
