@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
 
@@ -333,6 +334,31 @@ namespace SK.Business.Services
                 $"{nameof(ScheduleWeekConfig.ScheduleDetailId)}=@{id.ParameterName}";
             var result = await context.Database.ExecuteSqlRawAsync(sql, id);
             return result;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetScheduleDetails(
+            ClaimsPrincipal principal,
+            ScheduleDetailQueryFilter filter,
+            ScheduleDetailQuerySort sort,
+            ScheduleDetailQueryProjection projection,
+            ScheduleDetailQueryPaging paging,
+            ScheduleDetailQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateScheduleDetail(ClaimsPrincipal principal,
+            CreateScheduleDetailModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateScheduleDetail(ClaimsPrincipal principal,
+            ScheduleDetail entity, UpdateScheduleDetailModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

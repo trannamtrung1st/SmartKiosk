@@ -73,6 +73,17 @@ namespace SK.Business.Models
             return this;
         }
 
+        public AppResultBuilder DefaultScheduleDetailExisted(object data = null, string mess = null)
+        {
+            Results.Add(new AppResult
+            {
+                Code = AppResultCode.DefaultScheduleDetailExisted,
+                Message = mess ?? AppResultCode.DefaultScheduleDetailExisted.DisplayName(),
+                Data = data,
+            });
+            return this;
+        }
+
         public AppResultBuilder InvalidActivationCode(object data = null, string mess = null)
         {
             Results.Add(new AppResult

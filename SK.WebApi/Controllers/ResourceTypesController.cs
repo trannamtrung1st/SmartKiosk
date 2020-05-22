@@ -48,7 +48,7 @@ namespace SK.WebApi.Controllers
             return Ok(new AppResultBuilder().Success(result));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.BuildingManager)]
+        [AppAuthorize(Roles = Data.RoleName.AppManager)]
         [HttpPost("")]
         public IActionResult Create(CreateResourceTypeModel model)
         {
@@ -61,7 +61,7 @@ namespace SK.WebApi.Controllers
                 new AppResultBuilder().Success(entity.Id));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.BuildingManager)]
+        [AppAuthorize(Roles = Data.RoleName.AppManager)]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, UpdateResourceTypeModel model)
         {

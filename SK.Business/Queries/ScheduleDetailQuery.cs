@@ -25,6 +25,16 @@ namespace SK.Business.Queries
             return query.Select(o => new ScheduleDetail { Id = o.Id });
         }
 
+        public static IQueryable<ScheduleDetail> IsDefault(this IQueryable<ScheduleDetail> query)
+        {
+            return query.Where(o => o.IsDefault == true);
+        }
+
+        public static IQueryable<ScheduleDetail> BySchedule(this IQueryable<ScheduleDetail> query, int refId)
+        {
+            return query.Where(o => o.ScheduleId == refId);
+        }
+
         public static bool Exists(this IQueryable<ScheduleDetail> query, int id)
         {
             return query.Any(o => o.Id == id);

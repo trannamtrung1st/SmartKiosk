@@ -25,7 +25,9 @@ namespace SK.Business
         [Display(Name = "Username has already existed")]
         DuplicatedUsername = 8,
         [Display(Name = "Invalid activation code")]
-        InvalidActivationCode = 9
+        InvalidActivationCode = 9,
+        [Display(Name = "Default schedule detail already existed")]
+        DefaultScheduleDetailExisted = 10
 
     }
 
@@ -60,6 +62,7 @@ namespace SK.Business
         public const string ENTITY_CATE_API = "api/entity_categories";
         public const string RESOURCE_API = "api/resources";
         public const string RES_TYPE_API = "api/resource_types";
+        public const string SCHEDULE_DETAIL_API = "api/schedule_details";
         public const string FILE_API = "api/files";
         public const string ERROR = "error";
     }
