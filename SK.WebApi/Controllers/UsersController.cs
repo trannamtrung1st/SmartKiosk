@@ -15,6 +15,7 @@ using SK.Business.Models;
 using SK.Business.Services;
 using SK.Data.Helpers;
 using SK.Data.Models;
+using SK.WebApi.Filters;
 using SK.WebApi.Helpers;
 using TNT.Core.Helpers.DI;
 using TNT.Core.Http.DI;
@@ -93,7 +94,7 @@ namespace SK.WebApi.Controllers
         #endregion
 
         [HttpGet("token-info")]
-        [Authorize]
+        [AppAuthorize]
         public IActionResult GetTokenInfo()
         {
             var resp = new TokenInfo(User);
@@ -101,7 +102,7 @@ namespace SK.WebApi.Controllers
         }
 
         [HttpGet("profile")]
-        [Authorize]
+        [AppAuthorize]
         public async Task<IActionResult> GetProfile()
         {
             var validationResult = _service.ValidateGetProfile(User);

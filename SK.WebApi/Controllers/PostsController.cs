@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using SK.Business;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
+using SK.WebApi.Filters;
 
 namespace SK.WebApi.Controllers
 {
@@ -20,7 +21,7 @@ namespace SK.WebApi.Controllers
     [ApiController]
     [InjectionFilter]
 #if !DEBUG
-    [Authorize]
+    [AppAuthorize]
 #endif
     public class PostsController : BaseController
     {
@@ -28,6 +29,7 @@ namespace SK.WebApi.Controllers
         private readonly PostService _service;
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
+        [AppAuthorize]
         [HttpGet("")]
         public async Task<IActionResult> Get([FromQuery]PostQueryFilter filter,
             [FromQuery]PostQuerySort sort,
@@ -49,6 +51,7 @@ namespace SK.WebApi.Controllers
             return Ok(new AppResultBuilder().Success(result));
         }
 
+        [AppAuthorize(Roles = Data.RoleName.LocationManager)]
         [HttpPost("")]
         public async Task<IActionResult> Create(CreatePostModel model)
         {
@@ -62,6 +65,7 @@ namespace SK.WebApi.Controllers
                 new AppResultBuilder().Success(entity.Id));
         }
 
+        [AppAuthorize(Roles = Data.RoleName.LocationManager)]
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id,
             UpdatePostModel model)
@@ -82,6 +86,7 @@ namespace SK.WebApi.Controllers
             return NoContent();
         }
 
+        [AppAuthorize(Roles = Data.RoleName.LocationManager)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

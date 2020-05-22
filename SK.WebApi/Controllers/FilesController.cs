@@ -14,6 +14,7 @@ using SK.Business.Services;
 using SK.WebHelpers;
 using TNT.Core.Helpers.DI;
 using TNT.Core.Http.DI;
+using SK.WebApi.Filters;
 
 namespace SK.WebApi.Controllers
 {
@@ -22,7 +23,7 @@ namespace SK.WebApi.Controllers
     [Route(ApiEndpoint.FILE_API)]
     [ApiController]
     [InjectionFilter]
-    [Authorize]
+    [AppAuthorize]
     public class FilesController : BaseController
     {
         [Inject]

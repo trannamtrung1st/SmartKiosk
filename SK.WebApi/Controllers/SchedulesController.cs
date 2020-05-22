@@ -48,7 +48,7 @@ namespace SK.WebApi.Controllers
             return Ok(new AppResultBuilder().Success(result));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.BuildingManager)]
+        [AppAuthorize(Roles = Data.RoleName.ScheduleManager)]
         [HttpPost("")]
         public IActionResult Create(CreateScheduleModel model)
         {
@@ -61,7 +61,7 @@ namespace SK.WebApi.Controllers
                 new AppResultBuilder().Success(entity.Id));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.BuildingManager)]
+        [AppAuthorize(Roles = Data.RoleName.ScheduleManager)]
         [HttpPatch("{id}")]
         public IActionResult Update(int id, UpdateScheduleModel model)
         {
