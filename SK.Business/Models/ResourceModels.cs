@@ -65,13 +65,28 @@ namespace SK.Business.Models
         public string Lang { get; set; }
     }
 
-    public class UpdateResourceModel : MappingModel<Resource>
+    public class UpdateResourceModel
     {
-        public UpdateResourceModel()
+        [JsonProperty("info")]
+        public UpdateResourceInfoModel Info { get; set; }
+        [JsonProperty("category_ids")]
+        public IList<int> CategoryIds { get; set; }
+        [JsonProperty("new_contents")]
+        public IList<CreateResourceContentModel> NewResourceContents { get; set; }
+        [JsonProperty("update_contents")]
+        public IList<UpdateResourceContentModel> UpdateResourceContents { get; set; }
+        [JsonProperty("delete_content_langs")]
+        public IList<string> DeleteResourceContentLangs { get; set; }
+
+    }
+
+    public class UpdateResourceInfoModel : MappingModel<Resource>
+    {
+        public UpdateResourceInfoModel()
         {
         }
 
-        public UpdateResourceModel(Resource entity) : base(entity)
+        public UpdateResourceInfoModel(Resource src) : base(src)
         {
         }
 
@@ -89,15 +104,6 @@ namespace SK.Business.Models
         public int FloorId { get; set; }
         [JsonProperty("area_id")]
         public int AreaId { get; set; }
-        [JsonProperty("category_ids")]
-        public IList<int> CategoryIds { get; set; }
-        [JsonProperty("new_contents")]
-        public IList<CreateResourceContentModel> NewResourceContents { get; set; }
-        [JsonProperty("update_contents")]
-        public IList<UpdateResourceContentModel> UpdateResourceContents { get; set; }
-        [JsonProperty("delete_content_langs")]
-        public IList<string> DeleteResourceContentLangs { get; set; }
-
     }
 
     public class UpdateResourceContentModel : MappingModel<ResourceContent>

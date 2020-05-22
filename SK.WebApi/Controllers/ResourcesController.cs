@@ -17,28 +17,28 @@ using SK.WebApi.Filters;
 
 namespace SK.WebApi.Controllers
 {
-    [Route(ApiEndpoint.ENTITY_CATE_API)]
+    [Route(ApiEndpoint.RESOURCE_API)]
     [ApiController]
     [InjectionFilter]
-    public class EntityCategoriesController : BaseController
+    public class ResourcesController : BaseController
     {
         [Inject]
-        private readonly EntityCategoryService _service;
+        private readonly ResourceService _service;
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         [AppAuthorize]
         [HttpGet("")]
-        public async Task<IActionResult> Get([FromQuery]EntityCategoryQueryFilter filter,
-            [FromQuery]EntityCategoryQuerySort sort,
-            [FromQuery]EntityCategoryQueryProjection projection,
-            [FromQuery]EntityCategoryQueryPaging paging,
-            [FromQuery]EntityCategoryQueryOptions options)
+        public async Task<IActionResult> Get([FromQuery]ResourceQueryFilter filter,
+            [FromQuery]ResourceQuerySort sort,
+            [FromQuery]ResourceQueryProjection projection,
+            [FromQuery]ResourceQueryPaging paging,
+            [FromQuery]ResourceQueryOptions options)
         {
-            var validationResult = _service.ValidateGetEntityCategories(
+            var validationResult = _service.ValidateGetResources(
                 User, filter, sort, projection, paging, options);
             if (!validationResult.Valid)
                 return BadRequest(validationResult.Result);
-            var result = await _service.QueryEntityCategoryDynamic(
+            var result = await _service.QueryResourceDynamic(
                 projection, options, filter, sort, paging);
             if (options.single_only)
             {
@@ -48,32 +48,33 @@ namespace SK.WebApi.Controllers
             return Ok(new AppResultBuilder().Success(result));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.AppManager)]
+        [AppAuthorize(Roles = Data.RoleName.LocationManager)]
         [HttpPost("")]
-        public IActionResult Create(CreateEntityCategoryModel model)
+        public async Task<IActionResult> Create(CreateResourceModel model)
         {
-            var validationResult = _service.ValidateCreateEntityCategory(User, model);
+            var validationResult = _service.ValidateCreateResource(User, model);
             if (!validationResult.Valid)
                 return BadRequest(validationResult.Result);
-            var entity = _service.CreateEntityCategory(model);
+            var metadata = GetFileDestinationMetadata();
+            var entity = await _service.CreateResourceAsync(model, metadata);
             context.SaveChanges();
-            return Created($"/{ApiEndpoint.ENTITY_CATE_API}?id={entity.Id}",
+            return Created($"/{ApiEndpoint.RESOURCE_API}?id={entity.Id}",
                 new AppResultBuilder().Success(entity.Id));
         }
 
-        [AppAuthorize(Roles = Data.RoleName.AppManager)]
+        [AppAuthorize(Roles = Data.RoleName.LocationManager)]
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateEntityCategoryModel model)
+        public async Task<IActionResult> Update(int id, UpdateResourceModel model)
         {
-            var entity = _service.EntityCategories.Id(id).FirstOrDefault();
+            var entity = _service.Resources.Id(id).FirstOrDefault();
             if (entity == null)
                 return NotFound(new AppResultBuilder().NotFound());
-            var validationResult = _service.ValidateUpdateEntityCategory(User, entity, model);
+            var validationResult = _service.ValidateUpdateResource(User, entity, model);
             if (!validationResult.Valid)
                 return BadRequest(validationResult.Result);
             using (var trans = context.Database.BeginTransaction())
             {
-                await _service.UpdateEntityCategoryTransactionAsync(entity, model);
+                await _service.UpdateResourceTransactionAsync(entity, model);
                 context.SaveChanges();
                 trans.Commit();
             }

@@ -9,6 +9,7 @@ using SK.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.Data;
 using TNT.Core.Helpers.DI;
@@ -408,6 +409,14 @@ namespace SK.Business.Services
             UpdateResourceModel model,
             FileDestinationMetadata metadata = null)
         {
+            if (model.Info != null)
+            {
+                model.Info.CopyTo(entity);
+                if (model.Info.Image != null)
+                    await SetResourceImageUrlAsync(entity, model.Info.Image, metadata);
+                if (model.Info.Logo != null)
+                    await SetResourceLogoUrlAsync(entity, model.Info.Logo, metadata);
+            }
             if (model.NewResourceContents != null)
                 CreateResourceContents(model.NewResourceContents, entity);
             if (model.UpdateResourceContents != null)
@@ -419,10 +428,6 @@ namespace SK.Business.Services
                 await DeleteAllCategoriesOfResourceAsync(entity);
                 AddResourceCategoriesToResource(model.CategoryIds, entity);
             }
-            if (model.Image != null)
-                await SetResourceImageUrlAsync(entity, model.Image, metadata);
-            if (model.Logo != null)
-                await SetResourceLogoUrlAsync(entity, model.Logo, metadata);
         }
         #endregion
 
@@ -478,6 +483,31 @@ namespace SK.Business.Services
         {
             await DeleteAllContentsOfResourceAsync(entity);
             return context.Resource.Remove(entity).Entity;
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetResources(
+            ClaimsPrincipal principal,
+            ResourceQueryFilter filter,
+            ResourceQuerySort sort,
+            ResourceQueryProjection projection,
+            ResourceQueryPaging paging,
+            ResourceQueryOptions options)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateCreateResource(ClaimsPrincipal principal,
+            CreateResourceModel model)
+        {
+            return ValidationResult.Pass();
+        }
+
+        public ValidationResult ValidateUpdateResource(ClaimsPrincipal principal,
+            Resource entity, UpdateResourceModel model)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 
