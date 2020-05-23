@@ -114,9 +114,199 @@ namespace SK.Business.Models
     }
 
     #region Query
+    public class UserInfoModel : MappingModel<AppUser>
+    {
+        public UserInfoModel()
+        {
+        }
+
+        public UserInfoModel(AppUser entity) : base(entity)
+        {
+        }
+
+        [JsonProperty("username")]
+        public string UserName { get; set; }
+        [JsonProperty("full_name")]
+        public string FullName { get; set; }
+        [JsonProperty("phone_number")]
+        public string PhoneNumber { get; set; }
+        [JsonProperty("current_logged_in")]
+        public bool CurrentLoggedIn { get; set; }
+
+        [JsonProperty("roles")]
+        public IEnumerable<AppRoleModel> Roles { get; set; }
+    }
+
+    public class AppUserQueryResult : AppUser
+    {
+        public new ICollection<AppUserRoleQueryRow> UserRoles { get; set; }
+    }
+
     public class AppUserRelationship : AppUser, IDapperRelationship
     {
         public string GetTableName() => AppUser.TBL_NAME;
+    }
+
+    public class AppUserQueryRow
+    {
+        public AppUserQueryResult AppUser { get; set; }
+    }
+
+    public class AppUserQueryProjection
+    {
+        private const string DEFAULT = INFO;
+        private string _fields = DEFAULT;
+        public string fields
+        {
+            get
+            {
+                return _fields;
+            }
+            set
+            {
+                if (value?.Length > 0)
+                {
+                    _fields = value;
+                    _fieldsArr = value.Split(',').OrderBy(v => v).ToArray();
+                }
+            }
+        }
+
+        private string[] _fieldsArr = DEFAULT.Split(',');
+        public string[] GetFieldsArr()
+        {
+            return _fieldsArr;
+        }
+
+        //---------------------------------------
+        public const string INFO = "info";
+        public const string ROLES = "roles";
+
+        private const string U = AppUser.TBL_NAME;
+        private const string R = AppRole.TBL_NAME;
+        private const string UR = AppUserRole.TBL_NAME;
+        public static readonly IDictionary<string, string> Projections =
+            new Dictionary<string, string>()
+            {
+                {
+                    INFO,$"{U}.{nameof(AppUser.Id)}," +
+                    $"{U}.{nameof(AppUser.UserName)}," +
+                    $"{U}.{nameof(AppUser.PhoneNumber)}," +
+                    $"{U}.{nameof(AppUser.FullName)}"
+                }
+            };
+
+        public static readonly IDictionary<string, string> Joins =
+            new Dictionary<string, string>();
+
+        private static readonly PartialResult infoResult =
+            new PartialResult(key: INFO, type: typeof(AppUserQueryResult), splitOn: $"{nameof(AppUser.Id)}");
+        public static readonly IDictionary<string, PartialResult> Results =
+             new Dictionary<string, PartialResult>()
+             {
+                 {
+                     INFO, infoResult
+                 },
+             };
+
+        public static readonly IDictionary<string, string> Extras =
+            new Dictionary<string, string>()
+            {
+                {
+                    ROLES, $"SELECT {UR}.{nameof(AppUserRole.UserId)}," +
+                    $"{UR}.{nameof(AppUserRole.RoleId)}," +
+                    $"{R}.{nameof(AppRole.Id)} as [{R}.{nameof(AppRole.Id)}]," +
+                    $"{R}.{nameof(AppRole.Name)} as [{R}.{nameof(AppRole.Name)}]," +
+                    $"{R}.{nameof(AppRole.DisplayName)} as [{R}.{nameof(AppRole.DisplayName)}]," +
+                    $"{R}.{nameof(AppRole.RoleType)} as [{R}.{nameof(AppRole.RoleType)}]" +
+                    $" FROM {UR}\n" +
+                    $"INNER JOIN ({AppUserQueryPlaceholder.USER_SUB_QUERY}) AS {U} " +
+                    $"ON {U}.{nameof(AppUser.Id)}={UR}.{nameof(AppUserRole.UserId)}\n" +
+                    $"INNER JOIN {R} AS {R} " +
+                    $"ON {R}.{nameof(AppRole.Id)}={UR}.{nameof(AppUserRole.RoleId)}\n"
+                }
+            };
+    }
+
+    public class AppUserQuerySort
+    {
+        public const string USERNAME = "username";
+        private const string DEFAULT = "a" + USERNAME;
+        private string _sorts = DEFAULT;
+        public string sorts
+        {
+            get
+            {
+                return _sorts;
+            }
+            set
+            {
+                if (value?.Length > 0)
+                {
+                    _sorts = value;
+                    _sortsArr = value.Split(',');
+                }
+            }
+        }
+
+        public string[] _sortsArr = DEFAULT.Split(',');
+        public string[] GetSortsArr()
+        {
+            return _sortsArr;
+        }
+
+    }
+
+    public class AppUserQueryFilter
+    {
+        public string id { get; set; }
+    }
+
+    public class AppUserQueryPaging
+    {
+        private int _page = 1;
+        public int page
+        {
+            get
+            {
+                return _page;
+            }
+            set
+            {
+                _page = value > 0 ? value : _page;
+            }
+        }
+
+        private int _limit = 10;
+        public int limit
+        {
+            get
+            {
+                return _limit;
+            }
+            set
+            {
+                if (value >= 1 && value <= 100)
+                    _limit = value;
+            }
+        }
+    }
+
+    public class AppUserQueryOptions
+    {
+        public bool count_total { get; set; }
+        public string date_format { get; set; }
+        public string time_zone { get; set; }
+        public string culture { get; set; }
+        public bool single_only { get; set; }
+        public bool load_all { get; set; }
+
+        public const bool IsLoadAllAllowed = true;
+    }
+
+    public class AppUserQueryPlaceholder
+    {
+        public const string USER_SUB_QUERY = "$(user_sub_query)";
     }
     #endregion
 }

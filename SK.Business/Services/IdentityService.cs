@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Dapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SK.Business.Models;
+using SK.Business.Queries;
 using SK.Data.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +14,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.DI;
+using static Dapper.SqlMapper;
 
 namespace SK.Business.Services
 {
@@ -366,6 +370,263 @@ namespace SK.Business.Services
             if (!result.Succeeded)
                 throw new InvalidOperationException($"Unexpected error occurred adding external login for user with ID '{entity.Id}'.");
             return result;
+        }
+        #endregion
+
+        #region Query AppUser
+        public IDictionary<string, object> GetAppUserDynamic(
+            AppUserQueryRow row, AppUserQueryProjection projection,
+            AppUserQueryOptions options, string currentAccId = null)
+        {
+            var obj = new Dictionary<string, object>();
+            foreach (var f in projection.GetFieldsArr())
+            {
+                switch (f)
+                {
+                    case AppUserQueryProjection.INFO:
+                        {
+                            var entity = row.AppUser;
+                            obj["username"] = entity.UserName;
+                            obj["full_name"] = entity.FullName;
+                            obj["phone_number"] = entity.PhoneNumber;
+                            obj["current_logged_in"] = entity.Id == currentAccId;
+                        }
+                        break;
+                    case AppUserQueryProjection.ROLES:
+                        {
+                            var entities = row.AppUser.UserRoles?
+                                .Select(o => o.Role);
+                            if (entities != null)
+                                obj["roles"] = entities.Select(o => new
+                                {
+                                    name = o.Name,
+                                    display_name = o.DisplayName,
+                                    role_type = o.RoleType
+                                }).ToList();
+                        }
+                        break;
+                }
+            }
+            return obj;
+        }
+
+        public QueryResult<IDictionary<string, object>> GetAppUserDynamic(
+            IEnumerable<AppUserQueryRow> rows, AppUserQueryProjection projection,
+            AppUserQueryOptions options, int? totalCount = null, string currentAccId = null)
+        {
+            var list = new List<IDictionary<string, object>>();
+            foreach (var o in rows)
+            {
+                var obj = GetAppUserDynamic(o, projection, options, currentAccId);
+                list.Add(obj);
+            }
+            var resp = new QueryResult<IDictionary<string, object>>();
+            resp.Results = list;
+            if (options.count_total)
+                resp.TotalCount = totalCount;
+            return resp;
+        }
+
+        public async Task<QueryResult<IDictionary<string, object>>> QueryAppUserDynamic(
+            AppUserQueryProjection projection,
+            AppUserQueryOptions options,
+            AppUserQueryFilter filter = null,
+            AppUserQuerySort sort = null,
+            AppUserQueryPaging paging = null,
+            string currentAccId = null)
+        {
+            var conn = context.Database.GetDbConnection();
+            var openConn = conn.OpenAsync();
+            var query = AppUserQuery.CreateDynamicSql();
+            #region General
+            if (filter != null) query = query.SqlFilter(filter);
+            query = query.SqlJoin(projection);
+            DynamicSql countQuery = null; int? totalCount = null; Task<int> countTask = null;
+            if (options.count_total) countQuery = query.SqlCount("*");
+            query = query.SqlProjectFields(projection);
+            #endregion
+            await openConn;
+            if (!options.single_only)
+            {
+                #region List query
+                if (sort != null) query = query.SqlSort(sort);
+                if (paging != null && (!options.load_all || !AppUserQueryOptions.IsLoadAllAllowed))
+                    query = query.SqlSelectPage(paging.page, paging.limit);
+                #endregion
+                #region Count query
+                if (options.count_total)
+                    countTask = conn.ExecuteScalarAsync<int>(
+                        sql: countQuery.PreparedForm,
+                        param: countQuery.DynamicParameters);
+                #endregion
+            }
+            query = query.SqlExtras(projection);
+            var multipleResult = await conn.QueryMultipleAsync(
+                sql: query.PreparedForm,
+                param: query.DynamicParameters);
+            using (multipleResult)
+            {
+                var queryResult = multipleResult.Read(
+                    types: query.GetTypesArr(),
+                    map: (objs) => ProcessMultiResults(query, objs),
+                    splitOn: string.Join(',', query.GetSplitOns()));
+                var extraKeys = projection.GetFieldsArr()
+                    .Where(f => AppUserQueryProjection.Extras.ContainsKey(f));
+                IEnumerable<AppUserRoleQueryRow> userRoles = null;
+                foreach (var key in extraKeys)
+                {
+                    switch (key)
+                    {
+                        case AppUserQueryProjection.ROLES:
+                            userRoles = GetAppUserRoleQueryResult(multipleResult);
+                            break;
+                    }
+                }
+                ProcessExtras(queryResult, userRoles);
+                if (options.single_only)
+                {
+                    var single = queryResult.SingleOrDefault();
+                    if (single == null) return null;
+                    var singleResult = GetAppUserDynamic(single, projection, options, currentAccId);
+                    return new QueryResult<IDictionary<string, object>>()
+                    {
+                        SingleResult = singleResult
+                    };
+                }
+                if (options.count_total) totalCount = await countTask;
+                var result = GetAppUserDynamic(queryResult, projection, options, totalCount, currentAccId);
+                return result;
+            }
+        }
+
+        public async Task<QueryResult<AppUserQueryRow>> QueryAppUser(
+            AppUserQueryFilter filter = null,
+            AppUserQuerySort sort = null,
+            AppUserQueryProjection projection = null,
+            AppUserQueryPaging paging = null,
+            AppUserQueryOptions options = null)
+        {
+            var conn = context.Database.GetDbConnection();
+            var openConn = conn.OpenAsync();
+            var query = AppUserQuery.CreateDynamicSql();
+            #region General
+            if (filter != null) query = query.SqlFilter(filter);
+            if (projection != null) query = query.SqlJoin(projection);
+            DynamicSql countQuery = null; int? totalCount = null; Task<int> countTask = null;
+            if (options != null && options.count_total) countQuery = query.SqlCount("*");
+            if (projection != null) query = query.SqlProjectFields(projection);
+            #endregion
+            await openConn;
+            if (options != null && !options.single_only)
+            {
+                #region List query
+                if (sort != null) query = query.SqlSort(sort);
+                if (paging != null && (!options.load_all || !AppUserQueryOptions.IsLoadAllAllowed))
+                    query = query.SqlSelectPage(paging.page, paging.limit);
+                #endregion
+                #region Count query
+                if (options.count_total)
+                    countTask = conn.ExecuteScalarAsync<int>(
+                        sql: countQuery.PreparedForm,
+                        param: countQuery.DynamicParameters);
+                #endregion
+            }
+            if (projection != null) query = query.SqlExtras(projection);
+            var multipleResult = await conn.QueryMultipleAsync(
+                sql: query.PreparedForm,
+                param: query.DynamicParameters);
+            using (multipleResult)
+            {
+                var queryResult = multipleResult.Read(
+                    types: query.GetTypesArr(),
+                    map: (objs) => ProcessMultiResults(query, objs),
+                    splitOn: string.Join(',', query.GetSplitOns()));
+                if (projection != null)
+                {
+                    var extraKeys = projection.GetFieldsArr()
+                        .Where(f => AppUserQueryProjection.Extras.ContainsKey(f));
+                    IEnumerable<AppUserRoleQueryRow> userRoles = null;
+                    foreach (var key in extraKeys)
+                    {
+                        switch (key)
+                        {
+                            case AppUserQueryProjection.ROLES:
+                                userRoles = GetAppUserRoleQueryResult(multipleResult);
+                                break;
+                        }
+                    }
+                    ProcessExtras(queryResult, userRoles);
+                }
+                if (options != null && options.single_only)
+                {
+                    var single = queryResult.SingleOrDefault();
+                    if (single == null) return null;
+                    return new QueryResult<AppUserQueryRow>
+                    {
+                        SingleResult = single
+                    };
+                }
+                if (options != null && options.count_total) totalCount = await countTask;
+                return new QueryResult<AppUserQueryRow>
+                {
+                    Results = queryResult,
+                    TotalCount = totalCount
+                };
+            }
+        }
+
+        private AppUserQueryRow ProcessMultiResults(DynamicSql query, object[] objs)
+        {
+            var row = new AppUserQueryRow();
+            for (var i = 0; i < query.MultiResults.Count; i++)
+            {
+                var r = query.MultiResults[i];
+                switch (r.Key)
+                {
+                    case AppUserQueryProjection.INFO: row.AppUser = objs[i] as AppUserQueryResult; break;
+                }
+            }
+            return row;
+        }
+
+        private IEnumerable<AppUserRoleQueryRow> GetAppUserRoleQueryResult(GridReader multipleResult)
+        {
+            var rows = multipleResult.Read(
+                types: new[] { typeof(AppUserRole), typeof(AppRoleRelationship) },
+                map: (objs) =>
+                {
+                    var row = new AppUserRoleQueryRow();
+                    row.UserRole = objs[0] as AppUserRole;
+                    row.Role = objs[1] as AppRoleRelationship;
+                    return row;
+                }, splitOn: $"{AppRole.TBL_NAME}.{nameof(AppRole.Id)}")
+                .ToList();
+            return rows;
+        }
+
+        private void ProcessExtras(IEnumerable<AppUserQueryRow> entities,
+            IEnumerable<AppUserRoleQueryRow> userRoles)
+        {
+            var contentMaps = userRoles?.GroupByAppUser().ToDictionary(o => o.Key);
+            foreach (var e in entities)
+            {
+                var entity = e.AppUser;
+                if (contentMaps != null && contentMaps.ContainsKey(entity.Id))
+                    entity.UserRoles = contentMaps[entity.Id].ToList();
+            }
+        }
+        #endregion
+
+        #region Validation
+        public ValidationResult ValidateGetAppUsers(
+            ClaimsPrincipal principal,
+            AppUserQueryFilter filter,
+            AppUserQuerySort sort,
+            AppUserQueryProjection projection,
+            AppUserQueryPaging paging,
+            AppUserQueryOptions options)
+        {
+            return ValidationResult.Pass();
         }
         #endregion
 

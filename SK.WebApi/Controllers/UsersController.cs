@@ -93,6 +93,42 @@ namespace SK.WebApi.Controllers
         }
         #endregion
 
+        [AppAuthorize(Roles = Data.RoleName.UserManager)]
+        [HttpGet("")]
+        public async Task<IActionResult> Get([FromQuery]AppUserQueryFilter filter,
+            [FromQuery]AppUserQuerySort sort,
+            [FromQuery]AppUserQueryProjection projection,
+            [FromQuery]AppUserQueryPaging paging,
+            [FromQuery]AppUserQueryOptions options)
+        {
+            var validationResult = _service.ValidateGetAppUsers(
+                User, filter, sort, projection, paging, options);
+            if (!validationResult.Valid)
+                return BadRequest(validationResult.Result);
+            var result = await _service.QueryAppUserDynamic(
+                projection, options, filter, sort, paging, UserId);
+            if (options.single_only)
+            {
+                if (result == null) return NotFound(new AppResultBuilder().NotFound());
+                return Ok(new AppResultBuilder().Success(result.SingleResult));
+            }
+            return Ok(new AppResultBuilder().Success(result));
+        }
+
+        [HttpGet("info")]
+        [AppAuthorize]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var entity = await _service.GetUserByIdAsync(UserId);
+            var roles = entity.UserRoles.Select(u => u.Role).ToList();
+            var model = new UserInfoModel(entity)
+            {
+                Roles = roles.Select(r => new AppRoleModel(r)),
+                CurrentLoggedIn = true
+            };
+            return Ok(new AppResultBuilder().Success(model));
+        }
+
         [HttpGet("token-info")]
         [AppAuthorize]
         public IActionResult GetTokenInfo()
