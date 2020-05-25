@@ -22,6 +22,12 @@ namespace SK.WebAdmin
         public const string STATUS = "/status";
         public const string ERROR = "/error";
         public const string INDEX = "/";
+        public const string LOCATION = "/location";
+        public const string DEVICE = "/device";
+        public const string OWNER = "/owner";
+        public const string ACCOUNT = "/account";
+        public const string RES_TYPE = "/res_type";
+        public const string ENTITY_CATE = "/entity_cate";
         public const string FILE = "/file";
     }
 
@@ -48,6 +54,12 @@ namespace SK.WebAdmin
         public const string POST_CLIENT = "post_client";
         public const string ADMIN_ONLY = "admin_only";
         public const string FILE = "file";
+        public const string LOCATION = "location";
+        public const string DEVICE = "device";
+        public const string OWNER = "owner";
+        public const string ACCOUNT = "account";
+        public const string RES_TYPE = "res_type";
+        public const string ENTITY_CATE = "entity_cate";
     }
 
     public static class GeneralMessage

@@ -20,7 +20,8 @@ namespace SK.WebAdmin.Pages.Dashboard
             Info = new PageInfo
             {
                 Menu = Menu.DASHBOARD,
-                Title = "Tổng quan"
+                Title = "Tổng quan",
+                BackUrl = BackUrl ?? Routing.DASHBOARD
             };
         }
     }
