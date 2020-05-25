@@ -161,8 +161,9 @@
                 const obj = data[i];
                 var roleStr = '';
                 var roles = obj.roles;
-                for (var j = 0; j < roles.length; j++)
-                    roleStr += roles[j].display_name + '<br/>';
+                if (roles)
+                    for (var j = 0; j < roles.length; j++)
+                        roleStr += roles[j].display_name + '<br/>';
                 tblMain.row.add([
                     btn(obj.id),
                     null,

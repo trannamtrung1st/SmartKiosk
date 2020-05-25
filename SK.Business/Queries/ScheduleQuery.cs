@@ -52,7 +52,7 @@ namespace SK.Business.Queries
             if (listSorts.Any())
             {
                 var orderByClause = "ORDER BY " + string.Join(',', listSorts);
-                query.DynamicForm = query.DynamicForm.Replace(DynamicSql.SORT, orderByClause);
+                query.SortClause = orderByClause;
             }
             return query;
         }
@@ -132,7 +132,7 @@ namespace SK.Business.Queries
             if (extras.Any())
             {
                 var extraSqls = string.Join(';', extras);
-                var originalQuery = query.PreparedForm;
+                var originalQuery = query.PreparedViewForm;
                 query.DynamicForm += ";\n" + extraSqls;
                 query.DynamicForm = query.DynamicForm
                     .Replace(ScheduleQueryPlaceholder.SCHEDULE_SUB_QUERY, originalQuery);

@@ -24,15 +24,34 @@ namespace SK.Business.Models
 
     public class DynamicSql
     {
+        public string SortClause { get; set; }
         public string DynamicForm { get; set; }
         public string PreparedForm
         {
             get
             {
-                if (DynamicForm == null) return null;
                 var prepared = DynamicForm;
-                if (!prepared.Contains(PAGING) && prepared.Contains(SORT))
-                    prepared = prepared.Replace(SORT, "ORDER BY (SELECT 1)");
+                if (!prepared.Contains(PAGING) && SortClause == null)
+                    SortClause = "ORDER BY (SELECT 1)";
+                if (SortClause != null)
+                    prepared = prepared.Replace(SORT, SortClause);
+                var r = new Regex("\\$\\(.+?\\)");
+                prepared = r.Replace(prepared, "");
+                return prepared;
+            }
+        }
+        public string PreparedViewForm
+        {
+            get
+            {
+                var prepared = DynamicForm;
+                if (!prepared.Contains(PAGING))
+                {
+                    if (SortClause == null)
+                        SortClause = "ORDER BY (SELECT 1)";
+                    if (SortClause != null)
+                        prepared = prepared.Replace(SORT, SortClause);
+                }
                 var r = new Regex("\\$\\(.+?\\)");
                 prepared = r.Replace(prepared, "");
                 return prepared;
@@ -56,6 +75,7 @@ namespace SK.Business.Models
         public const string GROUP = "$(group)";
         public const string SORT = "$(sort)";
         public const string PAGING = "$(paging)";
+
         public DynamicSql()
         {
             Parameters = new List<SqlParameter>();
@@ -79,7 +99,8 @@ namespace SK.Business.Models
             {
                 DynamicForm = src.DynamicForm,
                 MultiResults = src.MultiResults.ToList(),
-                Parameters = src.Parameters.ToList()
+                Parameters = src.Parameters.ToList(),
+                SortClause = src.SortClause
             };
         }
         public string AddAutoIncrParam(object val)

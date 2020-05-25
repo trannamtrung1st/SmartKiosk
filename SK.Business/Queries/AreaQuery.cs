@@ -52,7 +52,7 @@ namespace SK.Business.Queries
             if (listSorts.Any())
             {
                 var orderByClause = "ORDER BY " + string.Join(',', listSorts);
-                query.DynamicForm = query.DynamicForm.Replace(DynamicSql.SORT, orderByClause);
+                query.SortClause = orderByClause;
             }
             return query;
         }
