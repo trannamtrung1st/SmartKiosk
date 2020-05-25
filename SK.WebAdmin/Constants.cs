@@ -25,6 +25,8 @@ namespace SK.WebAdmin
         public const string LOCATION = "/location";
         public const string LOCATION_CREATE = "/location/create";
         public const string DEVICE = "/device";
+        public const string DEVICE_CREATE = "/device/create";
+        public const string DEVICE_DETAIL = "/device/{id}";
         public const string OWNER = "/owner";
         public const string OWNER_CREATE = "/owner/create";
         public const string OWNER_DETAIL = "/owner/{id}";
@@ -73,6 +75,7 @@ namespace SK.WebAdmin
         public const string CREATE_SUCCESS = "Thêm mới thành công";
         public const string DELETE_SUCCESS = "Xóa thành công";
         public const string UPDATE_SUCCESS = "Cập nhật thành công";
+        public const string SUCCESS = "Thành công";
         public const string R_U_SURE = "Chắc chắn?";
     }
 
