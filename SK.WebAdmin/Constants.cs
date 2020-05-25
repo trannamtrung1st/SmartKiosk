@@ -31,6 +31,8 @@ namespace SK.WebAdmin
         public const string OWNER_CREATE = "/owner/create";
         public const string OWNER_DETAIL = "/owner/{id}";
         public const string ACCOUNT = "/account";
+        public const string ACCOUNT_CREATE = "/account/create";
+        public const string ACCOUNT_DETAIL = "/account/{id}";
         public const string RES_TYPE = "/res_type";
         public const string ENTITY_CATE = "/entity_cate";
         public const string FILE = "/file";
