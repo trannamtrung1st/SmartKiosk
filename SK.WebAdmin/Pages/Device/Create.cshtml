@@ -1,0 +1,473 @@
+﻿@page
+@model SK.WebAdmin.Pages.Device.CreateModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.DEVICE">Thiết bị</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-12">
+                <!-- jquery validation -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            Thông tin
+                        </h3>
+                    </div>
+                    <!-- form start -->
+                    <form role="form" id="form-main">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Tài khoản</label>
+                                <input type="text" name="username" class="form-control" placeholder="Nhập tài khoản">
+                            </div>
+                            <div class="form-group">
+                                <label>Mật khẩu</label>
+                                <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu">
+                            </div>
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu</label>
+                                <input type="password" name="confirm_password" class="form-control" placeholder="Xác nhận lại mật khẩu">
+                            </div>
+                            <div class="form-group">
+                                <label>Mã kích hoạt</label>
+                                <input type="text" name="activation_code" class="form-control" placeholder="Nhập mã kích hoạt">
+                            </div>
+                            <div class="form-group">
+                                <label>Mã code</label>
+                                <input type="text" name="code" class="form-control" placeholder="Nhập mã thiết bị">
+                            </div>
+                            <div class="form-group">
+                                <label>Tên thiết bị</label>
+                                <input type="text" name="name" class="form-control" placeholder="Nhập tên thiết bị">
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả</label>
+                                <textarea class="form-control" name="description" placeholder="Nhập mô tả thiết bị"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Trung tâm</label>
+                                <select class="form-control select2" name="select_location"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tòa nhà</label>
+                                <select class="form-control select2" name="select_building"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tầng</label>
+                                <select class="form-control select2" name="select_floor"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Khu vực</label>
+                                <select class="form-control select2" name="select_area"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Vị trí trên bản đồ</label>
+                                <br />
+                                X &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="lat" class="form-control d-inline w-50" placeholder="Vĩ độ" />
+                                <br />
+                                Y &nbsp;&nbsp;&nbsp;&nbsp;<input type="number" name="lon" class="form-control d-inline w-50" placeholder="Kinh độ" />
+                                <br />
+                                <button type="button"
+                                        data-toggle="modal" data-target="#modal-map"
+                                        class="btn btn-default mt-2" onclick="showMap()">
+                                    Chọn trên bản đồ
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check mr-1"></i>
+                                GỬI ĐI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!--/.col (left) -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<div class="modal fade" id="modal-map">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Chọn 1 điểm trên bản đồ</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                X &nbsp;&nbsp; <input type="number" class="form-control d-inline w-25" name="lat" />
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                Y &nbsp;&nbsp; <input type="number" class="form-control d-inline w-25" name="lon" />
+                <button type="button" class="btn btn-primary" onclick="saveLocation()">Xác nhận</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+@section scripts {
+
+    <!-- jquery-validation -->
+    <script src="/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadLocations();
+            initSelectEvents();
+            $('.select2').select2();
+            $('#form-main').validate({
+                submitHandler: confirmSubmit,
+                rules: {
+                    username: {
+                        required: true,
+                        minlength: 5
+                    },
+                    password: {
+                        required: true,
+                    },
+                    confirm_password: {
+                        required: true,
+                        equalTo: "[name=password]"
+                    },
+                    name: {
+                        required: true,
+                    },
+                    code: {
+                        required: true,
+                    }
+                },
+                messages: {
+                    username: {
+                        required: "Xin hãy nhập tài khoản",
+                        minlength: "Ít nhất 5 kí tự"
+                    },
+                    password: {
+                        required: "Xin hãy nhập mật khẩu",
+                    },
+                    confirm_password: {
+                        required: "Xin hãy xác nhận lại mật khẩu",
+                        equalTo: "Xác nhận mật khẩu không khớp"
+                    },
+                    name: {
+                        required: "Xin hãy nhập tên thiết bị",
+                    },
+                    code: {
+                        required: "Xin hãy nhập mã code",
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+
+        function confirmSubmit() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitData();
+            });
+        }
+
+        function submitData() {
+            var model = {
+                username: $('[name=username]').val(),
+                password: $('[name=password]').val(),
+                confirm_password: $('[name=confirm_password]').val(),
+                activation_code: $('[name=activation_code]').val(),
+                code: $('[name=code]').val(),
+                name: $('[name=name]').val(),
+                description: $('[name=description]').val(),
+                location_id: parseInt($('[name=select_location]').val()),
+                floor_id: parseInt($('[name=select_floor]').val()),
+                building_id: parseInt($('[name=select_building]').val()),
+                area_id: parseInt($('[name=select_area]').val()),
+                lat: $('#form-main [name=lat]').val(),
+                lon: $('#form-main [name=lon]').val(),
+            }
+            console.log(model);
+            //alert(JSON.stringify(model));
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.DEVICE_API',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
+                        location.href = '@Routing.DEVICE';
+                    });
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        var loc_change = (e) => {
+            var val = e.target.value;
+            loadBuildings(val);
+        };
+        var bui_change = (e) => {
+            var val = e.target.value;
+            loadFloors(val);
+        };
+        var flo_change = (e) => {
+            var val = e.target.value;
+            loadAreas(val);
+        };
+
+        function initSelectEvents() {
+            $('[name=select_location]').change(loc_change);
+            $('[name=select_building]').change(bui_change);
+            $('[name=select_floor]').change(flo_change);
+        }
+
+        function reloadSelect(name) {
+            $('[name=' + name + ']').empty();
+            $('[name=' + name + ']').append(
+                $('<option value="">').append('Chưa chọn')
+            );
+        }
+
+        function loadLocations() {
+            var sl = $('[name=select_location]');
+            reloadSelect('select_location');
+            reloadSelect('select_building');
+            reloadSelect('select_floor');
+            reloadSelect('select_area');
+            $.ajax({
+                url: "@apiUrl/@ApiEndpoint.LOCATION_API",
+                type: "GET",
+                data: {
+                    fields: "@LocationQueryProjection.SELECT",
+                    load_all: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                }
+            });
+        }
+
+        function loadBuildings(loc_id) {
+            var sl = $('[name=select_building]');
+            reloadSelect('select_building');
+            reloadSelect('select_floor');
+            reloadSelect('select_area');
+            $.ajax({
+                url: "@apiUrl/@ApiEndpoint.BUILDING_API",
+                type: "GET",
+                data: {
+                    fields: "@BuildingQueryProjection.SELECT",
+                    loc_id,
+                    load_all: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    console.log(e);
+                }
+            });
+        }
+
+        function loadFloors(building_id) {
+            var sl = $('[name=select_floor]');
+            reloadSelect('select_floor');
+            reloadSelect('select_area');
+            $.ajax({
+                url: "@apiUrl/@ApiEndpoint.FLOOR_API",
+                type: "GET",
+                data: {
+                    fields: "@FloorQueryProjection.SELECT",
+                    building_id,
+                    load_all: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    console.log(e);
+                }
+            });
+        }
+
+        function loadAreas(floor_id) {
+            var sl = $('[name=select_area]');
+            reloadSelect('select_area');
+            $.ajax({
+                url: "@apiUrl/@ApiEndpoint.AREA_API",
+                type: "GET",
+                data: {
+                    fields: "@AreaQueryProjection.SELECT",
+                    floor_id,
+                    load_all: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    console.log(e);
+                }
+            });
+        }
+
+        var svgConfig = {};
+        function showMap() {
+            var floorId = $('[name=select_floor]').val();
+            if (!floorId) {
+                var mBody = $('#modal-map .modal-body');
+                $('#modal-map .modal-footer').hide();
+                mBody.html('<h5 class="text-center">Chưa chọn tầng</h3>');
+                return;
+            }
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.FLOOR_API',
+                type: "GET",
+                data: {
+                    id: floorId,
+                    fields: "@FloorQueryProjection.INFO,@FloorQueryProjection.FLOOR_PLAN",
+                    single_only: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data;
+                    if (!data) {
+                        errorAlert();
+                        return;
+                    }
+                    var map = data.map_path;
+                    if (map) initMap(map);
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                }
+            });
+        }
+
+        function initMap(map) {
+            var mBody = $('#modal-map .modal-body');
+            $('#modal-map .modal-footer').show();
+            mBody.html(map);
+            var svg = mBody.find('svg');
+            svgConfig.width = svg.attr('width');
+            svgConfig.height = svg.attr('height');
+            svg.attr('viewBox', '0 0 ' + svgConfig.width + ' ' + svgConfig.height);
+            svg.attr('width', '100%');
+            svg.removeAttr('height');
+            var pt = svg[0].createSVGPoint();  // Created once for document
+            svg.click((evt) => {
+                pt.x = evt.clientX;
+                pt.y = evt.clientY;
+                $('#current-loc').remove();
+                // The cursor point, translated into svg coordinates
+                var cursorpt = pt.matrixTransform(svg[0].getScreenCTM().inverse());
+                var x = cursorpt.x;
+                var y = cursorpt.y;
+                $('#modal-map [name=lat]').val(x);
+                $('#modal-map [name=lon]').val(y);
+                var image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                image.setAttribute('id', 'current-loc');
+                image.setAttribute('href', '/dist/img/loc.png');
+                var width = 50;
+                var height = 50;
+                x = x - width / 2;
+                y = y - height / 1.3;
+                image.setAttribute('x', x);
+                image.setAttribute('y', y);
+                image.setAttribute('heigt', width + 'px');
+                image.setAttribute('width', height + 'px');
+                $('#modal-map svg').append(
+                    $(image)
+                );
+            });
+        }
+
+        function saveLocation() {
+            var x = $('#modal-map [name=lat]').val();
+            var y = $('#modal-map [name=lon]').val();
+            $('#form-main [name=lat]').val(x);
+            $('#form-main [name=lon]').val(y);
+            $('#modal-map').modal('hide');
+        }
+    </script>
+}

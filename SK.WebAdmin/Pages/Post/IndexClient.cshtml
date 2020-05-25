@@ -184,22 +184,7 @@
                     processData(data);
                 },
                 error: (data) => {
-                    console.log(data);
-                    if (data.status == 404)
-                        notFoundAlert().then((result) => {
-                            location.href = '@Routing.POST';
-                        });
-                    else if (data.status == 400) {
-                        let html = '';
-                        data = data.responseJSON;
-                        for (var i = 0; i < data.length; i++) {
-                            var result = data[i];
-                            if (isFailValidation(result))
-                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
-                        }
-                        sorryAlert(html);
-                    } else
-                        errorAlert();
+                    handleGeneralError(data, '@Routing.POST');
                 },
                 complete: () => {
                     changeLoading(false);
@@ -249,18 +234,7 @@
                     successAlert("@Html.Raw(GeneralMessage.DELETE_SUCCESS)").then(getData);
                 },
                 error: (data) => {
-                    console.log(data);
-                    if (data.status == 400) {
-                        let html = '';
-                        data = data.responseJSON;
-                        for (var i = 0; i < data.length; i++) {
-                            var result = data[i];
-                            if (isFailValidation(result))
-                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
-                        }
-                        sorryAlert(html);
-                    } else
-                        errorAlert();
+                    handleGeneralError(data);
                 },
                 complete: () => {
                     changeLoading(false);

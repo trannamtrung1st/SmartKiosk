@@ -332,18 +332,7 @@
                     });
                 },
                 error: (data) => {
-                    console.log(data);
-                    if (data.status == 400) {
-                        let html = '';
-                        data = data.responseJSON;
-                        for (var i = 0; i < data.length; i++) {
-                            var result = data[i];
-                            if (isFailValidation(result))
-                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
-                        }
-                        sorryAlert(html);
-                    } else
-                        errorAlert();
+                    handleGeneralError(data);
                 },
                 complete: () => {
                     changeLoading(false);

@@ -401,8 +401,7 @@
                     $('.full-name').text(result.data.full_name);
                 },
                 error: (data) => {
-                    console.log(data);
-                    errorAlert();
+                    handleGeneralError(data);
                 },
                 complete: () => {
                     changeLoading(false);

@@ -109,7 +109,11 @@ namespace SK.WebAdmin
             services.AddRazorPages(options =>
             {
                 var allowAnnonymousPages = new[] {
-                    "/AccessDenied", "/Error", "/Status", "/Identity/Login", "/Identity/Register" };
+                    "/AccessDenied", "/Error", "/Status", "/Identity/Login",
+#if DEBUG
+                    "/Identity/Register"
+#endif
+                };
                 var authorizeFolders = new[] { "/" };
                 options.Conventions
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
