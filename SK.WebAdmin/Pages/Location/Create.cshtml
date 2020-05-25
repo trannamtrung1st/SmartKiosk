@@ -142,7 +142,7 @@
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: (data) => {
-                    successAlert("Thêm mới thành công").then(() => {
+                    successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
                         location.href = '@Routing.LOCATION';
                     });
                 },
@@ -154,7 +154,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Một số dữ liệu gửi đi chưa phù hợp<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else

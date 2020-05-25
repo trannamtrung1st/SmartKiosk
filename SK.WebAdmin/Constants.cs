@@ -65,8 +65,13 @@ namespace SK.WebAdmin
 
     public static class GeneralMessage
     {
-        public const string ERROR = "Something's wrong, please try again or contact admin";
-        public const string NOT_FOUND = "Can not find requested resource";
+        public const string ERROR = "Có lỗi xảy ra, liên hệ với bộ phận kỹ thuật để được hỗ trợ";
+        public const string NOT_FOUND = "Không thể tìm thấy trang yêu cầu";
+        public const string SOME_INP_NOT_VALID = "Một số dữ liệu gửi đi chưa phù hợp";
+        public const string CREATE_SUCCESS = "Thêm mới thành công";
+        public const string DELETE_SUCCESS = "Xóa thành công";
+        public const string UPDATE_SUCCESS = "Cập nhật thành công";
+        public const string R_U_SURE = "Chắc chắn?";
     }
 
 }

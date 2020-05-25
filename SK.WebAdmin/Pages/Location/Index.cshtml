@@ -100,7 +100,7 @@
                     },
                     { targets: "_all", orderable: false, searchable: false },
                 ],
-                order: [[4, 'asc']]
+                order: [[3, 'asc']]
             });
             tblMain._mustDrawNo = true;
             tblMain.on('draw', onTableChange);
@@ -150,7 +150,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Một số dữ liệu gửi đi chưa phù hợp<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else
@@ -203,7 +203,7 @@
                 url: '@apiUrl/@ApiEndpoint.LOCATION_API/' + id,
                 type: 'delete',
                 success: (data) => {
-                    successAlert("Xóa thành công").then(getData);
+                    successAlert("@Html.Raw(GeneralMessage.DELETE_SUCCESS)").then(getData);
                 },
                 error: (data) => {
                     console.log(data);
@@ -213,7 +213,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Một số dữ liệu gửi đi chưa phù hợp<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace SK.WebAdmin.Pages.Post
             Info = new PageInfo
             {
                 Menu = Menu.POST,
-                Title = "Create new post"
+                Title = "Thêm mới bài viết"
             };
         }
     }

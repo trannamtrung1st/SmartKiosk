@@ -44,8 +44,8 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item"><a href="@Routing.POST">List of posts</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.POST">Bài viết</a></li>
                     <li class="breadcrumb-item active">@Model.Info.Title</li>
                 </ol>
             </div>
@@ -64,19 +64,19 @@
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fa fa-info-circle mr-1"></i>
-                            Form
+                            Thông tin
                         </h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body mb-0 pb-0">
                         <form role="form" id="form-main">
                             <div class="form-group">
-                                <label>Created time</label>
+                                <label>Thời gian tạo</label>
                                 <div class="font-italic" name="created_time"></div>
                             </div>
                             <div class="form-group w-50">
                                 <label>
-                                    Image
+                                    Hình ảnh
                                     <button type="button"
                                             onclick="showFileChooser()"
                                             class="btn btn-default mx-1 btn-sm">
@@ -85,11 +85,11 @@
                                 </label>
                                 <input type="text" name="image_url" class="form-control"
                                        onchange="onImageUrlChange()"
-                                       placeholder="Remote image url" />
+                                       placeholder="Đường dẫn hình ảnh" />
                                 <img name="image_preview" class="img w-100 my-3" />
                             </div>
                             <div class="form-group w-50">
-                                <label>Language</label>
+                                <label>Ngôn ngữ</label>
                                 @{
                                     var supportCultures = Business.Settings.Instance.SupportedCultures;
                                 }
@@ -110,21 +110,21 @@
                         <div class="card-body mt-0 pt-0">
 
                             <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" class="form-control" placeholder="Enter title">
+                                <label>Tiêu đề</label>
+                                <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề">
                             </div>
                             <div class="form-group">
-                                <label>Content</label>
+                                <label>Nội dung</label>
                                 <textarea class="summernote"
                                           name="content"
-                                          placeholder="Place some text here"></textarea>
+                                          placeholder="Nhập nội dung ở đây"></textarea>
                             </div>
                         </div>
                         <!-- /.card-body -->
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-check mr-1"></i>
-                                UPDATE
+                                CẬP NHẬT
                             </button>
                         </div>
                     </form>
@@ -193,7 +193,7 @@
                 },
                 messages: {
                     title: {
-                        required: "Please enter a title",
+                        required: "Xin hãy nhập tiêu đề",
                     },
                 },
                 errorElement: 'span',
@@ -348,7 +348,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Some input are not valid<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else
@@ -409,7 +409,7 @@
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: (data) => {
-                    successAlert("Update successfully");
+                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
                 },
                 error: (data) => {
                     console.log(data);
@@ -419,7 +419,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Some input are not valid<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else

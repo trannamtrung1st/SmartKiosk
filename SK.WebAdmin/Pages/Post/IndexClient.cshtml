@@ -22,7 +22,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
                     <li class="breadcrumb-item active">@Model.Info.Title</li>
                 </ol>
             </div>
@@ -38,7 +38,7 @@
                 <div class="card-header clickable" data-card-widget="collapse">
                     <h3 class="card-title">
                         <i class="fa fa-filter text-black-50 mr-1"></i>
-                        Filter
+                        Bộ lọc
                     </h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
@@ -48,7 +48,7 @@
                 <div class="card-body">
                     <form id="form-filter">
                         <div class="form-group w-50">
-                            <label>Language</label>
+                            <label>Ngôn ngữ</label>
                             @{
                                 var supportCultures = Business.Settings.Instance.SupportedCultures;
                             }
@@ -84,10 +84,10 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>No.</th>
+                                <th>STT</th>
                                 <th>Id</th>
-                                <th class="sortable">Title</th>
-                                <th>Created time</th>
+                                <th class="sortable">Tiêu đề</th>
+                                <th>Thời gian tạo</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -95,10 +95,10 @@
                         <tfoot>
                             <tr>
                                 <th></th>
-                                <th>No.</th>
+                                <th>STT</th>
                                 <th>Id</th>
-                                <th>Title</th>
-                                <th>Created time</th>
+                                <th>Tiêu đề</th>
+                                <th>Thời gian tạo</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -195,7 +195,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Some input are not valid<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else
@@ -216,8 +216,8 @@
                         "<i class=\"fa fa-list\"></i>" +
                     "</button>" +
                     "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                        "<a class=\"dropdown-item\" href=\"@Routing.POST/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Detail</a>" +
-                        "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + id + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Remove</button>" +
+                        "<a class=\"dropdown-item\" href=\"@Routing.POST/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                        "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + id + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Xóa</button>" +
                     "</div>" +
                 "</div>";
             for (var i = 0; i < data.length; i++) {
@@ -246,7 +246,7 @@
                 url: '@apiUrl/@ApiEndpoint.POST_API/' + id,
                 type: 'delete',
                 success: (data) => {
-                    successAlert("Remove successfully").then(getData);
+                    successAlert("@Html.Raw(GeneralMessage.DELETE_SUCCESS)").then(getData);
                 },
                 error: (data) => {
                     console.log(data);
@@ -256,7 +256,7 @@
                         for (var i = 0; i < data.length; i++) {
                             var result = data[i];
                             if (isFailValidation(result))
-                                html += 'Some input are not valid<br/>';
+                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
                         }
                         sorryAlert(html);
                     } else

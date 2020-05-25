@@ -89,7 +89,7 @@
         }
     }
 
-    function confirmAlert(html = 'Chắc chắn?') {
+    function confirmAlert(html = '@Html.Raw(GeneralMessage.R_U_SURE)') {
         return Swal.fire({
             heightAuto: false,
             title: 'Xác nhận',
