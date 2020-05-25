@@ -56,9 +56,12 @@ namespace SK.Business.Services
                     case ResourceTypeQueryProjection.CONTENT:
                         {
                             var entity = row.Content;
-                            obj["content_id"] = entity.Id;
-                            obj["lang"] = entity.Lang;
-                            obj["name"] = entity.Name;
+                            if (entity != null)
+                            {
+                                obj["content_id"] = entity.Id;
+                                obj["lang"] = entity.Lang;
+                                obj["name"] = entity.Name;
+                            }
                         }
                         break;
                 }

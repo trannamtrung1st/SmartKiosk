@@ -20,7 +20,8 @@ namespace SK.WebAdmin.Pages.Post
             Info = new PageInfo
             {
                 Menu = Menu.POST,
-                Title = "Thêm mới bài viết"
+                Title = "Thêm mới bài viết",
+                BackUrl = BackUrl ?? Routing.POST
             };
         }
     }

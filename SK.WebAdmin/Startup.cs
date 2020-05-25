@@ -117,6 +117,7 @@ namespace SK.WebAdmin
                 var authorizeFolders = new[] { "/" };
                 options.Conventions
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
+                    .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/Owner/Detail", Routing.OWNER_DETAIL);
                 foreach (var f in authorizeFolders)
                     options.Conventions.AuthorizeFolder(f);

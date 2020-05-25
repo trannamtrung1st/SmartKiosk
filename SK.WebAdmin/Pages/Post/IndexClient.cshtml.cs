@@ -20,7 +20,8 @@ namespace SK.WebAdmin.Pages.Post
             Info = new PageInfo
             {
                 Menu = Menu.POST_CLIENT,
-                Title = "Bài viết (Client processing)"
+                Title = "Bài viết (Client processing)",
+                BackUrl = BackUrl ?? Routing.DASHBOARD
             };
         }
     }

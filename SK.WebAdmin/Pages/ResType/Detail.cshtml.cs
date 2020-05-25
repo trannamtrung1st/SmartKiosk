@@ -4,25 +4,26 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using NLog.LayoutRenderers;
 using SK.WebAdmin.Models;
 
-namespace SK.WebAdmin.Pages.Post
+namespace SK.WebAdmin.Pages.ResType
 {
-    public class IndexModel : BasePageModel<IndexModel>
+    public class DetailModel : BasePageModel<DetailModel>
     {
-        public void OnGet()
+        public int Id { get; set; }
+        public void OnGet(int id)
         {
             SetPageInfo();
+            Id = id;
         }
 
         protected override void SetPageInfo()
         {
             Info = new PageInfo
             {
-                Menu = Menu.POST,
-                Title = "Bài viết",
-                BackUrl = BackUrl ?? Routing.DASHBOARD
+                Title = "Chi tiết loại địa điểm",
+                Menu = Menu.RES_TYPE,
+                BackUrl = BackUrl ?? Routing.RES_TYPE
             };
         }
     }
