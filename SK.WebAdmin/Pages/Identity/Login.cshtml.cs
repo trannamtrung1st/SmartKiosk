@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -45,8 +45,8 @@ namespace SK.WebAdmin.Pages.Identity
             //this is auto handled by anti-forgery: return 400 bad request
             if (User.Identity.IsAuthenticated)
             {
-                Message = "You can only log in 1 account at time";
-                MessageTitle = "Already logged in";
+                Message = "Bạn chỉ được đăng nhập cùng lúc 1 tài khoản";
+                MessageTitle = "Đã đăng nhập";
                 return this.MessageView();
             }
             var entity = await identityService.AuthenticateAsync(model.username, model.password);
@@ -89,7 +89,7 @@ namespace SK.WebAdmin.Pages.Identity
                             $"&token_type={resp.token_type}&" +
                             $"&return_url={return_url}");
             }
-            Message = "Invalid username or password";
+            Message = "Tài khoản hoặc mật khẩu không hợp lệ";
             return Page();
         }
 
@@ -97,7 +97,7 @@ namespace SK.WebAdmin.Pages.Identity
         {
             Info = new PageInfo
             {
-                Title = "Log in"
+                Title = "Đăng nhập"
             };
         }
     }
