@@ -45,13 +45,24 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Model.Info.BackUrl"><i class="fas fa-arrow-left"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="@Routing.DASHBOARD"><i class="fas fa-home"></i></a>
+                </li>
+                <li class="ml-3 nav-item">
+                    <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">
+                        ĐIỀU HƯỚNG
+                    </button>
+                </li>
             </ul>
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
-                        Welcome <b>@User.FindFirst(AppClaimType.UserName)?.Value</b>
+                        Xin chào <b>@User.FindFirst(AppClaimType.UserName)?.Value</b>
                         &nbsp;
                         <i class="fas fa-user"></i>
                     </a>
@@ -102,7 +113,7 @@
                             <a href="@Routing.DASHBOARD" class="nav-link @ActiveMenu(Menu.DASHBOARD)">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
-                                    Dashboard
+                                    Tổng quan
                                 </p>
                             </a>
                         </li>
@@ -110,7 +121,7 @@
                             <a href="@Routing.POST" class="nav-link @ActiveMenu(Menu.POST)">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
-                                    Post
+                                    Bài viết
                                 </p>
                             </a>
                         </li>
@@ -118,7 +129,7 @@
                             <a href="@Routing.POST_CLIENT" class="nav-link @ActiveMenu(Menu.POST_CLIENT)">
                                 <i class="nav-icon fas fa-edit"></i>
                                 <p>
-                                    Post (client processing)
+                                    Bài viết (client processing)
                                 </p>
                             </a>
                         </li>
@@ -126,7 +137,7 @@
                             <a href="@Routing.FILE" class="nav-link @ActiveMenu(Menu.FILE)">
                                 <i class="nav-icon fas fa-file-alt"></i>
                                 <p>
-                                    File
+                                    Dữ liệu
                                 </p>
                             </a>
                         </li>
@@ -134,7 +145,7 @@
                             <a href="@Routing.ADMIN_ONLY" class="nav-link @ActiveMenu(Menu.ADMIN_ONLY)">
                                 <i class="nav-icon fas fa-user"></i>
                                 <p>
-                                    Admin only
+                                    Quyền quản trị
                                 </p>
                             </a>
                         </li>

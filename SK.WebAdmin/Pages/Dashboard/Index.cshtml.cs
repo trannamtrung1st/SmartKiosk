@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,7 +20,7 @@ namespace SK.WebAdmin.Pages.Dashboard
             Info = new PageInfo
             {
                 Menu = Menu.DASHBOARD,
-                Title = "Dashboard"
+                Title = "Tổng quan"
             };
         }
     }
