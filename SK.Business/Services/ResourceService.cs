@@ -72,16 +72,20 @@ namespace SK.Business.Services
                     case ResourceQueryProjection.CONTENT:
                         {
                             var entity = row.Content;
-                            obj["content_id"] = entity.Id;
-                            obj["lang"] = entity.Lang;
-                            obj["name"] = entity.Name;
-                            obj["description"] = entity.Description;
+                            if (entity != null)
+                            {
+                                obj["content_id"] = entity.Id;
+                                obj["lang"] = entity.Lang;
+                                obj["name"] = entity.Name;
+                                obj["description"] = entity.Description;
+                            }
                         }
                         break;
                     case ResourceQueryProjection.CONTENT_CONTENT:
                         {
                             var entity = row.Content;
-                            obj["content"] = entity.Content;
+                            if (entity != null)
+                                obj["content"] = entity.Content;
                         }
                         break;
                     case ResourceQueryProjection.LOCATION:

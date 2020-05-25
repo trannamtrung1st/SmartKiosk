@@ -37,6 +37,8 @@ namespace SK.WebAdmin
         public const string RES_TYPE_CREATE = "/restype/create";
         public const string RES_TYPE_DETAIL = "/restype/{id}";
         public const string ENTITY_CATE = "/etcate";
+        public const string ENTITY_CATE_CREATE = "/etcate/create";
+        public const string ENTITY_CATE_DETAIL = "/etcate/{id}";
         public const string FILE = "/file";
     }
 

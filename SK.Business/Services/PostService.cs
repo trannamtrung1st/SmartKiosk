@@ -81,16 +81,20 @@ namespace SK.Business.Services
                     case PostQueryProjection.CONTENT:
                         {
                             var entity = row.Content;
-                            obj["content_id"] = entity.Id;
-                            obj["lang"] = entity.Lang;
-                            obj["description"] = entity.Description;
-                            obj["title"] = entity.Title;
+                            if (entity != null)
+                            {
+                                obj["content_id"] = entity.Id;
+                                obj["lang"] = entity.Lang;
+                                obj["description"] = entity.Description;
+                                obj["title"] = entity.Title;
+                            }
                         }
                         break;
                     case PostQueryProjection.CONTENT_CONTENT:
                         {
                             var entity = row.Content;
-                            obj["content"] = entity.Content;
+                            if (entity != null)
+                                obj["content"] = entity.Content;
                         }
                         break;
                     case PostQueryProjection.OWNER:

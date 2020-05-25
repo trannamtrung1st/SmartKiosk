@@ -88,22 +88,20 @@ namespace SK.WebAdmin
                 options.LogoutPath = Routing.LOGOUT;
                 options.ReturnUrlParameter = "return_url";
                 options.SlidingExpiration = true;
-
-                //If using SignInManager login:
-                //options.Events.OnValidatePrincipal = async (c) =>
-                //{
-                //    var identity = c.Principal.Identity as ClaimsIdentity;
-                //    //extra claims will be expired after amount of time
-                //    if (identity.FindFirst(AppClaimType.UserName)?.Value == null)
-                //    {
-                //        var identityService = c.HttpContext.RequestServices.GetRequiredService<IdentityService>();
-                //        var entity = await identityService.GetUserByUserNameAsync(identity.Name);
-                //        var extraClaims = identityService.GetExtraClaims(entity);
-                //        identity.AddClaims(extraClaims);
-                //        c.ShouldRenew = true;
-                //    }
-                //    await SecurityStampValidator.ValidatePrincipalAsync(c);
-                //};
+                options.Events.OnValidatePrincipal = async (c) =>
+                {
+                    var identity = c.Principal.Identity as ClaimsIdentity;
+                    //extra claims will be expired after amount of time
+                    if (identity.FindFirst(AppClaimType.UserName)?.Value == null)
+                    {
+                        var identityService = c.HttpContext.RequestServices.GetRequiredService<IdentityService>();
+                        var entity = await identityService.GetUserByUserNameAsync(identity.Name);
+                        var extraClaims = identityService.GetExtraClaims(entity);
+                        identity.AddClaims(extraClaims);
+                        c.ShouldRenew = true;
+                    }
+                    await SecurityStampValidator.ValidatePrincipalAsync(c);
+                };
             });
             services.AddControllers();
             services.AddRazorPages(options =>
@@ -118,6 +116,7 @@ namespace SK.WebAdmin
                 options.Conventions
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
+                    .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
                     .AddPageRoute("/Owner/Detail", Routing.OWNER_DETAIL);
                 foreach (var f in authorizeFolders)
                     options.Conventions.AuthorizeFolder(f);
