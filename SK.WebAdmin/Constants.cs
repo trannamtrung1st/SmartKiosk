@@ -23,6 +23,7 @@ namespace SK.WebAdmin
         public const string ERROR = "/error";
         public const string INDEX = "/";
         public const string LOCATION = "/location";
+        public const string LOCATION_CREATE = "/location/create";
         public const string DEVICE = "/device";
         public const string OWNER = "/owner";
         public const string ACCOUNT = "/account";
