@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Pages.Location.IndexModel
+@model SK.WebAdmin.Pages.Owner.IndexModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -36,7 +36,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <a href="@Routing.LOCATION_CREATE" class="btn btn-primary float-right">
+                    <a href="@Routing.OWNER_CREATE" class="btn btn-primary float-right">
                         <i class="fa fa-plus"></i>
                     </a>
                 </div>
@@ -128,7 +128,7 @@
             data.culture = '@CultureHelper.CurrentLang';
             data.load_all = true;
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.LOCATION_API',
+                url: '@apiUrl/@ApiEndpoint.OWNER_API',
                 type: 'get',
                 data: data,
                 success: (data) => {
@@ -140,7 +140,7 @@
                     console.log(data);
                     if (data.status == 404)
                         notFoundAlert().then((result) => {
-                            location.href = '@Routing.LOCATION';
+                            location.href = '@Routing.OWNER';
                         });
                     else if (data.status == 400) {
                         let html = '';
@@ -169,7 +169,7 @@
                         "<i class=\"fa fa-list\"></i>" +
                     "</button>" +
                     "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                        "<a class=\"dropdown-item\" href=\"@Routing.LOCATION/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                        "<a class=\"dropdown-item\" href=\"@Routing.OWNER/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
                         "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + id + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Xóa</button>" +
                     "</div>" +
                 "</div>";
@@ -198,7 +198,7 @@
         function submitRemove(id) {
             changeLoading(true);
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.LOCATION_API/' + id,
+                url: '@apiUrl/@ApiEndpoint.OWNER_API/' + id,
                 type: 'delete',
                 success: (data) => {
                     successAlert("@Html.Raw(GeneralMessage.DELETE_SUCCESS)").then(getData);
@@ -225,3 +225,4 @@
 
     </script>
 }
+

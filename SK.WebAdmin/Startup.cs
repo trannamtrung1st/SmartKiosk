@@ -112,7 +112,8 @@ namespace SK.WebAdmin
                     "/AccessDenied", "/Error", "/Status", "/Identity/Login", "/Identity/Register" };
                 var authorizeFolders = new[] { "/" };
                 options.Conventions
-                    .AddPageRoute("/Post/Detail", Routing.POST_DETAIL);
+                    .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
+                    .AddPageRoute("/Owner/Detail", Routing.OWNER_DETAIL);
                 foreach (var f in authorizeFolders)
                     options.Conventions.AuthorizeFolder(f);
                 foreach (var p in allowAnnonymousPages)

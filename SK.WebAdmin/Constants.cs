@@ -26,6 +26,8 @@ namespace SK.WebAdmin
         public const string LOCATION_CREATE = "/location/create";
         public const string DEVICE = "/device";
         public const string OWNER = "/owner";
+        public const string OWNER_CREATE = "/owner/create";
+        public const string OWNER_DETAIL = "/owner/{id}";
         public const string ACCOUNT = "/account";
         public const string RES_TYPE = "/res_type";
         public const string ENTITY_CATE = "/entity_cate";
