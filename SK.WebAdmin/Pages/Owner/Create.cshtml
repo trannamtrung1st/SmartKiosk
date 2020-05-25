@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Pages.Owner.DetailModel
+@model SK.WebAdmin.Pages.Owner.CreateModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -42,18 +42,9 @@
                             Thông tin
                         </h3>
                     </div>
-                    <!-- /.card-header -->
-
                     <!-- form start -->
                     <form role="form" id="form-main">
                         <div class="card-body">
-                            <div class="form-group">
-                                <label>Id</label>
-                                <input type="text" name="id" class="form-control" disabled value="@Model.Id">
-                            </div>
-                            <div class="form-group">
-                                <label>Trạng thái</label> <span name="archived" class="badge"></span>
-                            </div>
                             <div class="form-group">
                                 <label>Tên</label>
                                 <input type="text" name="name" class="form-control" placeholder="Nhập tên đối tác">
@@ -75,7 +66,7 @@
                         <div class="card-footer">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa fa-check mr-1"></i>
-                                CẬP NHẬT
+                                GỬI ĐI
                             </button>
                         </div>
                     </form>
@@ -99,7 +90,6 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $('.select2').select2();
-            getData();
             $('#form-main').validate({
                 submitHandler: confirmSubmit,
                 rules: {
@@ -108,7 +98,7 @@
                     },
                     code: {
                         required: true,
-                    },
+                    }
                 },
                 messages: {
                     name: {
@@ -132,57 +122,6 @@
             });
         });
 
-        function getData() {
-            changeLoading(true);
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.OWNER_API',
-                type: 'get',
-                data: {
-                    id: @Model.Id,
-                    culture: '@CultureHelper.CurrentLang',
-                    fields: '@OwnerQueryProjection.INFO',
-                    single_only: true
-                },
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data;
-                    processData(data);
-                },
-                error: (data) => {
-                    console.log(data);
-                    if (data.status == 404)
-                        notFoundAlert().then((result) => {
-                            location.href = '@Routing.OWNER';
-                        });
-                    else if (data.status == 400) {
-                        let html = '';
-                        data = data.responseJSON;
-                        for (var i = 0; i < data.length; i++) {
-                            var result = data[i];
-                            if (isFailValidation(result))
-                                html += '@Html.Raw(GeneralMessage.SOME_INP_NOT_VALID)<br/>';
-                        }
-                        sorryAlert(html);
-                    } else
-                        errorAlert();
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
-        function processData(data) {
-            const formMain = $('#form-main');
-            formMain.find('[name=archived]')
-                .text(data.archived ? 'Ngưng hoạt động' : 'Hoạt động')
-                .addClass(data.archived ? 'badge-danger' : 'badge-success');
-            formMain.find('[name=name]').val(data.name);
-            formMain.find('[name=code]').val(data.code);
-            formMain.find('[name=phone]').val(data.phone);
-            formMain.find('[name=description]').val(data.description);
-        }
-
         function confirmSubmit() {
             confirmAlert().then((result) => {
                 if (result.value)
@@ -198,12 +137,14 @@
             model.description = $('[name=description]').val();
             changeLoading(true);
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.OWNER_API/@Model.Id',
-                type: 'patch',
+                url: '@apiUrl/@ApiEndpoint.OWNER_API',
+                type: 'post',
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: (data) => {
-                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
+                    successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
+                        location.href = '@Routing.OWNER';
+                    });
                 },
                 error: (data) => {
                     console.log(data);
@@ -224,6 +165,5 @@
                 }
             });
         }
-
     </script>
 }

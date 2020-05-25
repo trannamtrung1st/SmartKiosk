@@ -8,21 +8,20 @@ using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Pages.Owner
 {
-    public class DetailModel : BasePageModel<DetailModel>
+    public class CreateModel : BasePageModel<CreateModel>
     {
-        public int Id { get; set; }
-        public void OnGet(int id)
+        public void OnGet()
         {
             SetPageInfo();
-            Id = id;
         }
 
         protected override void SetPageInfo()
         {
             Info = new PageInfo
             {
-                Title = "Chi tiết đối tác",
-                Menu = Menu.OWNER
+                Title = "Thêm mới đối tác",
+                Menu = Menu.OWNER,
+                BackUrl = BackUrl ?? Routing.OWNER
             };
         }
     }
