@@ -89,16 +89,16 @@
         }
     }
 
-    function confirmAlert(html = 'Are you sure?') {
+    function confirmAlert(html = 'Chắc chắn?') {
         return Swal.fire({
             heightAuto: false,
-            title: 'Confirm',
+            title: 'Xác nhận',
             text: html,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Sure'
+            confirmButtonText: 'Có'
         });
     }
 
@@ -106,7 +106,7 @@
         return Swal.fire({
             heightAuto: false,
             icon: 'error',
-            title: 'Sorry',
+            title: 'Xin lỗi',
             html: html,
         });
     }
@@ -115,7 +115,7 @@
         return Swal.fire({
             heightAuto: false,
             icon: 'success',
-            title: 'Successfully',
+            title: 'Thành công',
             text: html,
         })
     }
@@ -124,7 +124,7 @@
         return Swal.fire({
             heightAuto: false,
             icon: 'info',
-            title: 'Sorry',
+            title: 'Xin lỗi',
             html: html,
         });
     }
@@ -133,7 +133,7 @@
         return Swal.fire({
             heightAuto: false,
             icon: 'info',
-            title: 'Sorry',
+            title: 'Xin lỗi',
             html: html,
         });
     }
