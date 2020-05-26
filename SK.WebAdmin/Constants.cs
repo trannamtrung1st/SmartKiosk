@@ -26,7 +26,9 @@ namespace SK.WebAdmin
         public const string LOCATION_DETAIL = "/location/{id}";
         public const string LOCATION_CREATE = "/location/create";
         public const string LOCATION_DASHBOARD = "/location/{loc_id}/dashboard";
-        public const string LOCATION_RES = "/location/{loc_id}/resource";
+        public const string LOCATION_RESOURCE = "/location/{loc_id}/resource";
+        public const string LOCATION_RESOURCE_CREATE = "/location/{loc_id}/resource/create";
+        public const string LOCATION_RESOURCE_DETAIL = "/location/{loc_id}/resource/{id}";
         public const string LOCATION_POST = "/location/{loc_id}/post";
         public const string LOCATION_CONFIG = "/location/{loc_id}/config";
         public const string LOCATION_SCHEDULE = "/location/{loc_id}/schedule";
