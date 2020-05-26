@@ -23,6 +23,8 @@ namespace SK.WebAdmin
         public const string ERROR = "/error";
         public const string INDEX = "/";
         public const string LOCATION = "/location";
+        public const string LOCATION_DETAIL = "/location/{loc_id}";
+        public const string LOCATION_DASHBOARD = "/location/{loc_id}/dashboard";
         public const string LOCATION_CREATE = "/location/create";
         public const string DEVICE = "/device";
         public const string DEVICE_CREATE = "/device/create";
@@ -66,6 +68,8 @@ namespace SK.WebAdmin
         public const string ADMIN_ONLY = "admin_only";
         public const string FILE = "file";
         public const string LOCATION = "location";
+        public const string LOCATION_DETAIL = "location_detail";
+        public const string LOCATION_DASHBOARD = "location_dashboard";
         public const string DEVICE = "device";
         public const string OWNER = "owner";
         public const string ACCOUNT = "account";

@@ -114,6 +114,7 @@ namespace SK.WebAdmin
                 };
                 var authorizeFolders = new[] { "/" };
                 options.Conventions
+                    .AddAreaPageRoute("Location","/Dashboard/Index", Routing.LOCATION_DASHBOARD)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
