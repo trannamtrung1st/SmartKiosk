@@ -221,9 +221,13 @@
                     </button>
                 </div>
                 <div class="modal-header">
-                    <a href="@Routing.DASHBOARD" class="w-100 active">
-                        Hệ thống
-                    </a>
+                    <div class="row w-100 m-0">
+                        <div class="col-12">
+                            <a href="@Routing.DASHBOARD">
+                                <span class="font-weight-bold">Hệ thống</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-header">
                     <div class="row w-100 m-0" id="container-loc">
@@ -268,12 +272,13 @@
             function processData(data) {
                 var container = $("#container-loc");
                 for (var i = 0; i < data.length; i++) {
+                    var obj = data[i];
                     container.append(
                         $('<div class="col-12">').append(
                             $('<a href="' +
-                                '@Routing.LOCATION_DASHBOARD'.replace('{loc_id}', data[i].id) +
+                                '@Routing.LOCATION_DASHBOARD'.replace('{loc_id}', obj.id) +
                                 '">').append(
-                                data[i].name
+                                obj.name
                             )
                         )
                     );
