@@ -1,5 +1,6 @@
 ﻿@model SK.WebAdmin.Models.IInfoPageModel
 @{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
     string ActiveMenu(string menu)
     {
         return menu == Model.Info.Menu ? "active" : "";
@@ -52,7 +53,7 @@
                     <a class="nav-link" href="@Routing.DASHBOARD"><i class="fas fa-home"></i></a>
                 </li>
                 <li class="ml-3 nav-item">
-                    <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">
+                    <button class="btn btn-info" data-toggle="modal" data-target="#modal-nav">
                         ĐIỀU HƯỚNG
                     </button>
                 </li>
@@ -108,7 +109,7 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
-    with font-awesome or any other icon font library -->
+                        with font-awesome or any other icon font library -->
                         <li class="nav-item">
                             <a href="@Routing.DASHBOARD" class="nav-link @ActiveMenu(Menu.DASHBOARD)">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -212,6 +213,34 @@
             </form>
         </footer>
     </div>
+
+    <div class="modal fade" id="modal-nav">
+        <div class="modal-dialog modal-nav">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5><b>Hiện tại:</b> Hệ thống</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-header">
+                    <a href="@Routing.DASHBOARD" class="w-100 active">
+                        Hệ thống
+                    </a>
+                </div>
+                <div class="modal-header">
+                    <div class="row w-100 m-0" id="container-loc">
+                        <div class="col-12 text-center">
+                            <h5>DANH SÁCH TRUNG TÂM</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+
     <!-- ./wrapper -->
     <partial name="AppLoadingModal" />
 
@@ -233,6 +262,44 @@
         function layoutInit() {
             $('#form-lang select[name=culture]').change((e) => {
                 $('#form-lang').submit();
+            });
+            loadNavLocations();
+        }
+
+        function loadNavLocations() {
+
+            function processData(data) {
+                var container = $("#container-loc");
+                for (var i = 0; i < data.length; i++) {
+                    container.append(
+                        $('<div class="col-12">').append(
+                            $('<a href="@Routing.LOCATION/' + data[i].id + '">').append(
+                                data[i].name
+                            )
+                        )
+                    );
+                }
+            }
+
+            const data = {};
+            data.culture = '@CultureHelper.CurrentLang';
+            data.fields = '@LocationQueryProjection.SELECT';
+            data.load_all = true;
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.LOCATION_API',
+                type: 'get',
+                data: data,
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    processData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
             });
         }
     </script>
