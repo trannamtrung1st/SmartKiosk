@@ -50,7 +50,7 @@
                     <a class="nav-link" href="@Model.Info.BackUrl"><i class="fas fa-arrow-left"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@Routing.LOCATION_DASHBOARD.Replace("{loc_id}", Model.LocId.ToString())"><i class="fas fa-home"></i></a>
+                    <a class="nav-link" href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)"><i class="fas fa-home"></i></a>
                 </li>
                 <li class="ml-3 nav-item">
                     <button class="btn btn-info" data-toggle="modal" data-target="#modal-nav">
@@ -106,13 +106,78 @@
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-                        with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="@Routing.LOCATION_DASHBOARD.Replace("{loc_id}", Model.LocId.ToString())" class="nav-link @ActiveMenu(Menu.LOCATION_DASHBOARD)">
+                            <a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_DASHBOARD)">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Tổng quan
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-header">NỘI DUNG</li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_RES.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_RES)">
+                                <i class="nav-icon fas fa-map-marker-alt"></i>
+                                <p>
+                                    Địa điểm
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_POST.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_POST)">
+                                <i class="nav-icon fas fa-align-justify"></i>
+                                <p>
+                                    Bài viết
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-header">THIẾT BỊ</li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_CONFIG.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_CONFIG)">
+                                <i class="nav-icon fas fa-th-list"></i>
+                                <p>
+                                    Cấu hình
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_SCHEDULE.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_SCHEDULE)">
+                                <i class="nav-icon fas fa-calendar-alt"></i>
+                                <p>
+                                    Lịch phát
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_DEVICE.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_DEVICE)">
+                                <i class="nav-icon fas fa-desktop"></i>
+                                <p>
+                                    Thiết bị
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-header">BẢN ĐỒ</li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_BUILDING.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_BUILDING)">
+                                <i class="nav-icon fas fa-building"></i>
+                                <p>
+                                    Tòa nhà
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_FLOOR.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_FLOOR)">
+                                <i class="nav-icon fas fa-layer-group"></i>
+                                <p>
+                                    Tầng
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Routing.LOCATION_AREA.LocId(Model.LocId)" class="nav-link @ActiveMenu(Menu.LOCATION_AREA)">
+                                <i class="nav-icon fas fa-shapes"></i>
+                                <p>
+                                    Khu vực
                                 </p>
                             </a>
                         </li>

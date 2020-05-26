@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SK.WebAdmin.Helpers;
 using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Areas.Location.Pages.Dashboard
@@ -21,7 +22,7 @@ namespace SK.WebAdmin.Areas.Location.Pages.Dashboard
             {
                 Title = "Tổng quan",
                 Menu = Menu.LOCATION_DASHBOARD,
-                BackUrl = BackUrl ?? Routing.LOCATION_DASHBOARD
+                BackUrl = BackUrl ?? Routing.DASHBOARD
             };
         }
     }
