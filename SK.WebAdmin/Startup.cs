@@ -113,19 +113,23 @@ namespace SK.WebAdmin
 #endif
                 };
                 var authorizeFolders = new[] { "/" };
+                var authorizeLocationFolders = new[] { "/" };
                 options.Conventions
-                    .AddAreaPageRoute("Location","/Dashboard/Index", Routing.LOCATION_DASHBOARD)
+                    .AddAreaPageRoute("Location", "/Dashboard/Index", Routing.LOCATION_DASHBOARD)
                     .AddAreaPageRoute("Location", "/Resource/Index", Routing.LOCATION_RESOURCE)
                     .AddAreaPageRoute("Location", "/Resource/Create", Routing.LOCATION_RESOURCE_CREATE)
                     .AddAreaPageRoute("Location", "/Post/Index", Routing.LOCATION_POST)
                     .AddAreaPageRoute("Location", "/Post/Detail", Routing.LOCATION_POST_DETAIL)
                     .AddAreaPageRoute("Location", "/Post/Create", Routing.LOCATION_POST_CREATE)
+                    .AddAreaPageRoute("Location", "/Building/Index", Routing.LOCATION_BUILDING)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
                     .AddPageRoute("/Owner/Detail", Routing.OWNER_DETAIL);
                 foreach (var f in authorizeFolders)
                     options.Conventions.AuthorizeFolder(f);
+                foreach (var f in authorizeLocationFolders)
+                    options.Conventions.AuthorizeAreaFolder("Location", f);
                 foreach (var p in allowAnnonymousPages)
                     options.Conventions.AllowAnonymousToPage(p);
             });
