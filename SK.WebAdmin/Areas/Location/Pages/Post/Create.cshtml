@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Areas.Location.Pages.Resource.CreateModel
+@model SK.WebAdmin.Areas.Location.Pages.Post.CreateModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -31,10 +31,6 @@
             /* fix conflict with Bootstrap CSS. See: https://github.com/Studio-42/elFinder/commit/4f858d5ffc9a8f41b4cc07a063782abe2e722bdf */
             box-sizing: content-box;
         }
-
-        .remove-cate {
-            cursor: pointer;
-        }
     </style>
 
 }
@@ -50,7 +46,7 @@
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
                     <li class="breadcrumb-item"><a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">Trung tâm</a></li>
-                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_RESOURCE.LocId(Model.LocId)">Địa điểm</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_POST.LocId(Model.LocId)">Bài viết</a></li>
                     <li class="breadcrumb-item active">@Model.Info.Title</li>
                 </ol>
             </div>
@@ -89,68 +85,24 @@
                                        placeholder="Đường dẫn hình ảnh" />
                                 <img name="image_preview" class="img w-100 my-3" />
                             </div>
-                            <div class="form-group w-50">
-                                <label>
-                                    Logo
-                                    <button type="button"
-                                            onclick="showFileChooser('logo')"
-                                            class="btn btn-default mx-1 btn-sm">
-                                        <i class="fa fa-folder-open"></i>
-                                    </button>
-                                </label>
-                                <input type="text" name="logo" class="form-control"
-                                       onchange="onImageUrlChange('logo')"
-                                       placeholder="Đường dẫn logo" />
-                                <img name="logo_preview" class="img w-100 my-3" />
-                            </div>
                             <hr />
                             <div class="form-group w-50">
-                                <label>Đối tác</label>
+                                <label>Thuộc loại</label>
+                                <select class="form-control select2" name="type">
+                                    @{
+                                        var types = TNT.Core.Helpers.General.EnumExtension.GetValues<SK.Data.PostType>();
+                                        foreach (var t in types)
+                                        {
+                                            <option value="@((int)t)">@TNT.Core.Helpers.General.EnumExtension.DisplayName(t)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group w-50">
+                                <label>Thuộc đối tác</label>
                                 <select class="form-control select2" name="owner_id">
                                     <!option value="">Chưa chọn</!option>
                                 </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Mã code</label>
-                                <input type="text" name="code" class="form-control" placeholder="Nhập mã code">
-                            </div>
-                            <div class="form-group">
-                                <label>Số điện thoại</label>
-                                <input type="text" name="phone" class="form-control" placeholder="Nhập số điện thoại">
-                            </div>
-                            <div class="form-group w-50">
-                                <label>Loại địa điểm</label>
-                                <select class="form-control select2" name="type_id">
-                                    <!option value="">Chưa chọn</!option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Danh mục</label>
-                                <div>
-                                    <div class="btn-group w-75">
-                                        <select class="form-control select2 w-75" name="select_category">
-                                            <!option value="">Chưa chọn</!option>
-                                        </select>
-                                        <button type="button" 
-                                                onclick="addCate()"
-                                                class="btn btn-default"><i class="fa fa-plus"></i></button>
-                                    </div>
-                                </div>
-                                <ul class="list-cate mt-3">
-                                </ul>
-                            </div>
-                            <hr />
-                            <div class="form-group">
-                                <label>Tòa nhà</label>
-                                <select class="form-control select2" name="select_building"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Tầng</label>
-                                <select class="form-control select2" name="select_floor"></select>
-                            </div>
-                            <div class="form-group">
-                                <label>Khu vực</label>
-                                <select class="form-control select2" name="select_area"></select>
                             </div>
                             <hr />
                             <div class="form-group w-50">
@@ -163,7 +115,7 @@
                                     {
                                         var langCode = culture.TwoLetterISOLanguageName;
                                         <!option value="@langCode" @PageHelper.SelectedIfActiveLang(langCode)>
-                                        @culture.DisplayName
+                                            @culture.DisplayName
                                         </!option>
                                     }
                                 </select>
@@ -175,7 +127,7 @@
                         <div class="card-body mt-0 pt-0">
                             <div class="form-group">
                                 <label>Tên</label>
-                                <input type="text" name="name" class="form-control" placeholder="Nhập tên">
+                                <input type="text" name="title" class="form-control" placeholder="Nhập tên">
                             </div>
                             <div class="form-group">
                                 <label>Mô tả</label>
@@ -227,25 +179,11 @@
             lang: '@CultureHelper.CurrentLang',
             model: {
                 image: {},
-                logo: {},
                 contents: {}
             },
         };
-        const cateMap = {};
-        var bui_change = (e) => {
-            var val = e.target.value;
-            loadFloors(val);
-        };
-        var flo_change = (e) => {
-            var val = e.target.value;
-            loadAreas(val);
-        };
         $(document).ready(function () {
             loadOwners();
-            loadBuildings();
-            loadResourceTypes();
-            initSelectEvents();
-            loadCategories();
             // Summernote
             $('.summernote[name=content]').summernote({
                 fontSizes: ['12', '14', '16', '18', '24', '36', '48', '56', '64', '72', '80', '88', '96'],
@@ -268,13 +206,13 @@
             const validatorOptions = {
                 submitHandler: validateForm,
                 rules: {
-                    name: {
+                    title: {
                         required: true,
                     }
                 },
                 messages: {
-                    name: {
-                        required: "Xin hãy nhập tên",
+                    title: {
+                        required: "Xin hãy tiêu đề",
                     }
                 },
                 errorElement: 'span',
@@ -291,20 +229,14 @@
             };
             $('#form-content').validate(validatorOptions);
             validatorOptions.rules = {
-                code: {
+                owner_id: {
                     required: true,
                 },
-                select_area: {
-                    required: true,
-                }
             };
             validatorOptions.messages = {
-                code: {
-                    required: "Xin hãy nhập mã code",
+                owner_id: {
+                    required: "Xin hãy chọn 1 đối tác",
                 },
-                select_area: {
-                    required: "Xin hãy chọn 1 khu vực",
-                }
             };
             $('#form-main').validate(validatorOptions);
             $('#form-main select[name=language]').change(onLanguageChange);
@@ -321,84 +253,6 @@
             else confirmSubmit();
         }
 
-        function addCate() {
-            var newCate = $('[name=select_category]').val();
-            var cate = cateMap[newCate];
-            if (!cate || cate.selected) return;
-            cate.selected = true;
-            $('.list-cate').append(
-                $('<li value="' + cate.id + '">').append(
-                    $('<span>').append(cate.name)
-                ).append('&nbsp;&nbsp;&nbsp;')
-                    .append('<span class="remove-cate" onclick="removeCate(' + cate.id + ')"' +
-                        '><i class="fa fa-times-circle"></i></span>')
-            )
-        }
-
-        function removeCate(id) {
-            cateMap[id].selected = false;
-            $('.list-cate li[value=' + id + ']').remove();
-        }
-
-        function loadCategories() {
-            var sl = $('[name=select_category]');
-            const data = {};
-            data.culture = '@CultureHelper.CurrentLang';
-            data.lang = data.culture;
-            data.load_all = true;
-            data.fields = '@EntityCategoryQueryProjection.INFO,@EntityCategoryQueryProjection.CONTENT';
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.ENTITY_CATE_API',
-                type: 'get',
-                data: data,
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data.results;
-                    for (var i = 0; i < data.length; i++) {
-                        cateMap[data[i].id.toString()] = data[i];
-                        sl.append(
-                            $('<option value="' + data[i].id + '">').append(data[i].name)
-                        );
-                    }
-                },
-                error: (data) => {
-                    handleGeneralError(data);
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
-        function loadResourceTypes() {
-            var sl = $('[name=type_id]');
-            const data = {};
-            data.culture = '@CultureHelper.CurrentLang';
-            data.lang = data.culture;
-            data.load_all = true;
-            data.fields = '@ResourceTypeQueryProjection.INFO,@ResourceTypeQueryProjection.CONTENT';
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.RES_TYPE_API',
-                type: 'get',
-                data: data,
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data.results;
-                    for (var i = 0; i < data.length; i++) {
-                        sl.append(
-                            $('<option value="' + data[i].id + '">').append(data[i].name)
-                        );
-                    }
-                },
-                error: (data) => {
-                    handleGeneralError(data);
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
         function loadOwners() {
             var sl = $('[name=owner_id]');
             const data = {};
@@ -407,115 +261,6 @@
             data.fields = '@OwnerQueryProjection.SELECT';
             $.ajax({
                 url: '@apiUrl/@ApiEndpoint.OWNER_API',
-                type: 'get',
-                data: data,
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data.results;
-                    for (var i = 0; i < data.length; i++) {
-                        sl.append(
-                            $('<option value="' + data[i].id + '">').append(data[i].name)
-                        );
-                    }
-                },
-                error: (data) => {
-                    handleGeneralError(data);
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
-        function initSelectEvents() {
-            $('[name=select_building]').change(bui_change);
-            $('[name=select_floor]').change(flo_change);
-        }
-
-        function reloadSelect(name) {
-            $('[name=' + name + ']').empty();
-            $('[name=' + name + ']').append(
-                $('<option value="">').append('Chưa chọn')
-            );
-        }
-
-        function loadBuildings() {
-            var sl = $('[name=select_building]');
-            reloadSelect('select_building');
-            reloadSelect('select_floor');
-            reloadSelect('select_area');
-            const data = {};
-            data.culture = '@CultureHelper.CurrentLang';
-            data.load_all = true;
-            data.loc_id = @Model.LocId;
-            data.fields = '@BuildingQueryProjection.SELECT';
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.BUILDING_API',
-                type: 'get',
-                data: data,
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data.results;
-                    for (var i = 0; i < data.length; i++) {
-                        sl.append(
-                            $('<option value="' + data[i].id + '">').append(data[i].name)
-                        );
-                    }
-                },
-                error: (data) => {
-                    handleGeneralError(data);
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
-        function loadFloors(building_id) {
-            var sl = $('[name=select_floor]');
-            reloadSelect('select_floor');
-            reloadSelect('select_area');
-            if (!building_id)
-                return;
-            const data = {};
-            data.culture = '@CultureHelper.CurrentLang';
-            data.load_all = true;
-            data.building_id = building_id;
-            data.fields = '@FloorQueryProjection.SELECT';
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.FLOOR_API',
-                type: 'get',
-                data: data,
-                success: (data) => {
-                    console.log(data);
-                    data = data.results[0].data.results;
-                    for (var i = 0; i < data.length; i++) {
-                        sl.append(
-                            $('<option value="' + data[i].id + '">').append(data[i].name)
-                        );
-                    }
-                },
-                error: (data) => {
-                    handleGeneralError(data);
-                },
-                complete: () => {
-                    changeLoading(false);
-                }
-            });
-        }
-
-        function loadAreas(floor_id) {
-            var sl = $('[name=select_area]');
-            reloadSelect('select_area');
-            if (!floor_id)
-                return;
-            const data = {};
-            data.culture = '@CultureHelper.CurrentLang';
-            data.load_all = true;
-            data.floor_id = floor_id;
-            data.fields = '@AreaQueryProjection.SELECT';
-            $.ajax({
-                url: '@apiUrl/@ApiEndpoint.AREA_API',
                 type: 'get',
                 data: data,
                 success: (data) => {
@@ -618,21 +363,11 @@
             const content = tempData.model.contents[lang] ?? {
                 lang
             };
-            model.code = $('[name=code]').val();
-            model.phone = $('[name=phone]').val();
-            model.type_id = $('[name=type_id]').val();
-            model.category_ids = [];
-            for (var k in cateMap) {
-                if (cateMap[k].selected)
-                    model.category_ids.push(cateMap[k].id);
-            }
+            model.type = $('[name=type]').val();
             model.location_id = @Model.LocId;
-            model.building_id = $('[name=select_building]').val();
-            model.floor_id = $('[name=select_floor]').val();
-            model.area_id = $('[name=select_area]').val();
             model.owner_id = $('[name=owner_id]').val();
             //content
-            content.name = $('[name=name]').val();
+            content.title = $('[name=title]').val();
             content.description = $('[name=description]').val();
             content.content = $('[name=content]').val();
             model.contents[lang] = content;
@@ -640,7 +375,7 @@
 
         function processData(data) {
             const form = $('#form-content');
-            form.find('[name=name]').val(data.name);
+            form.find('[name=title]').val(data.title);
             form.find('[name=description]').val(data.description);
             form.find('[name=content]').summernote('code', data.content ?? null);
         }
@@ -673,13 +408,13 @@
             console.log(model);
             changeLoading(true);
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.RESOURCE_API',
+                url: '@apiUrl/@ApiEndpoint.POST_API',
                 type: 'post',
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: (data) => {
                     successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
-                        location.href = '@Routing.LOCATION_RESOURCE.LocId(Model.LocId)';
+                        location.href = '@Routing.LOCATION_POST.LocId(Model.LocId)';
                     });
                 },
                 error: (data) => {
