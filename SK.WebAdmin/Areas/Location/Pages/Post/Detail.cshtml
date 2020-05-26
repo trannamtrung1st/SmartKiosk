@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Areas.Location.Pages.Post.CreateModel
+@model SK.WebAdmin.Areas.Location.Pages.Post.DetailModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -71,6 +71,10 @@
                     <!-- /.card-header -->
                     <div class="card-body mb-0 pb-0">
                         <form role="form" id="form-main">
+                            <div class="form-group">
+                                <label>Thời gian tạo</label>
+                                <div class="font-italic" name="created_time"></div>
+                            </div>
                             <div class="form-group w-50">
                                 <label>
                                     Hình ảnh
@@ -88,7 +92,7 @@
                             <hr />
                             <div class="form-group w-50">
                                 <label>Thuộc loại</label>
-                                <select class="form-control select2" name="type">
+                                <select disabled class="form-control select2" name="type">
                                     @{
                                         var types = TNT.Core.Helpers.General.EnumExtension.GetValues<SK.Data.PostType>();
                                         foreach (var t in types)
@@ -100,7 +104,7 @@
                             </div>
                             <div class="form-group w-50">
                                 <label>Thuộc đối tác</label>
-                                <select class="form-control select2" name="owner_id">
+                                <select disabled class="form-control select2" name="owner_id">
                                     <!option value="">Chưa chọn</!option>
                                 </select>
                             </div>
@@ -146,7 +150,7 @@
                         <div class="card-footer">
                             <button type="button" onclick="validateForm()" class="btn btn-primary">
                                 <i class="fa fa-check mr-1"></i>
-                                GỬI ĐI
+                                CẬP NHẬT
                             </button>
                         </div>
                     </form>
@@ -177,13 +181,18 @@
     <script type="text/javascript">
         const tempData = {
             lang: '@CultureHelper.CurrentLang',
+            isNew: null,
+            currentData: null,
             model: {
                 image: {},
-                contents: {}
-            },
+                info: null,
+                new_contents: {},
+                update_contents: {}
+            }
         };
+        const tasks = [];
         $(document).ready(function () {
-            loadOwners();
+            getData(tempData.lang);
             // Summernote
             $('.summernote[name=content]').summernote({
                 fontSizes: ['12', '14', '16', '18', '24', '36', '48', '56', '64', '72', '80', '88', '96'],
@@ -202,6 +211,7 @@
                 ],
             });
             $('.select2').select2();
+            tasks.push(loadOwners());
             jQuery.validator.setDefaults({ ignore: ":hidden:not(#summernote),.note-editable.card-block" });
             const validatorOptions = {
                 submitHandler: validateForm,
@@ -259,7 +269,7 @@
             data.culture = '@CultureHelper.CurrentLang';
             data.load_all = true;
             data.fields = '@OwnerQueryProjection.SELECT';
-            $.ajax({
+            return $.ajax({
                 url: '@apiUrl/@ApiEndpoint.OWNER_API',
                 type: 'get',
                 data: data,
@@ -348,50 +358,110 @@
         function onLanguageChange() {
             const newLang = $('[name=language]').val();
             saveChanges();
-            const data = getContentByLang(newLang) ?? {};
-            processData(data);
+            const data = getContentByLang(newLang);
+            if (data) {
+                tempData.currentData = null;
+                tempData.isNew = data.isNew;
+                processContentData(data);
+            }
+            else getData(newLang);
             switchLang(newLang);
         }
 
         function getContentByLang(lang) {
-            return tempData.model.contents[lang];
+            let data = tempData.model.new_contents[lang];
+            data = data ?? tempData.model.update_contents[lang];
+            return data;
         }
 
         function saveChanges() {
             const lang = tempData.lang;
             const model = tempData.model;
-            const content = tempData.model.contents[lang] ?? {
+            let content = tempData.isNew ?
+                model.new_contents[lang] : model.update_contents[lang];
+            content = content ?? {
+                isNew: tempData.isNew,
+                id: tempData.currentData.content_id,
                 lang
             };
-            model.type = $('[name=type]').val();
-            model.location_id = @Model.LocId;
-            model.owner_id = $('[name=owner_id]').val();
+            //create or update
             //content
             content.title = $('[name=title]').val();
             content.description = $('[name=description]').val();
             content.content = $('[name=content]').val();
-            model.contents[lang] = content;
-        }
-
-        function processData(data) {
-            const form = $('#form-content');
-            form.find('[name=title]').val(data.title);
-            form.find('[name=description]').val(data.description);
-            form.find('[name=content]').summernote('code', data.content ?? null);
+            if (tempData.isNew)
+                model.new_contents[lang] = content;
+            else model.update_contents[lang] = content;
         }
 
         function switchLang(newLang) {
             tempData.lang = newLang;
         }
 
+        function getData(lang) {
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.POST_API',
+                type: 'get',
+                data: {
+                    id: @Model.Id,
+                    culture: '@CultureHelper.CurrentLang',
+                    lang: lang,
+                    fields: '@PostQueryProjection.INFO,@PostQueryProjection.CONTENT,' +
+                        '@PostQueryProjection.CONTENT_CONTENT',
+                    single_only: true
+                },
+                success: async (data) => {
+                    console.log(data);
+                    data = data.results[0].data;
+                    tempData.currentData = data;
+                    tempData.isNew = data.content_id ? false : true;
+                    for (var i = 0; i < tasks.length; i++)
+                        await tasks[i];
+                    processSourceData(data);
+                    processContentData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.POST');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function processSourceData(data) {
+            const formMain = $('#form-main');
+            formMain.find('[name=created_time]').text(data.created_time.display);
+            formMain.find('[name=image]').val(data.image_url).trigger('change');
+            formMain.find('[name=owner_id]').val(data.owner_id).trigger('change');
+            formMain.find('[name=type]').val(data.type.toString()).trigger('change');
+        }
+
+        function processContentData(data) {
+            const formMain = $('#form-main');
+            const formContent = $('#form-content');
+            formContent.find('[name=title]').val(data.title);
+            formContent.find('[name=description]').val(data.description);
+            formContent.find('[name=content]').summernote('code', data.content ?? null);
+        }
+
         function transformModel() {
             const model = tempData.model;
-            const contents = model.contents;
+            const newContents = model.new_contents;
+            const updateContents = model.update_contents;
             const finalModel = { ...model };
-            finalModel.contents = [];
-            for (var key in contents) {
-                finalModel.contents.push(contents[key]);
+            finalModel.new_contents = [];
+            finalModel.update_contents = [];
+            convert(newContents, finalModel.new_contents);
+            convert(updateContents, finalModel.update_contents);
+
+            function convert(obj, arr) {
+                for (var key in obj) {
+                    arr.push(obj[key]);
+                }
             }
+
             return finalModel;
         }
 
@@ -405,17 +475,14 @@
         function submitData() {
             saveChanges();
             const model = transformModel();
-            console.log(model);
             changeLoading(true);
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.POST_API',
-                type: 'post',
+                url: '@apiUrl/@ApiEndpoint.POST_API/@Model.Id',
+                type: 'patch',
                 contentType: 'application/json',
                 data: JSON.stringify(model),
                 success: (data) => {
-                    successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
-                        location.href = '@Routing.LOCATION_POST.LocId(Model.LocId)';
-                    });
+                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
                 },
                 error: (data) => {
                     handleGeneralError(data);
@@ -425,5 +492,6 @@
                 }
             });
         }
+
     </script>
 }
