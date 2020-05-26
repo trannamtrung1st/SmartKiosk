@@ -154,7 +154,7 @@
                         "<i class=\"fa fa-list\"></i>" +
                     "</button>" +
                     "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                        "<a class=\"dropdown-item\" href=\"@Routing.OWNER/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                        "<a class=\"dropdown-item\" href=\"" + "@Routing.OWNER_DETAIL".replace('{id}', id) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
                         "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + id + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Xóa</button>" +
                     "</div>" +
                 "</div>";

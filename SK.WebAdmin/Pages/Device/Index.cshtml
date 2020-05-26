@@ -210,7 +210,7 @@
                         "<i class=\"fa fa-list\"></i>" +
                     "</button>" +
                     "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                        "<a class=\"dropdown-item\" href=\"@Routing.DEVICE/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                        "<a class=\"dropdown-item\" href=\"" + "@Routing.DEVICE_DETAIL".replace('{id}', id) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
                     "</div>" +
                 "</div>";
             for (var i = 0; i < data.length; i++) {

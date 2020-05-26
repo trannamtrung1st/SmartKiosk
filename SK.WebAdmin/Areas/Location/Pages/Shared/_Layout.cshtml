@@ -50,7 +50,7 @@
                     <a class="nav-link" href="@Model.Info.BackUrl"><i class="fas fa-arrow-left"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="@Routing.LOCATION/@Model.LocId/dashboard"><i class="fas fa-home"></i></a>
+                    <a class="nav-link" href="@Routing.LOCATION_DASHBOARD.Replace("{loc_id}", Model.LocId.ToString())"><i class="fas fa-home"></i></a>
                 </li>
                 <li class="ml-3 nav-item">
                     <button class="btn btn-info" data-toggle="modal" data-target="#modal-nav">
@@ -109,7 +109,7 @@
                         <!-- Add icons to the links using the .nav-icon class
                         with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="@Routing.LOCATION/@Model.LocId/dashboard" class="nav-link @ActiveMenu(Menu.LOCATION_DASHBOARD)">
+                            <a href="@Routing.LOCATION_DASHBOARD.Replace("{loc_id}", Model.LocId.ToString())" class="nav-link @ActiveMenu(Menu.LOCATION_DASHBOARD)">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Tổng quan
@@ -214,7 +214,9 @@
                     if (data[i].id == @Model.LocId) $('.loc-name').text(data[i].name);
                     container.append(
                         $('<div class="col-12">').append(
-                            $('<a href="@Routing.LOCATION/' + data[i].id + '/dashboard">').append(
+                            $('<a href="' +
+                                '@Routing.LOCATION_DASHBOARD'.replace('{loc_id}', data[i].id) +
+                                '">').append(
                                 data[i].name
                             )
                         )

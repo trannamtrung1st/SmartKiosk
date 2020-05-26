@@ -187,8 +187,8 @@
                         "type=\"button\" id=\"btn-dropdown\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
                         "<i class=\"fa fa-list\"></i>" +
                     "</button>" +
-                        "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                        "<a class=\"dropdown-item\" href=\"@Routing.RES_TYPE/" + id + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
+                "<a class=\"dropdown-item\" href=\"" + "@Routing.RES_TYPE_DETAIL".replace('{id}', id) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i > Chi tiết</a> " +
                         "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + id + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Xóa</button>" +
                     "</div>" +
                 "</div>";

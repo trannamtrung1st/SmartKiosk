@@ -23,7 +23,7 @@ namespace SK.WebAdmin
         public const string ERROR = "/error";
         public const string INDEX = "/";
         public const string LOCATION = "/location";
-        public const string LOCATION_DETAIL = "/location/{loc_id}";
+        public const string LOCATION_DETAIL = "/location/{id}";
         public const string LOCATION_DASHBOARD = "/location/{loc_id}/dashboard";
         public const string LOCATION_CREATE = "/location/create";
         public const string DEVICE = "/device";
