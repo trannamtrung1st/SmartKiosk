@@ -39,6 +39,8 @@ namespace SK.WebAdmin
         public const string LOCATION_BUILDING_CREATE = "/location/{loc_id}/building/create";
         public const string LOCATION_BUILDING_DETAIL = "/location/{loc_id}/building/{id}";
         public const string LOCATION_FLOOR = "/location/{loc_id}/floor";
+        public const string LOCATION_FLOOR_CREATE = "/location/{loc_id}/floor/create";
+        public const string LOCATION_FLOOR_DETAIL = "/location/{loc_id}/floor/{id}";
         public const string LOCATION_AREA = "/location/{loc_id}/area";
         public const string DEVICE = "/device";
         public const string DEVICE_CREATE = "/device/create";
