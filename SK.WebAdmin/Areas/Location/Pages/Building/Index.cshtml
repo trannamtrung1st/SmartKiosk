@@ -41,7 +41,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <a href="@Routing.LOCATION_BUILDING_CREATE" class="btn btn-primary float-right">
+                    <a href="@Routing.LOCATION_BUILDING_CREATE.LocId(Model.LocId)" class="btn btn-primary float-right">
                         <i class="fa fa-plus"></i>
                     </a>
                 </div>
@@ -139,7 +139,7 @@
                     processData(data);
                 },
                 error: (data) => {
-                    handleGeneralError(data, '@Routing.LOCATION_BUILDING');
+                    handleGeneralError(data, '@Routing.LOCATION_BUILDING.LocId(Model.LocId)');
                 },
                 complete: () => {
                     changeLoading(false);
