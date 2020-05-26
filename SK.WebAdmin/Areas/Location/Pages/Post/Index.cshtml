@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Areas.Location.Pages.Resource.IndexModel
+@model SK.WebAdmin.Areas.Location.Pages.Post.IndexModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -79,7 +79,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <a href="@Routing.LOCATION_RESOURCE_CREATE.LocId(Model.LocId)" class="btn btn-primary float-right">
+                    <a href="@Routing.LOCATION_POST_CREATE.LocId(Model.LocId)" class="btn btn-primary float-right">
                         <i class="fa fa-plus"></i>
                     </a>
                 </div>
@@ -90,10 +90,10 @@
                             <tr>
                                 <th></th>
                                 <th>STT</th>
-                                <th class="sortable">Tên</th>
-                                <th class="sortable">Mã</th>
-                                <th class="sortable">Vị trí</th>
+                                <th class="sortable">Tiêu đề</th>
+                                <th class="sortable">Ngày tạo</th>
                                 <th class="sortable">Đối tác</th>
+                                <th class="sortable">Loại</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -102,10 +102,10 @@
                             <tr>
                                 <th></th>
                                 <th>STT</th>
-                                <th>Tên</th>
-                                <th>Mã</th>
-                                <th>Vị trí</th>
+                                <th>Tiêu đề</th>
+                                <th>Ngày tạo</th>
                                 <th>Đối tác</th>
+                                <th>Loại</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -142,14 +142,14 @@
                 ordering: true,
                 searchDelay: 500,
                 ajax: {
-                    url: '@apiUrl/@ApiEndpoint.RESOURCE_API',
+                    url: '@apiUrl/@ApiEndpoint.POST_API',
                     data: function (d) {
-                        d.fields = '@ResourceQueryProjection.INFO,@ResourceQueryProjection.CONTENT,' +
-                            '@ResourceQueryProjection.AREA,@ResourceQueryProjection.OWNER';
+                        d.fields = '@PostQueryProjection.INFO,@PostQueryProjection.CONTENT,' +
+                            '@PostQueryProjection.OWNER';
                         d.culture = $('#form-filter [name=language]').val();
                         d.lang = d.culture;
                         d.count_total = true;
-                        d.name_contains = d.search?.value;
+                        d.title_contains = d.search?.value;
                         d.page = d.start / d.length + 1;
                         d.limit = d.length;
                         if (d.order?.length) {
@@ -193,7 +193,7 @@
                                         "<i class=\"fa fa-list\"></i>" +
                                     "</button>" +
                                     "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
-                                        "<a class=\"dropdown-item\" href=\"" + "@Routing.LOCATION_RESOURCE_DETAIL.LocId(Model.LocId)".replace('{id}', data) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                                        "<a class=\"dropdown-item\" href=\"" + "@Routing.LOCATION_POST_DETAIL.LocId(Model.LocId)".replace('{id}', data) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
                                         "<button class=\"dropdown-item\" onclick=\"confirmRemove(" + data + ")\"><i class=\"fa fa-trash dropdown-item-icon\"></i>Xóa</button>" +
                                     "</div>" +
                                 "</div>";
@@ -208,14 +208,20 @@
                         }
                     },
                     {
-                        targets: 2, data: "name",
+                        targets: 2, data: "title",
                         render: function (data, type, row, meta) {
                             return data ?? '';
                         }
                     },
-                    { targets: 3, data: "code", orderable: false },
-                    { targets: 4, data: "area.name", orderable: false },
-                    { targets: 5, data: "owner.name", orderable: false },
+                    { targets: 3, data: "created_time.display", orderable: false },
+                    { targets: 4, data: "owner.name" },
+                    {
+                        targets: 5, data: "type", orderable: false,
+                        render: function (data, type, row, meta) {
+                            return data == @((int)SK.Data.PostType.ProgramEvent) ?
+                                'Chương trình/Sự kiện' : 'Thông báo';
+                        }
+                    },
                     { targets: '_all', defaultContent: '' }
                 ],
                 order: [[2, 'asc']]
@@ -227,7 +233,6 @@
             tblMain.ajax.reload();
         }
 
-
         function confirmRemove(id) {
             confirmAlert().then((result) => {
                 if (result.value)
@@ -238,7 +243,7 @@
         function submitRemove(id) {
             changeLoading(true);
             $.ajax({
-                url: '@apiUrl/@ApiEndpoint.RESOURCE_API/' + id,
+                url: '@apiUrl/@ApiEndpoint.POST_API/' + id,
                 type: 'delete',
                 success: (data) => {
                     successAlert("@Html.Raw(GeneralMessage.DELETE_SUCCESS)").then(reloadTable);
