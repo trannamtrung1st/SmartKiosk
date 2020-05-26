@@ -124,6 +124,7 @@ namespace SK.WebAdmin
                     .AddAreaPageRoute("Location", "/Building/Index", Routing.LOCATION_BUILDING)
                     .AddAreaPageRoute("Location", "/Building/Create", Routing.LOCATION_BUILDING_CREATE)
                     .AddAreaPageRoute("Location", "/Floor/Index", Routing.LOCATION_FLOOR)
+                    .AddAreaPageRoute("Location", "/Floor/Create", Routing.LOCATION_FLOOR_CREATE)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
