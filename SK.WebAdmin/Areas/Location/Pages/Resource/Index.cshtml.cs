@@ -21,7 +21,7 @@ namespace SK.WebAdmin.Areas.Location.Pages.Resource
             Info = new PageInfo
             {
                 Title = "Địa điểm",
-                Menu = Menu.LOCATION_RES,
+                Menu = Menu.LOCATION_RESOURCE,
                 BackUrl = BackUrl ?? Routing.LOCATION_DASHBOARD.LocId(LocId)
             };
         }

@@ -1,5 +1,10 @@
 ﻿<script>
-    function showFileChooser() {
+    const fileChooserData = {
+        tag: null
+    };
+
+    function showFileChooser(tag) {
+        fileChooserData.tag = tag;
         $('html').addClass('overflow-hidden');
         $('body').addClass('overflow-hidden');
         $('.modal-file-chooser').show();

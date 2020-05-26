@@ -80,7 +80,7 @@ namespace SK.WebAdmin
         public const string LOCATION = "location";
         public const string LOCATION_DETAIL = "location_detail";
         public const string LOCATION_DASHBOARD = "location_dashboard";
-        public const string LOCATION_RES = "location_res";
+        public const string LOCATION_RESOURCE = "location_res";
         public const string LOCATION_POST = "location_post";
         public const string LOCATION_CONFIG = "location_config";
         public const string LOCATION_SCHEDULE = "location_schedule";
