@@ -78,21 +78,6 @@ namespace SK.Business
             };
     }
 
-    public static class FileExtensions
-    {
-
-        public static readonly string[] IMAGE_EXT = new string[]
-        {
-            ".tif",".jpg",".gif",".png",".jpeg", ".svg"
-        };
-
-        public static readonly string[] VIDEO_EXT = new string[]
-        {
-            ".mp4",".wav"
-        };
-
-    }
-
     public static class ActivationCodeSecrect
     {
         public const string SECRET = "smartkiosk777777";

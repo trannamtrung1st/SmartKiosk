@@ -1,0 +1,286 @@
+﻿@page
+@model SK.WebAdmin.Areas.Location.Pages.Config.ScreenSaverModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <partial name="ElFinderStylePartial" />
+    <style>
+        .ssp-media img, .ssp-media video {
+            border-radius: 7px;
+        }
+    </style>
+}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">Trung tâm</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_CONFIG.LocId(Model.LocId)">Cấu hình</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary card-outline card-outline-tabs">
+                    <partial name="ConfigTabsNavigationView" />
+                    <div class="card-body">
+                        <div class="tab-content" id="tabs-content">
+                            <div class="tab-pane fade show active" role="tabpanel">
+                                <!-- form start -->
+                                <form role="form" id="form-main">
+                                    <div class="row">
+                                        <div class="card-body col-8">
+                                            <div class="form-group">
+                                                <label>Kiểu hiển thị</label>
+                                                <select class="form-control select2" name="mode">
+                                                    @{
+                                                        var modes = TNT.Core.Helpers.General.EnumExtension.GetValues
+                                                            <SK.Data.ScreenSaverPlaylistMode>();
+                                                        foreach (var m in modes)
+                                                        {
+                                                            <!option value="@((int)m)">
+                                                            @TNT.Core.Helpers.General.EnumExtension.DisplayName(m)
+                                                            </!option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="row mt-3" id="medias-container">
+                                            </div>
+                                        </div>
+                                        <!-- /.card-body -->
+                                        <div class="col-4">
+                                            <div id="elfinder" class="mb-3"></div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-check mr-1"></i>
+                                            CẬP NHẬT
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+@section scripts {
+
+    <!-- jquery-validation -->
+    <script src="/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <partial name="ElFinderScriptPartial" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2').select2();
+            getData();
+            $('#form-main').validate({
+                submitHandler: confirmSubmit,
+                rules: {
+                },
+                messages: {
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+            initElFinder();
+            initElFinderEvents();
+        });
+
+        function getData() {
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.CONFIG_API',
+                type: 'get',
+                data: {
+                    id: @Model.Id,
+                    culture: '@CultureHelper.CurrentLang',
+                    fields: '@ConfigQueryProjection.INFO,@ConfigQueryProjection.DETAIL',
+                    single_only: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data;
+                    processData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.LOCATION_CONFIG.LocId(Model.LocId)');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function processData(data) {
+            const formMain = $('#form-main');
+            const ssp = data.screen_saver_playlist;
+            formMain.find('[name=mode]').val(ssp.mode).trigger('change');
+            addMedias(ssp.medias, true);
+        }
+
+        function confirmSubmit() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitData();
+            });
+        }
+
+        function submitData() {
+            const model = {
+                ssp_config: null
+            };
+            var mediaTags = $('.ssp-media');
+            var mode = $('[name=mode]').val();
+            var medias = [];
+            for (var i = 0; i < mediaTags.length; i++) {
+                var mTag = $(mediaTags[i]);
+                var media = {
+                    id: mTag.attr('name'),
+                    url: mTag.attr('url'),
+                    type: mTag.attr('type'),
+                    pos: parseInt(mTag.find('input[type=number]').val()),
+                };
+                medias.push(media);
+            }
+            var ssp = {
+                mode: mode,
+                medias: medias
+            };
+            model.ssp_config = ssp;
+            console.log(model);
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.CONFIG_API/@Model.Id',
+                type: 'patch',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function initElFinderEvents() {
+            $(document).on('mouseup', '.elfinder-drag-helper', (e) => {
+                console.log(e);
+                var x = e.originalEvent.x;
+                var y = e.originalEvent.y;
+                var eles = document.elementsFromPoint(x, y);
+                var files = $('.elfinder-cwd-file.ui-state-disabled:not(.directory)');
+                addItemsToSSP(files);
+            });
+        }
+
+        function removeMedia(name) {
+            $('.ssp-media[name=' + name + ']').remove();
+        }
+
+        function addMedias(medias, append) {
+            var mContainer = $('#medias-container');
+            for (var i = 0; i < medias.length; i++) {
+                var m = medias[i];
+                var mTag;
+                if (m.type == @((int)SK.Data.PlaylistMediaType.Image))
+                    mTag = $('<img class="img-fluid w-100" src="' + m.url + '" />');
+                else mTag = $('<video class="w-100" controls>').append(
+                    $('<source src="' + m.url + '" type="video/mp4">')
+                );
+                var newMediaEl = $('<div class="col-4 ssp-media" name="' + m.id + '" url="' + m.url + '" type="' + m.type + '">').append(
+                    $('<div class="card card-light">').append(
+                        $('<div class="card-header py-2">').append(
+                            $('<div class="row">').append(
+                                $('<div class="col-12">').append(
+                                    $('<button onclick="removeMedia(\'' + m.id + '\')" class="btn btn-sm btn-danger float-right">').append('Xóa')
+                                )
+                            )
+                        )
+                    ).append(
+                        $('<div class="card-body">').append(
+                            mTag
+                        ).append(
+                            $('<form role="form" class="mt-3">').append(
+                                $('<div class="form-group">').append(
+                                    $('<label>Vị trí</label>')
+                                ).append(
+                                    $('<input type="number" class="form-control" step="1" min="1" value="' + m.pos + '"/>')
+                                )
+                            )
+                        )
+                    )
+                );
+                if (append)
+                    mContainer.append(newMediaEl);
+                else mContainer.prepend(newMediaEl);
+            }
+        }
+
+        function addItemsToSSP(files) {
+            function random(max) {
+                return Math.floor(Math.random() * Math.floor(max));
+            }
+            var medias = [];
+            for (var i = 0; i < files.length; i++) {
+                var hash = files[i].id;
+                var file = fileManager.file(hash);
+                var url = fileManager.url(hash);
+                var m = {};
+                m.id = random(100000) + '_' + new Date().getTime();
+                m.url = url;
+                m.pos = 0;
+                var mime = file.mime;
+                if (mime.startsWith('image'))
+                    m.type = @((int)SK.Data.PlaylistMediaType.Image);
+                else m.type = @((int)SK.Data.PlaylistMediaType.Video);
+                medias.push(m);
+            }
+            console.log(medias);
+            addMedias(medias, false);
+        }
+
+    </script>
+}
+
