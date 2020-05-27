@@ -1,0 +1,246 @@
+﻿@page
+@model SK.WebAdmin.Areas.Location.Pages.Area.CreateModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">Trung tâm</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_AREA.LocId(Model.LocId)">Khu vực</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- left column -->
+            <div class="col-md-12">
+                <!-- jquery validation -->
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            Thông tin
+                        </h3>
+                    </div>
+                    <!-- form start -->
+                    <form role="form" id="form-main">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Tòa nhà</label>
+                                <select class="form-control select2" name="select_building"></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tầng</label>
+                                <select class="form-control select2" name="select_floor"></select>
+                            </div>
+                            <hr />
+                            <div class="form-group">
+                                <label>Tên</label>
+                                <input type="text" name="name" class="form-control" placeholder="Nhập tên khu vực">
+                            </div>
+                            <div class="form-group">
+                                <label>Mã code</label>
+                                <input type="text" name="code" class="form-control" placeholder="Nhập mã khu vực">
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả</label>
+                                <textarea class="form-control" name="description" placeholder="Nhập mô tả khu vực"></textarea>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-check mr-1"></i>
+                                GỬI ĐI
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!--/.col (left) -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+@section scripts {
+
+    <!-- jquery-validation -->
+    <script src="/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <script type="text/javascript">
+        var bui_change = (e) => {
+            var val = e.target.value;
+            loadFloors(val);
+        };
+        $(document).ready(function () {
+            loadBuildings();
+            initSelectEvents();
+            $('.select2').select2();
+            $('#form-main').validate({
+                submitHandler: confirmSubmit,
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                    code: {
+                        required: true,
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Xin hãy nhập tên khu vực",
+                    },
+                    code: {
+                        required: "Xin hãy nhập mã code",
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+
+        function initSelectEvents() {
+            $('[name=select_building]').change(bui_change);
+        }
+
+        function reloadSelect(name) {
+            $('[name=' + name + ']').empty();
+            $('[name=' + name + ']').append(
+                $('<option value="">').append('Chưa chọn')
+            );
+        }
+
+        function loadBuildings() {
+            var sl = $('[name=select_building]');
+            reloadSelect('select_building');
+            reloadSelect('select_floor');
+            const data = {};
+            data.culture = '@CultureHelper.CurrentLang';
+            data.load_all = true;
+            data.loc_id = @Model.LocId;
+            data.fields = '@BuildingQueryProjection.SELECT';
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.BUILDING_API',
+                type: 'get',
+                data: data,
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function loadFloors(building_id) {
+            var sl = $('[name=select_floor]');
+            reloadSelect('select_floor');
+            if (!building_id)
+                return;
+            const data = {};
+            data.culture = '@CultureHelper.CurrentLang';
+            data.load_all = true;
+            data.building_id = building_id;
+            data.fields = '@FloorQueryProjection.SELECT';
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.FLOOR_API',
+                type: 'get',
+                data: data,
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function confirmSubmit() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitData();
+            });
+        }
+
+        function submitData() {
+            const model = {};
+            model.location_id = @Model.LocId;
+            model.building_id = $('[name=select_building]').val();
+            model.floor_id = $('[name=select_floor]').val();
+            model.name = $('[name=name]').val();
+            model.code = $('[name=code]').val();
+            model.description = $('[name=description]').val();
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.AREA_API',
+                type: 'post',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.CREATE_SUCCESS)").then(() => {
+                        location.href = '@Routing.LOCATION_AREA.LocId(Model.LocId)';
+                    });
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+    </script>
+}
