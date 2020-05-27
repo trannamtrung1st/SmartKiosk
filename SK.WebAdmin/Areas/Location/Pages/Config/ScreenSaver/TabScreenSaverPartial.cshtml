@@ -1,0 +1,35 @@
+﻿@model SK.WebAdmin.Areas.Location.Pages.Config.DetailModel
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="row" id="screen-saver-playlist">
+    <div class="col-12">
+
+        <div class="card card-secondary">
+            <div class="card-header">
+                <h3 class="card-title">Danh sách phát</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4">
+                        <label>Kiểu hiển thị</label>
+                        <select class="form-control select2" name="ssp-mode">
+                            <option value="@((int)SK.Data.ScreenSaverPlaylistMode.Random)">Ngẫu nhiên</option>
+                            <option value="@((int)SK.Data.ScreenSaverPlaylistMode.InOrder)">Theo thứ tự</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3" id="media-container">
+
+                </div>
+            </div>
+            <div class="card-footer">
+                <button type="button" class="btn btn-primary" onclick="updateScreenSaverPlaylist()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>

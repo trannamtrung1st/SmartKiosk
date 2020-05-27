@@ -1,0 +1,32 @@
+﻿@model SK.WebAdmin.Areas.Location.Pages.Config.DetailModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+<script>
+    function loadContactConfig() {
+        var contact = config.contact_config;
+    }
+
+    function updateContactConfig() {
+        confirmAlert().then((result) => {
+            if (result.value) {
+                changeLoading(true);
+                $.ajax({
+                    url: '@apiUrl/@ApiEndpoint.CONFIG_API/@Model.Id',
+                    type: 'patch',
+                    contentType: 'application/json',
+                    data: JSON.stringify(model),
+                    success: (data) => {
+                        successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
+                    },
+                    error: (data) => {
+                        handleGeneralError(data);
+                    },
+                    complete: () => {
+                        changeLoading(false);
+                    }
+                });
+            }
+        });
+    }
+</script>
