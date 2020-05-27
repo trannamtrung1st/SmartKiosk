@@ -337,7 +337,7 @@
         }
 
         function onImageUrlChange(type) {
-            const url = $('[name=' + type).val();
+            const url = $('[name=' + type + ']').val();
             tempData.model[type] = { url };
             if (url?.trim()) {
                 const imgPreview = $('[name=' + type + '_preview]');

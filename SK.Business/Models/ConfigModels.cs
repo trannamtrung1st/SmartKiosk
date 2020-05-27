@@ -34,7 +34,7 @@ namespace SK.Business.Models
         public UpdateConfigInfoModel Info { get; set; }
         [JsonProperty("ssp_config")]
         public ScreenSaverPlaylist SSP { get; set; }
-        [JsonProperty("home_page_config")]
+        [JsonProperty("home_config")]
         public HomePageConfig HomePage { get; set; }
         [JsonProperty("pe_config")]
         public PostsConfig ProgramEvent { get; set; }
