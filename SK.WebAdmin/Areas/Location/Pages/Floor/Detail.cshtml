@@ -1,0 +1,614 @@
+﻿@page
+@model SK.WebAdmin.Areas.Location.Pages.Floor.DetailModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- ElFinder -->
+    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/theme.min.css" />
+    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/jquery-ui.min.css" />
+    <link rel="stylesheet" href="~/plugins/elfinder/css/elfinder.full.min.css" />
+    <link rel="stylesheet" href="~/plugins/elfinder/css/theme.min.css" /> @* <-- NOTE: This file is new and some of the themes may not look quite right if this is used. *@
+    <link rel="stylesheet" href="~/dist/css/elfinder/themes/material/css/theme-gray.min.css" id="elfinder-theme" />
+    <style>
+        .swal2-container {
+            z-index: 20000 !important;
+        }
+
+        .elfinder-cwd table td {
+            /* fix conflict with Bootstrap CSS. See: https://github.com/Studio-42/elFinder/commit/4f858d5ffc9a8f41b4cc07a063782abe2e722bdf */
+            box-sizing: content-box;
+        }
+
+        aside.main-sidebar {
+            transition: all .5s ease-in-out;
+        }
+
+        #map-svg {
+            position: relative;
+            outline: 1px solid gray;
+            overflow: visible;
+        }
+
+            #map-svg svg {
+                cursor: pointer;
+            }
+
+        #section-info {
+            height: 100%;
+            min-width: 250px !important;
+            width: 250px;
+            position: fixed;
+            transform: translateX(-100%);
+            left: 0;
+            top: 0;
+            background-color: #212529;
+            transition: all .5s ease-in-out !important;
+        }
+
+        .show {
+            transform: translateX(0) !important;
+        }
+
+        .selected {
+            stroke: orange !important;
+            stroke-width: 2 !important;
+            stroke-opacity: 1 !important;
+        }
+
+        image.selected {
+            outline: 2px solid orange !important;
+        }
+    </style>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">Trung tâm</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_FLOOR.LocId(Model.LocId)">Tầng</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary card-outline card-outline-tabs">
+                    <div class="card-header p-0 border-bottom-0">
+                        <ul class="nav nav-tabs" id="tabs-main" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab-info-nav" data-toggle="pill" href="#tab-info" role="tab" aria-controls="tab-info" aria-selected="true">
+                                    <i class="fa fa-info-circle mr-1"></i>
+                                    Thông tin
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-floor-nav" data-toggle="pill" href="#tab-floor" role="tab" aria-controls="tab-floor" aria-selected="false">
+                                    <i class="fa fa-map mr-1"></i>
+                                    Sơ đồ tầng
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="tabs-mainContent">
+                            <div class="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="tab-info">
+                                <!-- form start -->
+                                <form role="form" id="form-main">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Id</label>
+                                            <input type="text" name="id" class="form-control" disabled value="@Model.Id">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tòa nhà</label>
+                                            <input type="text" name="building" class="form-control" disabled>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tên</label>
+                                            <input type="text" name="name" class="form-control" placeholder="Nhập tên tầng">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mã code</label>
+                                            <input type="text" name="code" class="form-control" placeholder="Nhập mã tầng">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Giới thiệu</label>
+                                            <textarea class="form-control" name="description" placeholder="Nhập giới thiệu tầng"></textarea>
+                                        </div>
+                                    </div>
+                                    <!-- /.card-body -->
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-check mr-1"></i>
+                                            CẬP NHẬT
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="tab-floor" role="tabpanel" aria-labelledby="tab-floor-tab">
+                                <div id="tab-map-operations">
+                                    <a target="_blank"
+                                       href="/svgeditor/editor/svg-editor.html" class="btn btn-default">
+                                        <i class="fa fa-pen mr-1"></i>
+                                        Trình vẽ bản đồ
+                                    </a>
+                                </div>
+                                <hr />
+                                <div class="mb-4">
+                                    <button class="btn btn-primary" onclick="showFileChooser('floor_plan')">
+                                        <i class="fa fa-upload mr-1"></i>
+                                        Cập nhật mới
+                                    </button>
+                                    <button class="btn btn-default" onclick="downloadFloorPlanSvg()">
+                                        <i class="fa fa-download"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary float-right"
+                                            onclick="saveFloorPlanConfig()">
+                                        <i class="fa fa-save mr-1"></i>
+                                        Lưu
+                                    </button>
+                                </div>
+                                <div id="map-svg" style="display:none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+<section class="d-flex flex-column text-light" id="section-info">
+    <div class="container-fluid">
+        <button type="button" class="btn btn-sm btn-danger btn-block text-light my-3" id="btn-close-section-info">
+            <b aria-hidden="true" style="font-size: 20px">&times;</b>
+        </button>
+    </div>
+    <div class="container-fluid">
+        <h6><i class="fas fa-map-marker-alt mr-1"></i>&nbsp;&nbsp;&nbsp;Khu vực hiện tại</h6>
+        <div class="input-group input-group-sm mb-3">
+            <label id="txt-current-area" class="my-1">Chưa có</label>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <h6><i class="fas fa-map-marker-alt mr-1"></i>&nbsp;&nbsp;&nbsp;Chọn mới</h6>
+        <div class="input-group input-group-sm mb-3">
+            <select name="area" id="select-areas" class="form-control custom-select select2">
+                <option value="">Chưa chọn</option>
+            </select>
+        </div>
+        <button id="btn-update-area" class="btn btn-sm btn-primary btn-block" type="button">
+            CẬP NHẬT
+        </button>
+    </div>
+
+</section>
+<partial name="FileChooserModal" />
+
+@section scripts {
+
+    <!-- jquery-validation -->
+    <script src="/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <!-- ElFinder -->
+    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="~/plugins/elfinder/js/elfinder.full.min.js"></script>
+    <partial name="FileChooserScript" />
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2').select2();
+            getData();
+            loadAreas();
+            $('#form-main').validate({
+                submitHandler: confirmSubmit,
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                    code: {
+                        required: true,
+                    },
+                },
+                messages: {
+                    name: {
+                        required: "Xin hãy nhập tên tầng",
+                    },
+                    code: {
+                        required: "Xin hãy nhập mã code",
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+            initElFinder();
+        });
+
+        function initElFinder() {
+            var myCommands = elFinder.prototype._options.commands;
+            var disabled = ['callback', 'chmod', 'editor', 'netmount', 'ping', 'search', 'zipdl', 'help']; // Not yet implemented commands in elFinder.NetCore
+            elFinder.prototype.i18.en.messages.TextArea = "Edit";
+            $.each(disabled, function (i, cmd) {
+                (idx = $.inArray(cmd, myCommands)) !== -1 && myCommands.splice(idx, 1);
+            });
+            var options = {
+                url: '@WebAdmin.Settings.Instance.ApiUrl/@ApiEndpoint.FILE_API/connector', // Default (Local File System)
+                //url: '/el-finder/azure-storage/connector', // Microsoft Azure Connector
+                @*//customData: { folder: '@Model.Folder', subFolder: '@Model.SubFolder' }, // customData passed in every request to the connector as query strings. These values are used in FileController's Index method.*@
+                rememberLastDir: false, // Prevent elFinder saving in the Browser LocalStorage the last visited directory
+                commands: myCommands,
+                //lang: 'pt_BR', // elFinder supports UI and messages localization. Check the folder Content\elfinder\js\i18n for all available languages. Be sure to include the corresponding .js file(s) in the JavaScript bundle.
+                uiOptions: { // UI buttons available to the user
+                    toolbar: [
+                        ['back', 'forward'],
+                        ['reload'],
+                        ['home', 'up'],
+                        ['mkdir', 'mkfile', 'upload'],
+                        ['open', 'download'],
+                        ['undo', 'redo'],
+                        ['info'],
+                        ['quicklook'],
+                        ['copy', 'cut', 'paste'],
+                        ['rm'],
+                        ['duplicate', 'rename', 'edit'],
+                        ['selectall', 'selectnone', 'selectinvert'],
+                        ['view', 'sort']
+                    ]
+                },
+                customHeaders: {
+                    'Authorization': 'Bearer ' + localStorage.access_token
+                },
+                handlers: {
+                    uploaddone: () => {
+                        $('#elfinder').elfinder('instance').exec('reload');
+                    },
+                    dblclick: (e, fm) => {
+                        const hash = e.data.file;
+                        const file = fm.file(hash);
+                        console.log(file);
+                        if (file.mime != 'directory') {
+                            e.preventDefault();
+                            updateFloorPlan(hash);
+                        }
+                    },
+                },
+                onlyMimes: ['image/svg+xml'],
+                //lang: 'vi', // Change language
+            };
+            $('#elfinder').elfinder(options).elfinder('instance');
+        }
+
+        function updateFloorPlan(ef_hash) {
+            confirmAlert().then((result) => {
+                if (result.value) {
+                    const model = {
+                        file: { ef_hash }
+                    };
+                    changeLoading(true);
+                    $.ajax({
+                        url: '@apiUrl/@ApiEndpoint.FLOOR_API/@Model.Id/floor_plan',
+                        type: 'put',
+                        contentType: 'application/json',
+                        data: JSON.stringify(model),
+                        success: (data) => {
+                            successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)")
+                                .then(() => location.reload());
+                        },
+                        error: (data) => {
+                            handleGeneralError(data);
+                        },
+                        complete: () => {
+                            changeLoading(false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function getUpdatedSvg() {
+            var svg = $('#map-svg svg').clone();
+            svg.attr('width', svgConfig.width);
+            svg.attr('height', svgConfig.height);
+            svg.removeAttr('viewBox');
+            var svgStr = svg[0].outerHTML;
+            return svgStr;
+        }
+
+        function downloadFloorPlanSvg() {
+            var ele = $('<a>');
+            var svgStr = getUpdatedSvg();
+            ele.attr('href', 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr));
+            ele.attr('download', 'floor-plan.svg');
+            ele.hide();
+            $('body').append(ele);
+            ele[0].click();
+            $('body').remove(ele);
+        }
+
+        function saveFloorPlanConfig() {
+            confirmAlert().then((result) => {
+                if (result.value) {
+                    areaManager.clearDisplay();
+                    var svgStr = getUpdatedSvg();
+                    changeLoading(true);
+                    $.ajax({
+                        url: '@apiUrl/@ApiEndpoint.FLOOR_API/@Model.Id/floor_plan',
+                        type: 'patch',
+                        contentType: 'application/json',
+                        data: JSON.stringify(svgStr),
+                        success: (data) => {
+                            successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)")
+                                .then(() => location.reload());
+                        },
+                        error: (data) => {
+                            handleGeneralError(data);
+                        },
+                        complete: () => {
+                            changeLoading(false);
+                        }
+                    });
+                }
+            });
+        }
+
+        function getData() {
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.FLOOR_API',
+                type: 'get',
+                data: {
+                    id: @Model.Id,
+                    culture: '@CultureHelper.CurrentLang',
+                    fields: '@FloorQueryProjection.INFO,@FloorQueryProjection.BUILDING,' +
+                        '@FloorQueryProjection.FLOOR_PLAN',
+                    single_only: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data;
+                    processData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.LOCATION_FLOOR.LocId(Model.LocId)');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function processData(data) {
+            const formMain = $('#form-main');
+            formMain.find('[name=building]').val(data.building.name);
+            formMain.find('[name=name]').val(data.name);
+            formMain.find('[name=code]').val(data.code);
+            formMain.find('[name=description]').val(data.description);
+            if (data.floor_plan_svg) {
+                configFloorPlan(data);
+            }
+        }
+
+        function confirmSubmit() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitData();
+            });
+        }
+
+        function submitData() {
+            const model = {};
+            model.name = $('[name=name]').val();
+            model.code = $('[name=code]').val();
+            model.phone = $('[name=phone]').val();
+            model.description = $('[name=description]').val();
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.FLOOR_API/@Model.Id',
+                type: 'patch',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function loadAreas() {
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.AREA_API',
+                type: 'get',
+                data: {
+                    floor_id: @Model.Id,
+                    culture: '@CultureHelper.CurrentLang',
+                    fields: '@FloorQueryProjection.SELECT',
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    var slb_area = $("#select-areas");
+                    for (var i = 0; i < data.length; i++) {
+                        listArea[data[i].id] = data[i];
+                        slb_area.append(
+                            $("<option value='" + data[i].id + "'>")
+                                .append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.LOCATION_FLOOR.LocId(Model.LocId)');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        //START Working with FloorPlan
+        /* Declare classes */
+        class AreaManager {
+            constructor(listArea = new Set()) {
+                this.listArea = listArea;
+            }
+            appendArea(area) {
+                this.listArea.add(area);
+            }
+            removeArea(area) {
+                for (let item of this.listArea.values()) {
+                    if (item[0] == area[0]) this.listArea.delete(item);;
+                }
+            }
+            clearDisplay() {
+                for (let item of this.listArea.values()) {
+                    item.removeClass('selected');
+                }
+                this.listArea.clear();
+            }
+            containArea(area) {
+                for (let item of this.listArea.values()) {
+                    if (item[0] == area[0]) return true;
+                }
+                return false;
+            }
+            size() {
+                return this.listArea.size;
+            }
+            updateUI() {
+                for (let area of this.listArea.values()) {
+                    area.addClass('selected');
+                }
+            }
+            setIdForAll(areaId) {
+                for (let area of this.listArea.values()) {
+                    area.attr('area', areaId);
+                }
+            }
+        }
+
+        /* Declare variables */
+        var listArea = {};
+        var svgConfig = {};
+        var areaManager = new AreaManager();
+
+        function configFloorPlan(floor) {
+            function showInfo(ele) {
+                $('aside.main-sidebar').css('opacity', '0');
+                $('aside.main-sidebar').css('pointer-events', 'none');
+                var id = parseInt(ele.attr('area'));
+                if (id) {
+                    var area = listArea[id];
+                    $('#txt-current-area').text(area.name);
+                    $('#select-areas').val(id).trigger('change');
+                }
+                else {
+                    $('#txt-current-area').text('Chưa có');
+                    $('#select-areas').val('').trigger('change');
+                }
+                sectionInfo.addClass('show');
+            }
+
+            function closeInfo() {
+                $('aside.main-sidebar').css('opacity', '1');
+                $('aside.main-sidebar').css('pointer-events', 'auto');
+                sectionInfo.removeClass('show');
+                areaManager.clearDisplay();
+            }
+
+            $('#btn-update-area').click(e => {
+                var currentArea = $('#select-areas');
+                var areaId = currentArea.val();
+                areaManager.setIdForAll(areaId);
+                closeInfo();
+            });
+
+            $('#map-svg').append(floor.floor_plan_svg);
+            var svg = $('#map-svg').find('svg');
+            svgConfig.width = svg.attr('width');
+            svgConfig.height = svg.attr('height');
+            svg.attr('viewBox', '0 0 ' + svgConfig.width + ' ' + svgConfig.height);
+            svg.attr('width', '100%');
+            svg.removeAttr('height');
+
+            var sectionInfo = $('#section-info');
+            var btnCloseSectionInfo = $('#btn-close-section-info');
+            btnCloseSectionInfo.click(e => {
+                closeInfo();
+            });
+
+            var childs = svg.children();
+            $('svg').click(e => {
+                if (e.target.tagName === 'svg') closeInfo();
+            })
+            childs.click((e) => {
+                var ele = $(e.target);
+                var allOfChildren = svg.find('*');
+
+                /* Add with Ctrl+Click */
+                if (areaManager.size() == 0) {
+                    areaManager.appendArea(ele);
+                    allOfChildren.removeClass('selected');
+                    areaManager.updateUI();
+                    showInfo(ele);
+                } else {
+                    if (e.ctrlKey) {
+                        if (areaManager.containArea(ele)) {
+                            areaManager.removeArea(ele);
+                        } else {
+                            areaManager.appendArea(ele);
+                        }
+                        allOfChildren.removeClass('selected');
+                        areaManager.updateUI();
+                        showInfo(ele);
+                    } else {
+                        closeInfo();
+                        areaManager.appendArea(ele);
+                        allOfChildren.removeClass('selected');
+                        areaManager.updateUI();
+                        showInfo(ele);
+                    }
+                }
+
+            });
+
+            $('#map-svg').show();
+        }
+        //END Working with FloorPlan
+    </script>
+}

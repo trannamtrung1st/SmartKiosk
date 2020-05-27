@@ -89,6 +89,7 @@
     <None Include="wwwroot\dist\css\elfinder\themes\windows-10\images\README.md" />
     <None Include="wwwroot\dist\css\elfinder\themes\windows-10\js\README.md" />
     <None Include="wwwroot\dist\css\elfinder\themes\windows-10\LICENSE" />
+    <None Include="wwwroot\svgeditor\.github\ISSUE_TEMPLATE\bug_report.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -100,6 +101,10 @@
   <ItemGroup>
     <ProjectReference Include="..\SK.Business\SK.Business.csproj" />
     <ProjectReference Include="..\SK.WebHelpers\SK.WebHelpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\svgeditor\build\tools\" />
   </ItemGroup>
 
 </Project>

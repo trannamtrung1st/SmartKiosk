@@ -90,9 +90,9 @@ namespace SK.Business.Models
         //---------------------------------------
 
         public const string INFO = "info";
+        public const string FLOOR_PLAN = "info.floor_plan";
         public const string SELECT = "select";
         public const string BUILDING = "building";
-        public const string FLOOR_PLAN = "floor_plan";
 
         private const string F = nameof(Floor);
         private const string B = nameof(Building);
