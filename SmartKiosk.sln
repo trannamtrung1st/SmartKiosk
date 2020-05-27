@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SK", "SK\SK.csproj", "{FD54
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SK.Tools", "SK.Tools\SK.Tools.csproj", "{EBB0E537-08FB-4D12-97B8-BACE53271E04}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "elFinder.NetCore", "..\..\..\elFinder.NetCore\elFinder.NetCore\elFinder.NetCore.csproj", "{EA31F53E-DD00-4ADF-A450-6B63013FBF79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,12 @@ Global
 		{EBB0E537-08FB-4D12-97B8-BACE53271E04}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EBB0E537-08FB-4D12-97B8-BACE53271E04}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{EBB0E537-08FB-4D12-97B8-BACE53271E04}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA31F53E-DD00-4ADF-A450-6B63013FBF79}.Test|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
