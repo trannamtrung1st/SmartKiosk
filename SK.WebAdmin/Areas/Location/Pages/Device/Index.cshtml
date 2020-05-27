@@ -1,0 +1,370 @@
+﻿@page
+@model SK.WebAdmin.Areas.Location.Pages.Device.IndexModel
+@{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <!-- iCheck for checkboxes and radio inputs -->
+    <link rel="stylesheet" href="/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <style>
+        td.td-row {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-wrap: wrap;
+            flex-wrap: wrap;
+        }
+    </style>
+}
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">
+                            Trung tâm
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="btn-group float-right">
+                        <button type="button" class="btn btn-primary mr-2 dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                            <i class="fa fa-cog"></i> Thao tác
+                        </button>
+                        <div class="dropdown-menu-right dropdown-menu">
+                            <a class="dropdown-item" data-toggle="modal" data-target="#modal-schedule">Thiết lập lịch phát</a>
+                            <a class="dropdown-item" data-toggle="modal" data-target="#modal-control">Điều khiển từ xa</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <table id="tbl-main" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>STT</th>
+                                <th class="sortable">Tài khoản</th>
+                                <th class="sortable">Tên máy</th>
+                                <th class="sortable">Mã máy</th>
+                                <th class="sortable">Vị trí</th>
+                                <th class="sortable">Lịch phát</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>STT</th>
+                                <th>Tài khoản</th>
+                                <th>Tên máy</th>
+                                <th>Mã máy</th>
+                                <th>Vị trí</th>
+                                <th>Lịch phát</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->
+
+<div class="modal fade" id="modal-schedule">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title">Thiết lập lịch phát</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Lịch phát</label>
+                        <select class="form-control select2" name="select_schedule"></select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="confirmUpdateSchedule()" class="btn btn-primary">Cập nhật</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modal-control">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="card-title">Điều khiển từ xa</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form role="form">
+                    <div class="form-group">
+                        <label>Hành động</label>
+                        <select class="form-control select2" name="trigger_action">
+                            <option value="reload">Cập nhật dữ liệu</option>
+                            <option value="logout">Đăng xuất</option>
+                        </select>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="confirmTrigger()" class="btn btn-primary">Gửi đi</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+@section scripts {
+
+    <!-- DataTables -->
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <!-- page script -->
+    <script>
+        let tblMain;
+        $(function () {
+            tblMain = $("#tbl-main").DataTable({
+                responsive: true,
+                autoWidth: false,
+                columnDefs: [
+                    { targets: [0], className: 'td-row' },
+                    { targets: [0, 1], orderable: false, searchable: false },
+                ],
+                order: [[2, 'asc']]
+            });
+            tblMain._mustDrawNo = true;
+            tblMain.on('draw', onTableChange);
+            tblMain.on('length', onTableChange);
+            tblMain.on('page', onTableChange);
+            tblMain.on('search', onTableChange);
+            tblMain.on('order', onTableChange);
+            getData();
+            loadSchedules();
+            $('.select2').select2();
+        });
+
+        function onTableChange() {
+            if (tblMain._mustDrawNo) {
+                tblMain._mustDrawNo = false;
+                let no = 1;
+                tblMain.rows().every((r) => {
+                    const data = tblMain.row(r).data();
+                    data[1] = no++;
+                    tblMain.row(r).data(data);
+                });
+            } else tblMain._mustDrawNo = true;
+        }
+
+        function getData() {
+            changeLoading(true);
+            const data = {};
+            data.loc_id = @Model.LocId;
+            data.culture = '@CultureHelper.CurrentLang';
+            data.fields = '@DeviceQueryProjection.INFO,@DeviceQueryProjection.ACCOUNT,' +
+                '@DeviceQueryProjection.BUILDING,@DeviceQueryProjection.FLOOR,' +
+                '@DeviceQueryProjection.AREA,@DeviceQueryProjection.SCHEDULE';
+            data.load_all = true;
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.DEVICE_API',
+                type: 'get',
+                data: data,
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    processData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.DEVICE');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function processData(data) {
+            tblMain.clear();
+
+            var btn = (id) =>
+                '<div class="form-check icheck-primary d-inline">' +
+                    '<input class="cb-device" type="checkbox" value="' + id + '" id="cb-device-' + id + '">' +
+                    '<label for="cb-device-' + id + '"></label>' +
+                '</div>' +
+                "<div class=\"dropdown\">" +
+                    "<button class=\"btn btn-primary dropdown-toggle btn-sm\"" +
+                        "type=\"button\" id=\"btn-dropdown\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">" +
+                        "<i class=\"fa fa-list\"></i>" +
+                    "</button>" +
+                    "<div class=\"dropdown-menu\" aria-labelledby=\"btn-dropdown\">" +
+                        "<a class=\"dropdown-item\" href=\"" + "@Routing.DEVICE_DETAIL".replace('{id}', id) + "\"><i class=\"fa fa-info-circle dropdown-item-icon\"></i>Chi tiết</a>" +
+                    "</div>" +
+                "</div>";
+            for (var i = 0; i < data.length; i++) {
+                const obj = data[i];
+                let locStr = '';
+                if (obj.area) locStr = obj.area.name + ' - ' +
+                    obj.floor?.name + ' - ' + obj.building?.name;
+                tblMain.row.add([
+                    btn(obj.id),
+                    null,
+                    obj.account.username,
+                    obj.code,
+                    obj.name,
+                    locStr,
+                    obj.schedule?.name ?? ""
+                ]);
+            }
+            tblMain.draw();
+        }
+
+        function loadSchedules() {
+            var sl = $("[name=select_schedule]")
+            const data = {};
+            data.culture = '@CultureHelper.CurrentLang';
+            data.load_all = true;
+            data.loc_id = @Model.LocId;
+            data.fields = '@ScheduleQueryProjection.SELECT';
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.SCHEDULE_API',
+                type: 'get',
+                data: data,
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data.results;
+                    sl.append(
+                        $('<option value="">').append("-- Trống --")
+                    );
+                    for (var i = 0; i < data.length; i++) {
+                        sl.append(
+                            $('<option value="' + data[i].id + '">').append(data[i].name)
+                        );
+                    }
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function confirmTrigger() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    triggerAction();
+            });
+        }
+
+        function triggerAction() {
+            var data = {};
+            data.action = $('[name=trigger_action]').val();
+            data.device_ids = [];
+            var checked = $('.cb-device:checked');
+            for (var i = 0; i < checked.length; i++) {
+                var id = checked[i].value;
+                data.device_ids.push(id);
+            }
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.DEVICE_API/trigger',
+                type: 'post',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.SUCCESS)")
+                        .then(() => location.reload());
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.DEVICE');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function confirmUpdateSchedule() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    updateSchedule();
+            });
+        }
+
+        function updateSchedule() {
+            var data = {};
+            data.schedule_id = parseInt($('[name=select_schedule]').val());
+            data.device_ids = [];
+            var checked = $('.cb-device:checked');
+            for (var i = 0; i < checked.length; i++) {
+                var id = checked[i].value;
+                data.device_ids.push(id);
+            }
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.DEVICE_API/schedule',
+                type: 'patch',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.SUCCESS)")
+                        .then(() => location.reload());
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.DEVICE');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+    </script>
+}
+
