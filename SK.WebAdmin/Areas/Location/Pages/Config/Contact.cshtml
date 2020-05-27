@@ -1,5 +1,5 @@
 ﻿@page
-@model SK.WebAdmin.Areas.Location.Pages.Config.OverviewModel
+@model SK.WebAdmin.Areas.Location.Pages.Config.ContactModel
 @{
     var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
 }
@@ -8,18 +8,6 @@
     <!-- Select2 -->
     <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
     <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <!-- ElFinder -->
-    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/theme.min.css" />
-    <link rel="stylesheet" href="~/plugins/jquery-ui/themes/base/jquery-ui.min.css" />
-    <link rel="stylesheet" href="~/plugins/elfinder/css/elfinder.full.min.css" />
-    <link rel="stylesheet" href="~/plugins/elfinder/css/theme.min.css" /> @* <-- NOTE: This file is new and some of the themes may not look quite right if this is used. *@
-    <link rel="stylesheet" href="~/dist/css/elfinder/themes/material/css/theme-gray.min.css" id="elfinder-theme" />
-    <style>
-        .elfinder-cwd table td {
-            /* fix conflict with Bootstrap CSS. See: https://github.com/Studio-42/elFinder/commit/4f858d5ffc9a8f41b4cc07a063782abe2e722bdf */
-            box-sizing: content-box;
-        }
-    </style>
 }
 <!-- Content Header (Page header) -->
 <section class="content-header">
@@ -53,30 +41,30 @@
                                 <!-- form start -->
                                 <form role="form" id="form-main">
                                     <div class="card-body">
-                                        <div class="form-group w-50">
-                                            <label>
-                                                Hình ảnh
-                                                <button type="button"
-                                                        onclick="showFileChooser('image_url')"
-                                                        class="btn btn-default mx-1 btn-sm">
-                                                    <i class="fa fa-folder-open"></i>
-                                                </button>
-                                            </label>
-                                            <input type="text" name="image_url" class="form-control"
-                                                   onchange="onImageUrlChange('image_url')"
-                                                   placeholder="Đường dẫn hình ảnh" />
-                                            <img name="image_url_preview" class="img w-100 my-3" />
+                                        <div class="form-group">
+                                            <label>Tiêu đề</label>
+                                            <input type="text" name="title" class="form-control" placeholder="Nhập tiêu đề">
                                         </div>
                                         <div class="form-group">
                                             <label>Mục thông tin</label>
                                             <ul class="text-sm">
                                                 <li>Các mục phân cách nhau bởi "---"</li>
-                                                <li>VD: Mục 1---Mục 2</li>
+                                                <li>Tựa đề và nội dung mỗi mục được phân cách bằng ":::"</li>
+                                                <li>VD: Văn phòng:::123 ABC---SĐT:::01248124931</li>
                                             </ul>
                                             <textarea class="form-control"
                                                       style="height: 400px"
-                                                      name="lines"
+                                                      name="informations"
                                                       placeholder="Nhập các mục thông tin ở đây"></textarea>
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tiêu đề QR Code</label>
+                                            <input type="text" name="qr_title" class="form-control" placeholder="Nhập tiêu đề QR Code">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Đường dẫn liên hệ</label>
+                                            <input type="text" name="contact_url" class="form-control" placeholder="Nhập đường dẫn">
                                         </div>
                                     </div>
                                     <!-- /.card-body -->
@@ -98,7 +86,6 @@
     </div><!-- /.container-fluid -->
 </section>
 <!-- /.content -->
-<partial name="FileChooserModal" />
 
 @section scripts {
 
@@ -107,10 +94,6 @@
     <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
     <!-- Select2 -->
     <script src="/plugins/select2/js/select2.full.min.js"></script>
-    <!-- ElFinder -->
-    <script src="~/plugins/jquery-ui/jquery-ui.min.js"></script>
-    <script src="~/plugins/elfinder/js/elfinder.full.min.js"></script>
-    <partial name="FileChooserScript" />
     <script type="text/javascript">
         $(document).ready(function () {
             $('.select2').select2();
@@ -133,70 +116,7 @@
                     $(element).removeClass('is-invalid');
                 }
             });
-            initElFinder();
         });
-
-        function initElFinder() {
-            var myCommands = elFinder.prototype._options.commands;
-            var disabled = ['callback', 'chmod', 'editor', 'netmount', 'ping', 'search', 'zipdl', 'help']; // Not yet implemented commands in elFinder.NetCore
-            elFinder.prototype.i18.en.messages.TextArea = "Edit";
-            $.each(disabled, function (i, cmd) {
-                (idx = $.inArray(cmd, myCommands)) !== -1 && myCommands.splice(idx, 1);
-            });
-            var options = {
-                url: '@WebAdmin.Settings.Instance.ApiUrl/@ApiEndpoint.FILE_API/connector', // Default (Local File System)
-                //url: '/el-finder/azure-storage/connector', // Microsoft Azure Connector
-                @*//customData: { folder: '@Model.Folder', subFolder: '@Model.SubFolder' }, // customData passed in every request to the connector as query strings. These values are used in FileController's Index method.*@
-                rememberLastDir: false, // Prevent elFinder saving in the Browser LocalStorage the last visited directory
-                commands: myCommands,
-                //lang: 'pt_BR', // elFinder supports UI and messages localization. Check the folder Content\elfinder\js\i18n for all available languages. Be sure to include the corresponding .js file(s) in the JavaScript bundle.
-                uiOptions: { // UI buttons available to the user
-                    toolbar: [
-                        ['back', 'forward'],
-                        ['reload'],
-                        ['home', 'up'],
-                        ['mkdir', 'mkfile', 'upload'],
-                        ['open', 'download'],
-                        ['undo', 'redo'],
-                        ['info'],
-                        ['quicklook'],
-                        ['copy', 'cut', 'paste'],
-                        ['rm'],
-                        ['duplicate', 'rename', 'edit'],
-                        ['selectall', 'selectnone', 'selectinvert'],
-                        ['view', 'sort']
-                    ]
-                },
-                customHeaders: {
-                    'Authorization': 'Bearer ' + localStorage.access_token
-                },
-                handlers: {
-                    dblclick: (e, fm) => {
-                        const hash = e.data.file;
-                        const file = fm.file(hash);
-                        console.log(file);
-                        if (file.mime != 'directory') {
-                            e.preventDefault();
-                            const url = fm.url(hash);
-                            const tag = fileChooserData.tag;
-                            $('#form-main [name=' + tag + ']').val(url).trigger('change');
-                            closeFileChooser();
-                        }
-                    },
-                },
-                onlyMimes: ['image'],
-                //lang: 'vi', // Change language
-            };
-            $('#elfinder').elfinder(options).elfinder('instance');
-        }
-
-        function onImageUrlChange(type) {
-            const url = $('[name=' + type + ']').val();
-            if (url?.trim()) {
-                const imgPreview = $('[name=' + type + '_preview]');
-                imgPreview.attr('src', url);
-            }
-        }
 
         function getData() {
             changeLoading(true);
@@ -225,10 +145,20 @@
 
         function processData(data) {
             const formMain = $('#form-main');
-            const homeCfg = data.home_config;
-            formMain.find('[name=image_url]').val(homeCfg.image_url).trigger('change');
-            const lines = homeCfg.lines.join('---');
-            formMain.find('[name=lines]').val(lines);
+            const contactCfg = data.contact_config;
+            if (!contactCfg) return;
+            const infos = contactCfg.infomations;
+            if (infos) {
+                let strs = [];
+                for (var k in infos) {
+                    strs.push(k + ':::' + infos[k]);
+                }
+                strs = strs.join('---');
+                $('[name=informations]').val(strs);
+            }
+            formMain.find('[name=title]').val(contactCfg.title);
+            formMain.find('[name=qr_title]').val(contactCfg.qr_title);
+            formMain.find('[name=contact_url]').val(contactCfg.contact_url);
         }
 
         function confirmSubmit() {
@@ -240,12 +170,30 @@
 
         function submitData() {
             const model = {
-                home_config: {}
+                contact_config: {
+                    informations: {}
+                }
             };
-            const cfg = model.home_config;
-            cfg.image_url = $('[name=image_url]').val();
-            const lines = $('[name=lines]').val();
-            cfg.lines = lines?.split('---');
+            const cfg = model.contact_config;
+            try {
+                const infoStr = $('[name=informations]').val();
+                if (infoStr) {
+                    const infos = infoStr.split('---');
+                    for (var i = 0; i < infos.length; i++) {
+                        var info = infos[i];
+                        var parts = info.split(':::');
+                        if (!parts[1]) throw 'Invalid';
+                        cfg.informations[parts[0]] = parts[1];
+                    }
+                }
+            } catch (e) {
+                errorAlert('Thông tin gửi đi không hợp lệ, vui lòng kiểm tra lại');
+                return;
+            }
+            cfg.title = $('[name=title]').val();
+            cfg.qr_title = $('[name=qr_title]').val();
+            cfg.contact_url = $('[name=contact_url]').val();
+            console.log(model);
             changeLoading(true);
             $.ajax({
                 url: '@apiUrl/@ApiEndpoint.CONFIG_API/@Model.Id',
