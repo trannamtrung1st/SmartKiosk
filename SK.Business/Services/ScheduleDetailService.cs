@@ -54,8 +54,16 @@ namespace SK.Business.Services
                                 .ToTimeZone(options.time_zone, options.culture);
                             var toTimeStr = toTime?
                                 .ToString(options.date_format, options.culture);
-                            obj["from_time"] = fromTimeStr;
-                            obj["to_time"] = toTimeStr;
+                            obj["from_time"] = new
+                            {
+                                display = fromTimeStr,
+                                iso = $"{fromTime?.ToUniversalTime():s}Z"
+                            };
+                            obj["to_time"] = new
+                            {
+                                display = toTimeStr,
+                                iso = $"{toTime?.ToUniversalTime():s}Z"
+                            };
                             obj["is_default"] = entity.IsDefault;
                             obj["schedule_id"] = entity.ScheduleId;
                         }

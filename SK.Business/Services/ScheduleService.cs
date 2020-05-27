@@ -63,8 +63,16 @@ namespace SK.Business.Services
                                     return new
                                     {
                                         name = o.Name,
-                                        from_time = fromTimeStr,
-                                        to_time = toTimeStr,
+                                        from_time = new
+                                        {
+                                            display = fromTimeStr,
+                                            iso = $"{fromTime?.ToUniversalTime():s}Z"
+                                        },
+                                        to_time = new
+                                        {
+                                            display = toTimeStr,
+                                            iso = $"{toTime?.ToUniversalTime():s}Z"
+                                        },
                                         id = o.Id,
                                         is_default = o.IsDefault,
                                     };
