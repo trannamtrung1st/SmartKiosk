@@ -9,9 +9,10 @@ using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Areas.Location.Pages.Config
 {
-    public class DetailModel : LocationPageModel<DetailModel>
+    public class DetailModel : LocationPageModel<DetailModel>, ITabPageModel
     {
         public int Id { get; set; }
+        public string Tab => "info";
         public void OnGet(int id)
         {
             SetPageInfo();

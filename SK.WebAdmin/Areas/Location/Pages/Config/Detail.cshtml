@@ -1,4 +1,188 @@
 ﻿@page
 @model SK.WebAdmin.Areas.Location.Pages.Config.DetailModel
 @{
+    var apiUrl = WebAdmin.Settings.Instance.ApiUrl;
+}
+
+@section head {
+    <!-- Select2 -->
+    <link rel="stylesheet" href="/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>@Model.Info.Title</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Routing.DASHBOARD">Hệ thống</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_DASHBOARD.LocId(Model.LocId)">Trung tâm</a></li>
+                    <li class="breadcrumb-item"><a href="@Routing.LOCATION_CONFIG.LocId(Model.LocId)">Cấu hình</a></li>
+                    <li class="breadcrumb-item active">@Model.Info.Title</li>
+                </ol>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary card-outline card-outline-tabs">
+                    <partial name="ConfigTabsNavigationView"/>
+                    <div class="card-body">
+                        <div class="tab-content" id="tabs-content">
+                            <div class="tab-pane fade show active" id="tab-info" role="tabpanel" aria-labelledby="tab-info">
+                                <!-- form start -->
+                                <form role="form" id="form-main">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Id</label>
+                                            <input type="text" name="id" class="form-control" disabled value="@Model.Id">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tên</label>
+                                            <input type="text" name="name" class="form-control" placeholder="Nhập tên cấu hình">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mã code</label>
+                                            <input type="text" name="code" class="form-control" placeholder="Nhập mã cấu hình">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mô tả</label>
+                                            <textarea class="form-control" name="description" placeholder="Nhập mô tả cấu hình"></textarea>
+                                        </div>
+                                    </div>
+                                    <!-- /.card-body -->
+                                    <div class="card-footer">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-check mr-1"></i>
+                                            CẬP NHẬT
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+
+@section scripts {
+
+    <!-- jquery-validation -->
+    <script src="/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/plugins/jquery-validation/additional-methods.min.js"></script>
+    <!-- Select2 -->
+    <script src="/plugins/select2/js/select2.full.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2').select2();
+            getData();
+            $('#form-main').validate({
+                submitHandler: confirmSubmit,
+                rules: {
+                    name: {
+                        required: true,
+                    },
+                    code: {
+                        required: true,
+                    },
+                },
+                messages: {
+                    name: {
+                        required: "Xin hãy nhập tên cấu hình",
+                    },
+                    code: {
+                        required: "Xin hãy nhập mã code",
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                }
+            });
+        });
+
+        function getData() {
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.CONFIG_API',
+                type: 'get',
+                data: {
+                    id: @Model.Id,
+                    culture: '@CultureHelper.CurrentLang',
+                    fields: '@ConfigQueryProjection.INFO',
+                    single_only: true
+                },
+                success: (data) => {
+                    console.log(data);
+                    data = data.results[0].data;
+                    processData(data);
+                },
+                error: (data) => {
+                    handleGeneralError(data, '@Routing.LOCATION_CONFIG.LocId(Model.LocId)');
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+        function processData(data) {
+            const formMain = $('#form-main');
+            formMain.find('[name=name]').val(data.name);
+            formMain.find('[name=code]').val(data.code);
+            formMain.find('[name=description]').val(data.description);
+        }
+
+        function confirmSubmit() {
+            confirmAlert().then((result) => {
+                if (result.value)
+                    submitData();
+            });
+        }
+
+        function submitData() {
+            const model = { info: {} };
+            const info = model.info;
+            info.name = $('[name=name]').val();
+            info.code = $('[name=code]').val();
+            info.description = $('[name=description]').val();
+            changeLoading(true);
+            $.ajax({
+                url: '@apiUrl/@ApiEndpoint.CONFIG_API/@Model.Id',
+                type: 'patch',
+                contentType: 'application/json',
+                data: JSON.stringify(model),
+                success: (data) => {
+                    successAlert("@Html.Raw(GeneralMessage.UPDATE_SUCCESS)");
+                },
+                error: (data) => {
+                    handleGeneralError(data);
+                },
+                complete: () => {
+                    changeLoading(false);
+                }
+            });
+        }
+
+    </script>
 }

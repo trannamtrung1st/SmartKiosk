@@ -127,6 +127,7 @@
         function getData() {
             changeLoading(true);
             const data = {};
+            data.loc_id = @Model.LocId;
             data.culture = '@CultureHelper.CurrentLang';
             data.load_all = true;
             $.ajax({

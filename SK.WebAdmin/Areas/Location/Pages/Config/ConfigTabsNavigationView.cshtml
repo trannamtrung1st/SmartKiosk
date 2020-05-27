@@ -1,0 +1,53 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var locId = (int)Model.LocId;
+    var id = (int)Model.Id;
+    string ActiveTab(string tab)
+    {
+        return Model.Tab == tab ? "active" : "";
+    }
+
+    bool IsCurrentTab(string tab)
+    {
+        return Model.Tab == tab;
+    }
+}
+
+<div class="card-header p-0 border-bottom-0">
+    <ul class="nav nav-tabs" id="tabs-main" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link @ActiveTab("info")"
+               href="@Routing.LOCATION_CONFIG_DETAIL.LocId(locId).Id(id)"
+               role="tab" aria-selected="@IsCurrentTab("info")">
+                <i class="fa fa-info-circle mr-1"></i>
+                Thông tin
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @ActiveTab("ssp")"
+               href="@Routing.LOCATION_CONFIG_SSP.LocId(locId).Id(id)"
+               role="tab" aria-selected="@IsCurrentTab("ssp")">
+                <i class="fa fa-desktop mr-1"></i>
+                Màn hình chờ
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @ActiveTab("overview")"
+               href="@Routing.LOCATION_CONFIG_OVERVIEW.LocId(locId).Id(id)"
+               role="tab" aria-selected="@IsCurrentTab("overview")">
+                <i class="fa fa-list mr-1"></i>
+                Trang tổng quan
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @ActiveTab("contact")"
+               href="@Routing.LOCATION_CONFIG_CONTACT.LocId(locId).Id(id)"
+               role="tab" aria-selected="@IsCurrentTab("contact")">
+                <i class="fa fa-phone mr-1"></i>
+                Trang liên hệ
+            </a>
+        </li>
+    </ul>
+</div>
