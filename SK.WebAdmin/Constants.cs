@@ -39,6 +39,8 @@ namespace SK.WebAdmin
         public const string LOCATION_CONFIG_OVERVIEW = "/location/{loc_id}/config/{id}/overview";
         public const string LOCATION_CONFIG_CONTACT = "/location/{loc_id}/config/{id}/contact";
         public const string LOCATION_SCHEDULE = "/location/{loc_id}/schedule";
+        public const string LOCATION_SCHEDULE_CREATE = "/location/{loc_id}/schedule/create";
+        public const string LOCATION_SCHEDULE_DETAIL = "/location/{loc_id}/schedule/{id}";
         public const string LOCATION_DEVICE = "/location/{loc_id}/device";
         public const string LOCATION_BUILDING = "/location/{loc_id}/building";
         public const string LOCATION_BUILDING_CREATE = "/location/{loc_id}/building/create";

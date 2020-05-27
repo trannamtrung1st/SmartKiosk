@@ -133,6 +133,7 @@ namespace SK.WebAdmin
                     .AddAreaPageRoute("Location", "/Config/ScreenSaver", Routing.LOCATION_CONFIG_SSP)
                     .AddAreaPageRoute("Location", "/Config/Overview", Routing.LOCATION_CONFIG_OVERVIEW)
                     .AddAreaPageRoute("Location", "/Config/Contact", Routing.LOCATION_CONFIG_CONTACT)
+                    .AddAreaPageRoute("Location", "/Schedule/Index", Routing.LOCATION_SCHEDULE)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
