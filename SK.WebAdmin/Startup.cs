@@ -75,8 +75,6 @@ namespace SK.WebAdmin
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
             });
-            //required
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme);
             #endregion
             services.ConfigureApplicationCookie(options =>
             {
@@ -126,6 +124,7 @@ namespace SK.WebAdmin
                     .AddAreaPageRoute("Location", "/Floor/Index", Routing.LOCATION_FLOOR)
                     .AddAreaPageRoute("Location", "/Floor/Create", Routing.LOCATION_FLOOR_CREATE)
                     .AddAreaPageRoute("Location", "/Floor/Detail", Routing.LOCATION_FLOOR_DETAIL)
+                    .AddAreaPageRoute("Location", "/Area/Index", Routing.LOCATION_AREA)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)
