@@ -136,6 +136,7 @@ namespace SK.WebAdmin
                     .AddAreaPageRoute("Location", "/Schedule/Index", Routing.LOCATION_SCHEDULE)
                     .AddAreaPageRoute("Location", "/Schedule/Create", Routing.LOCATION_SCHEDULE_CREATE)
                     .AddAreaPageRoute("Location", "/Schedule/Detail", Routing.LOCATION_SCHEDULE_DETAIL)
+                    .AddAreaPageRoute("Location", "/Schedule/ScheduleDetail", Routing.LOCATION_S_DETAIL_DETAIL)
                     .AddPageRoute("/Post/Detail", Routing.POST_DETAIL)
                     .AddPageRoute("/ResType/Detail", Routing.RES_TYPE_DETAIL)
                     .AddPageRoute("/EtCate/Detail", Routing.ENTITY_CATE_DETAIL)

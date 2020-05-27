@@ -85,7 +85,7 @@ namespace SK.WebApi.Controllers
                 var defaultEntity = _service.ScheduleDetails
                     .BySchedule(entity.ScheduleId)
                     .IsDefault().IdOnly().FirstOrDefault();
-                if (defaultEntity?.Id != entity.Id)
+                if (defaultEntity != null && defaultEntity?.Id != entity.Id)
                     return BadRequest(ValidationResult.Fail(
                         new AppResultBuilder().DefaultScheduleDetailExisted()));
             }

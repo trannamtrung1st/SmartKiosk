@@ -9,12 +9,14 @@ using SK.WebAdmin.Models;
 
 namespace SK.WebAdmin.Areas.Location.Pages.Schedule
 {
-    public class DetailModel : LocationPageModel<DetailModel>
+    public class ScheduleDetailModel : LocationPageModel<DetailModel>
     {
+        public int ScheduleId { get; set; }
         public int Id { get; set; }
-        public void OnGet(int id)
+        public void OnGet(int schedule_id, int id)
         {
             SetPageInfo();
+            ScheduleId = schedule_id;
             Id = id;
         }
 
@@ -22,7 +24,7 @@ namespace SK.WebAdmin.Areas.Location.Pages.Schedule
         {
             Info = new PageInfo
             {
-                Title = "Chi tiết lịch phát",
+                Title = "Cài đặt khoảng thời gian",
                 Menu = Menu.LOCATION_SCHEDULE,
                 BackUrl = BackUrl ?? Routing.LOCATION_SCHEDULE.LocId(LocId)
             };

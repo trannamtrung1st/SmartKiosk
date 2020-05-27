@@ -16,5 +16,10 @@ namespace SK.WebAdmin.Helpers
         {
             return route.Replace("{id}", id.ToString());
         }
+
+        public static string SchId(this string route, int id)
+        {
+            return route.Replace("{schedule_id}", id.ToString());
+        }
     }
 }
