@@ -35,8 +35,8 @@ namespace SK.WebApi.Controllers
 
         #region OAuth
         [HttpPost("login")]
-        public async Task<IActionResult> LogIn([FromForm]
-            AuthorizationGrantModel model)
+        [Consumes("multipart/form-data", new[] { "application/json" })]
+        public async Task<IActionResult> LogIn(AuthorizationGrantModel model)
         {
             var validationResult = _service.ValidateLogin(User, model);
             if (!validationResult.Valid)
