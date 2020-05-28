@@ -47,6 +47,11 @@ namespace SK.Business
         public const string UserName = "username";
     }
 
+    public static class AppOAuthScope
+    {
+        public const string ROLES = "roles";
+    }
+
     public static class ApiEndpoint
     {
         public const string ROLE_API = "api/roles";

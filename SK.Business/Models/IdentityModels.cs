@@ -51,6 +51,8 @@ namespace SK.Business.Models
         [JsonProperty("scope")]
         public string scope { get; set; }
         //OPTIONAL.  The scope of the access request as described by
+        [JsonProperty("fcm_token")]
+        public string fcm_token { get; set; }
     }
 
     public class AddRolesToUserModel
@@ -101,6 +103,8 @@ namespace SK.Business.Models
 
     public class TokenResponseModel
     {
+        [JsonProperty("user_id")]
+        public string user_id { get; set; }
         [JsonProperty("access_token")]
         public string access_token { get; set; }
         [JsonProperty("token_type")]
@@ -111,6 +115,8 @@ namespace SK.Business.Models
         public string issued_utc { get; set; }
         [JsonProperty("refresh_token")]
         public string refresh_token { get; set; }
+        [JsonProperty("roles")]
+        public IEnumerable<string> roles { get; set; }
     }
 
     #region Query

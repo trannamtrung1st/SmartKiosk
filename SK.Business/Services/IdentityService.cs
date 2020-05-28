@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -218,7 +219,7 @@ namespace SK.Business.Services
 
         #region OAuth
         public TokenResponseModel GenerateTokenResponse(ClaimsPrincipal principal,
-            AuthenticationProperties properties)
+            AuthenticationProperties properties, string scope = null)
         {
             #region Generate JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -246,12 +247,29 @@ namespace SK.Business.Services
             var tokenString = tokenHandler.WriteToken(token);
             #endregion
             var resp = new TokenResponseModel();
+            resp.user_id = identity.Name;
             resp.access_token = tokenString;
             resp.token_type = "bearer";
             if (properties.ExpiresUtc != null)
                 resp.expires_utc = properties.ExpiresUtc?.ToString("yyyy-MM-ddTHH:mm:ssZ");
             if (properties.IssuedUtc != null)
                 resp.issued_utc = properties.IssuedUtc?.ToString("yyyy-MM-ddTHH:mm:ssZ");
+            #region Handle scope
+            if (scope != null)
+            {
+                var scopes = scope.Split(' ');
+                foreach (var s in scopes)
+                {
+                    switch (s)
+                    {
+                        case AppOAuthScope.ROLES:
+                            resp.roles = identity.FindAll(identity.RoleClaimType)
+                                .Select(c => c.Value).ToList();
+                            break;
+                    }
+                }
+            }
+            #endregion
             #region Refresh Token
             key = Encoding.Default.GetBytes(JWT.REFRESH_SECRET_KEY);
             issuer = JWT.REFRESH_ISSUER;
@@ -627,6 +645,30 @@ namespace SK.Business.Services
             AppUserQueryOptions options)
         {
             return ValidationResult.Pass();
+        }
+        #endregion
+
+        #region Device
+        public void LoginDevice(Device entity,
+            string oldFcmToken, string newFcmToken)
+        {
+            if (oldFcmToken != null)
+            {
+                FirebaseMessaging.DefaultInstance.SendAsync(new Message
+                {
+                    Topic = entity.Id,
+                    Data = new Dictionary<string, string>()
+                    {
+                        {"action", "logout"}
+                    }
+                });
+                var unsubResp = FirebaseMessaging.DefaultInstance.UnsubscribeFromTopicAsync(
+                        new List<string> { oldFcmToken }, entity.Id).Result;
+            }
+            var subResp = FirebaseMessaging.DefaultInstance.SubscribeToTopicAsync(
+                new List<string> { newFcmToken }, entity.Id).Result;
+            if (subResp.Errors.Count > 0)
+                throw new Exception("Can not manage topic subscription");
         }
         #endregion
 

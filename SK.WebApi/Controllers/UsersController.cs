@@ -12,7 +12,9 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
 using SK.Business;
 using SK.Business.Models;
+using SK.Business.Queries;
 using SK.Business.Services;
+using SK.Data;
 using SK.Data.Helpers;
 using SK.Data.Models;
 using SK.WebApi.Filters;
@@ -32,11 +34,12 @@ namespace SK.WebApi.Controllers
 
         [Inject]
         private readonly IdentityService _service;
+        [Inject]
+        private readonly DeviceService _deviceService;
 
         #region OAuth
         [HttpPost("login")]
-        [Consumes("multipart/form-data", new[] { "application/json" })]
-        public async Task<IActionResult> LogIn(AuthorizationGrantModel model)
+        public async Task<IActionResult> LogIn([FromForm]AuthorizationGrantModel model)
         {
             var validationResult = _service.ValidateLogin(User, model);
             if (!validationResult.Valid)
@@ -87,8 +90,23 @@ namespace SK.WebApi.Controllers
             };
             props.Parameters["refresh_expires"] = utcNow.AddHours(
                 WebApi.Settings.Instance.RefreshTokenValidHours);
-            var resp = _service.GenerateTokenResponse(principal, props);
+            var resp = _service.GenerateTokenResponse(principal, props, model.scope);
             _logger.CustomProperties(entity).Info("Login user");
+            if (principal.IsInRole(RoleName.Device))
+            {
+                if (model.fcm_token == null)
+                    return BadRequest(new AppResultBuilder()
+                        .FailValidation(mess: "FCM Token is required for device login"));
+                using (var trans = context.Database.BeginTransaction())
+                {
+                    var device = _deviceService.Devices.Id(entity.Id).FirstOrDefault();
+                    var oldFcmToken = device.CurrentFcmToken;
+                    _deviceService.ChangeDeviceToken(device, model.fcm_token, resp.access_token);
+                    context.SaveChanges();
+                    _service.LoginDevice(device, oldFcmToken, model.fcm_token);
+                    trans.Commit();
+                }
+            }
             return Ok(resp);
         }
         #endregion
