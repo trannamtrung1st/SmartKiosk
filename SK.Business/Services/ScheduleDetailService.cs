@@ -321,9 +321,9 @@ namespace SK.Business.Services
             if (entity.IsDefault == false)
             {
                 var dates = ParseDateStr(model.StartEndDateStr);
-                entity.FromTime = dates.Item1;
-                entity.ToTime = dates.Item2;
+                entity.FromTime = dates.Item1; entity.ToTime = dates.Item2;
             }
+            else entity.FromTime = null; entity.ToTime = null;
             var weekConfigs = model.WeekConfigs.Select(wc =>
             {
                 var config = wc.ToDest();

@@ -174,9 +174,9 @@
                 var mTag = $(mediaTags[i]);
                 var media = {
                     id: mTag.attr('name'),
-                    url: mTag.attr('url'),
-                    type: mTag.attr('type'),
-                    pos: parseInt(mTag.find('input[type=number]').val()),
+                    url: mTag.find('[name=url]').val(),
+                    type: mTag.find('[name=type]').val(),
+                    pos: parseInt(mTag.find('[name=pos]').val()),
                 };
                 medias.push(media);
             }
@@ -246,7 +246,24 @@
                                 $('<div class="form-group">').append(
                                     $('<label>Vị trí</label>')
                                 ).append(
-                                    $('<input type="number" class="form-control" step="1" min="1" value="' + m.pos + '"/>')
+                                    $('<input type="number" name="pos" class="form-control" step="1" min="1" value="' + m.pos + '"/>')
+                                )
+                            ).append(
+                                $('<div class="form-group">').append(
+                                    $('<label>Đường dẫn</label>')
+                                ).append(
+                                    $('<input type="text" class="form-control" name="url" value="' + m.url + '"/>')
+                                )
+                            ).append(
+                                $('<div class="form-group">').append(
+                                    $('<label>Định dạng</label>')
+                                ).append(
+                                    $('<select class="form-control select2" name="type">')
+                                        .append(
+                                            $('<option value="@((int)SK.Data.PlaylistMediaType.Image)">').append('Hình ảnh')
+                                        ).append(
+                                            $('<option value="@((int)SK.Data.PlaylistMediaType.Video)">').append('Video')
+                                        )
                                 )
                             )
                         )
@@ -255,6 +272,7 @@
                 if (append)
                     mContainer.append(newMediaEl);
                 else mContainer.prepend(newMediaEl);
+                newMediaEl.find('select.select2').select2().val(m.type).trigger('change');
             }
         }
 
