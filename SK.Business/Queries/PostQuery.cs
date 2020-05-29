@@ -73,6 +73,16 @@ namespace SK.Business.Queries
                 var paramName = query.AddAutoIncrParam(filter.id);
                 listFilters.Add($"{nameof(Post)}.{nameof(Post.Id)}=@{paramName}");
             }
+            if (filter.type != null)
+            {
+                var paramName = query.AddAutoIncrParam(filter.type);
+                listFilters.Add($"{nameof(Post)}.{nameof(Post.Type)}=@{paramName}");
+            }
+            if (filter.loc_id != null)
+            {
+                var paramName = query.AddAutoIncrParam(filter.loc_id);
+                listFilters.Add($"{nameof(Post)}.{nameof(Post.LocationId)}=@{paramName}");
+            }
             if (filter.not_eq_id != null)
             {
                 var paramName = query.AddAutoIncrParam(filter.not_eq_id);
