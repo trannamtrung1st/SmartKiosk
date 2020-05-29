@@ -9,13 +9,13 @@ namespace SK.Data.Models
     {
         public ContactConfig()
         {
-            Informations = new Dictionary<string, string>();
+            Information = new Dictionary<string, string>();
         }
 
         [JsonProperty("title")]
         public string Title { get; set; }
-        [JsonProperty("informations")]
-        public IDictionary<string, string> Informations { get; set; }
+        [JsonProperty("information")]
+        public IDictionary<string, string> Information { get; set; }
         [JsonProperty("qr_title")]
         public string QRTitle { get; set; }
         [JsonProperty("contact_url")]

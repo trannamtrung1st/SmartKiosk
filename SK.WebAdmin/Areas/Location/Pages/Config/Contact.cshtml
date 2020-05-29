@@ -54,7 +54,7 @@
                                             </ul>
                                             <textarea class="form-control"
                                                       style="height: 400px"
-                                                      name="informations"
+                                                      name="information"
                                                       placeholder="Nhập các mục thông tin ở đây"></textarea>
 
                                         </div>
@@ -147,14 +147,14 @@
             const formMain = $('#form-main');
             const contactCfg = data.contact_config;
             if (!contactCfg) return;
-            const infos = contactCfg.informations;
+            const infos = contactCfg.information;
             if (infos) {
                 let strs = [];
                 for (var k in infos) {
                     strs.push(k + ':::' + infos[k]);
                 }
                 strs = strs.join('---');
-                $('[name=informations]').val(strs);
+                $('[name=information]').val(strs);
             }
             formMain.find('[name=title]').val(contactCfg.title);
             formMain.find('[name=qr_title]').val(contactCfg.qr_title);
@@ -171,19 +171,19 @@
         function submitData() {
             const model = {
                 contact_config: {
-                    informations: {}
+                    information: {}
                 }
             };
             const cfg = model.contact_config;
             try {
-                const infoStr = $('[name=informations]').val();
+                const infoStr = $('[name=information]').val();
                 if (infoStr) {
                     const infos = infoStr.split('---');
                     for (var i = 0; i < infos.length; i++) {
                         var info = infos[i];
                         var parts = info.split(':::');
                         if (!parts[1]) throw 'Invalid';
-                        cfg.informations[parts[0]] = parts[1];
+                        cfg.information[parts[0]] = parts[1];
                     }
                 }
             } catch (e) {
