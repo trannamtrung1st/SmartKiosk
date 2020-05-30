@@ -414,13 +414,12 @@ namespace SK.Business.Services
                         {
                             var entities = row.AppUser.UserRoles?
                                 .Select(o => o.Role);
-                            if (entities != null)
-                                obj["roles"] = entities.Select(o => new
-                                {
-                                    name = o.Name,
-                                    display_name = o.DisplayName,
-                                    role_type = o.RoleType
-                                }).ToList();
+                            obj["roles"] = entities?.Select(o => new
+                            {
+                                name = o.Name,
+                                display_name = o.DisplayName,
+                                role_type = o.RoleType
+                            }).ToList();
                         }
                         break;
                 }

@@ -50,7 +50,7 @@ namespace SK.Business.Services
                     case ScheduleQueryProjection.DETAILS:
                         {
                             var entities = row.Schedule.ScheduleDetails;
-                            obj["schedule_details"] = entities.Select(o =>
+                            obj["schedule_details"] = entities?.Select(o =>
                                 {
                                     var fromTime = o.FromTime?
                                         .ToTimeZone(options.time_zone, options.culture);

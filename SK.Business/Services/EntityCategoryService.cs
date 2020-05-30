@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TNT.Core.Helpers.Data;
 using TNT.Core.Helpers.DI;
+using static Dapper.SqlMapper;
 
 namespace SK.Business.Services
 {
@@ -62,6 +63,19 @@ namespace SK.Business.Services
                                 obj["lang"] = entity.Lang;
                                 obj["name"] = entity.Name;
                             }
+                        }
+                        break;
+                    case EntityCategoryQueryProjection.RESOURCES:
+                        {
+                            var entities = row.EntityCategory.CategoriesOfResources?
+                                .Select(o => o.Resource);
+                            obj["resources"] = entities?.Select(o => new
+                            {
+                                id = o.Id,
+                                code = o.Code,
+                                image_url = o.ImageUrl,
+                                logo_url = o.LogoUrl
+                            });
                         }
                         break;
                 }
@@ -118,25 +132,43 @@ namespace SK.Business.Services
                         param: countQuery.DynamicParameters);
                 #endregion
             }
-            var queryResult = await conn.QueryAsync(
+            query = query.SqlExtras(projection, filter);
+            var multipleResult = await conn.QueryMultipleAsync(
                 sql: query.PreparedForm,
-                types: query.GetTypesArr(),
-                map: (objs) => ProcessMultiResults(query, objs),
-                splitOn: string.Join(',', query.GetSplitOns()),
                 param: query.DynamicParameters);
-            if (options.single_only)
+            using (multipleResult)
             {
-                var single = queryResult.SingleOrDefault();
-                if (single == null) return null;
-                var singleResult = GetEntityCategoryDynamic(single, projection, options);
-                return new QueryResult<IDictionary<string, object>>()
+                var queryResult = multipleResult.Read(
+                    types: query.GetTypesArr(),
+                    map: (objs) => ProcessMultiResults(query, objs),
+                    splitOn: string.Join(',', query.GetSplitOns()));
+                var extraKeys = projection.GetFieldsArr()
+                    .Where(f => EntityCategoryQueryProjection.Extras.ContainsKey(f));
+                IEnumerable<CateOfResQueryRow> resources = null;
+                foreach (var key in extraKeys)
                 {
-                    SingleResult = singleResult
-                };
+                    switch (key)
+                    {
+                        case EntityCategoryQueryProjection.RESOURCES:
+                            resources = GetCategoriesQueryResult(multipleResult);
+                            break;
+                    }
+                }
+                ProcessExtras(queryResult, resources);
+                if (options.single_only)
+                {
+                    var single = queryResult.SingleOrDefault();
+                    if (single == null) return null;
+                    var singleResult = GetEntityCategoryDynamic(single, projection, options);
+                    return new QueryResult<IDictionary<string, object>>()
+                    {
+                        SingleResult = singleResult
+                    };
+                }
+                if (options.count_total) totalCount = await countTask;
+                var result = GetEntityCategoryDynamic(queryResult, projection, options, totalCount);
+                return result;
             }
-            if (options.count_total) totalCount = await countTask;
-            var result = GetEntityCategoryDynamic(queryResult, projection, options, totalCount);
-            return result;
         }
 
         public async Task<QueryResult<EntityCategoryQueryRow>> QueryEntityCategory(
@@ -171,26 +203,63 @@ namespace SK.Business.Services
                         param: countQuery.DynamicParameters);
                 #endregion
             }
-            var queryResult = await conn.QueryAsync(
+            if (projection != null) query = query.SqlExtras(projection, filter);
+            var multipleResult = await conn.QueryMultipleAsync(
                 sql: query.PreparedForm,
-                types: query.GetTypesArr(),
-                map: (objs) => ProcessMultiResults(query, objs),
-                splitOn: string.Join(',', query.GetSplitOns()),
                 param: query.DynamicParameters);
-            if (options != null && options.single_only)
+            using (multipleResult)
             {
-                var single = queryResult.SingleOrDefault();
+                var queryResult = multipleResult.Read(
+                    types: query.GetTypesArr(),
+                    map: (objs) => ProcessMultiResults(query, objs),
+                    splitOn: string.Join(',', query.GetSplitOns()));
+                if (projection != null)
+                {
+                    var extraKeys = projection.GetFieldsArr()
+                    .Where(f => EntityCategoryQueryProjection.Extras.ContainsKey(f));
+                    IEnumerable<CateOfResQueryRow> resources = null;
+                    foreach (var key in extraKeys)
+                    {
+                        switch (key)
+                        {
+                            case EntityCategoryQueryProjection.RESOURCES:
+                                resources = GetCategoriesQueryResult(multipleResult);
+                                break;
+                        }
+                    }
+                    ProcessExtras(queryResult, resources);
+                }
+                if (options != null && options.single_only)
+                {
+                    var single = queryResult.SingleOrDefault();
+                    if (single == null) return null;
+                    return new QueryResult<EntityCategoryQueryRow>
+                    {
+                        SingleResult = single
+                    };
+                }
+                if (options != null && options.count_total) totalCount = await countTask;
                 return new QueryResult<EntityCategoryQueryRow>
                 {
-                    SingleResult = single
+                    Results = queryResult,
+                    TotalCount = totalCount
                 };
             }
-            if (options != null && options.count_total) totalCount = await countTask;
-            return new QueryResult<EntityCategoryQueryRow>
-            {
-                Results = queryResult,
-                TotalCount = totalCount
-            };
+        }
+
+        private IEnumerable<CateOfResQueryRow> GetCategoriesQueryResult(GridReader multipleResult)
+        {
+            var rows = multipleResult.Read(
+                types: new[] { typeof(CategoriesOfResources), typeof(ResourceRelationship) },
+                map: (objs) =>
+                {
+                    var row = new CateOfResQueryRow();
+                    row.CateOfRes = objs[0] as CategoriesOfResources;
+                    row.Resource = objs[1] as ResourceRelationship;
+                    return row;
+                }, splitOn: $"{nameof(Resource)}.{nameof(Resource.Id)}")
+                .ToList();
+            return rows;
         }
 
         private EntityCategoryQueryRow ProcessMultiResults(DynamicSql query, object[] objs)
@@ -201,14 +270,25 @@ namespace SK.Business.Services
                 var r = query.MultiResults[i];
                 switch (r.Key)
                 {
-                    case EntityCategoryQueryProjection.INFO: row.EntityCategory = objs[i] as EntityCategory; break;
+                    case EntityCategoryQueryProjection.INFO: row.EntityCategory = objs[i] as EntityCategoryQueryResult; break;
                     case EntityCategoryQueryProjection.CONTENT: row.Content = objs[i] as EntityCategoryContentRelationship; break;
                 }
             }
             return row;
         }
-        #endregion
 
+        private void ProcessExtras(IEnumerable<EntityCategoryQueryRow> entities,
+            IEnumerable<CateOfResQueryRow> resources)
+        {
+            var contentsMap = resources?.GroupByCategory().ToDictionary(o => o.Key);
+            foreach (var e in entities)
+            {
+                var entity = e.EntityCategory;
+                if (contentsMap != null && contentsMap.ContainsKey(entity.Id))
+                    entity.CategoriesOfResources = contentsMap[entity.Id].ToList();
+            }
+        }
+        #endregion
 
         #region Create EntityCategory
         protected void PrepareCreate(EntityCategory entity)

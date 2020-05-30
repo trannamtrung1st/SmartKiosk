@@ -14,5 +14,11 @@ namespace SK.Business.Queries
         {
             return query.GroupBy(o => o.CateOfRes.ResourceId);
         }
+
+        public static IEnumerable<IGrouping<int, CateOfResQueryRow>> GroupByCategory(
+            this IEnumerable<CateOfResQueryRow> query)
+        {
+            return query.GroupBy(o => o.CateOfRes.CategoryId);
+        }
     }
 }

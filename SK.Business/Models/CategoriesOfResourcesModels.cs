@@ -11,7 +11,9 @@ namespace SK.Business.Models
     {
         public CategoriesOfResources CateOfRes { get; set; }
         public EntityCategoryRelationship Category { get; set; }
-        public EntityCategoryContentRelationship Content { get; set; }
+        public EntityCategoryContentRelationship CategoryContent { get; set; }
+        public ResourceRelationship Resource { get; set; }
+        public ResourceContentRelationship ResourceContent { get; set; }
     }
     #endregion
 }

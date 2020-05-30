@@ -124,10 +124,10 @@ namespace SK.Business.Services
                     case ResourceQueryProjection.CATEGORIES:
                         {
                             var entities = row.Resource.CategoriesOfResources;
-                            obj["categories"] = entities.Select(o =>
+                            obj["categories"] = entities?.Select(o =>
                             {
                                 var cate = o.Category;
-                                var content = o.Content;
+                                var content = o.CategoryContent;
                                 return new
                                 {
                                     id = cate.Id,
@@ -335,7 +335,7 @@ namespace SK.Business.Services
                     var row = new CateOfResQueryRow();
                     row.CateOfRes = objs[0] as CategoriesOfResources;
                     row.Category = objs[1] as EntityCategoryRelationship;
-                    row.Content = objs[2] as EntityCategoryContentRelationship;
+                    row.CategoryContent = objs[2] as EntityCategoryContentRelationship;
                     return row;
                 }, splitOn: $"{nameof(EntityCategory)}.{nameof(EntityCategory.Id)}," +
                 $"{nameof(EntityCategoryContent)}.{nameof(EntityCategoryContent.Id)}")

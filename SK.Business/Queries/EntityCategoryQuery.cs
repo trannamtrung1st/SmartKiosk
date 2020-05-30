@@ -139,6 +139,44 @@ namespace SK.Business.Queries
             return query;
         }
 
+        public static DynamicSql SqlExtras(
+            this DynamicSql query, EntityCategoryQueryProjection model,
+            EntityCategoryQueryFilter filter)
+        {
+            query = DynamicSql.DeepClone(query);
+            var extras = model.GetFieldsArr()
+                .Where(f => EntityCategoryQueryProjection.Extras.ContainsKey(f))
+                .Select(f => EntityCategoryQueryProjection.Extras[f]);
+            if (extras.Any())
+            {
+                var extraSqls = string.Join(';', extras);
+                var originalQuery = query.PreparedViewForm;
+                query.DynamicForm += ";\n" + extraSqls;
+                query.DynamicForm = query.DynamicForm
+                    .Replace(EntityCategoryQueryPlaceholder.EC_SUB_QUERY, originalQuery);
+                if (filter != null)
+                {
+                    if (model.fields.Contains(EntityCategoryQueryProjection.RESOURCES))
+                    {
+                        var contentFilters = new List<string>();
+                        if (filter.floor_id != null)
+                        {
+                            var paramName = query.AddAutoIncrParam(filter.floor_id);
+                            var floorId = $"{nameof(Resource)}.{nameof(Resource.FloorId)}";
+                            contentFilters.Add($"{floorId}=@{paramName}");
+                        }
+                        if (contentFilters.Any())
+                        {
+                            var whereClause = "WHERE " + string.Join(" AND ", contentFilters);
+                            query.DynamicForm = query.DynamicForm
+                                .Replace(EntityCategoryQueryPlaceholder.RESOURCES_FILTER, whereClause);
+                        }
+                    }
+                }
+            }
+            return query;
+        }
+
         public static DynamicSql CreateDynamicSql()
         {
             var sql = $"SELECT {DynamicSql.PROJECTION} " +

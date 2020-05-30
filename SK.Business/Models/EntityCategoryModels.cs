@@ -75,6 +75,11 @@ namespace SK.Business.Models
     }
 
     #region Query
+    public class EntityCategoryQueryResult : EntityCategory
+    {
+        public new ICollection<CateOfResQueryRow> CategoriesOfResources { get; set; }
+    }
+
     public class EntityCategoryRelationship : EntityCategory, IDapperRelationship
     {
         public string GetTableName() => nameof(EntityCategory);
@@ -82,7 +87,7 @@ namespace SK.Business.Models
 
     public class EntityCategoryQueryRow
     {
-        public EntityCategory EntityCategory { get; set; }
+        public EntityCategoryQueryResult EntityCategory { get; set; }
         public EntityCategoryContentRelationship Content { get; set; }
     }
 
@@ -116,9 +121,12 @@ namespace SK.Business.Models
 
         public const string INFO = "info";
         public const string CONTENT = "content";
+        public const string RESOURCES = "resources";
 
         private const string E = nameof(EntityCategory);
         private const string C = nameof(EntityCategoryContent);
+        private const string CR = nameof(CategoriesOfResources);
+        private const string R = nameof(Resource);
         public static readonly IDictionary<string, string> Projections =
             new Dictionary<string, string>()
             {
@@ -148,7 +156,7 @@ namespace SK.Business.Models
              new Dictionary<string, PartialResult>()
              {
                  {
-                     INFO, new PartialResult(key: INFO, type: typeof(EntityCategory),
+                     INFO, new PartialResult(key: INFO, type: typeof(EntityCategoryQueryResult),
                          splitOn: $"{nameof(EntityCategory.Id)}")
                  },
                  {
@@ -156,6 +164,24 @@ namespace SK.Business.Models
                          splitOn: $"{C}.{nameof(EntityCategoryContent.Id)}")
                  },
              };
+
+        public static readonly IDictionary<string, string> Extras =
+            new Dictionary<string, string>()
+            {
+                {
+                    RESOURCES, $"SELECT {CR}.{nameof(CategoriesOfResources.CategoryId)}," +
+                    $"{CR}.{nameof(CategoriesOfResources.ResourceId)}," +
+                    $"{R}.{nameof(Resource.Id)} as [{R}.{nameof(Resource.Id)}]," +
+                    $"{R}.{nameof(Resource.Code)} as [{R}.{nameof(Resource.Code)}]," +
+                    $"{R}.{nameof(Resource.ImageUrl)} as [{R}.{nameof(Resource.ImageUrl)}]," +
+                    $"{R}.{nameof(Resource.LogoUrl)} as [{R}.{nameof(Resource.LogoUrl)}]" +
+                    $" FROM {nameof(CategoriesOfResources)}\n" +
+                    $"INNER JOIN ({EntityCategoryQueryPlaceholder.EC_SUB_QUERY}) AS {E} " +
+                    $"ON {CR}.{nameof(CategoriesOfResources.CategoryId)}={E}.{nameof(EntityCategory.Id)}\n"+
+                    $"INNER JOIN (SELECT * FROM {R} {EntityCategoryQueryPlaceholder.RESOURCES_FILTER}) AS {R} " +
+                    $"ON {R}.{nameof(Resource.Id)}={CR}.{nameof(CategoriesOfResources.ResourceId)}\n"
+                }
+            };
     }
 
     public class EntityCategoryQuerySort
@@ -189,6 +215,7 @@ namespace SK.Business.Models
 
     public class EntityCategoryQueryFilter
     {
+        public int? floor_id { get; set; }
         public int? id { get; set; }
         public string name_contains { get; set; }
         public string lang { get; set; }
@@ -240,6 +267,8 @@ namespace SK.Business.Models
 
     public class EntityCategoryQueryPlaceholder
     {
+        public const string RESOURCES_FILTER = "$(resources_filter)";
+        public const string EC_SUB_QUERY = "$(ec_sub_query)";
         public const string EC_CONTENT_FILTER = "$(ec_content_filter)";
     }
     #endregion

@@ -76,6 +76,7 @@ namespace SK.Business.Services
                                     id = entity.Id,
                                     name = entity.Name,
                                     code = entity.Code,
+                                    floor_plan_svg = entity.FloorPlanSvg
                                 };
                         }
                         break;

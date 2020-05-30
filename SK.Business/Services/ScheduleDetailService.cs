@@ -71,7 +71,7 @@ namespace SK.Business.Services
                     case ScheduleDetailQueryProjection.CONFIGS:
                         {
                             var entities = row.ScheduleDetail.ScheduleWeekConfigs;
-                            obj["schedule_week_configs"] = entities
+                            obj["schedule_week_configs"] = entities?
                                 .Select(c => new
                                 {
                                     to_time = c.ToTime,

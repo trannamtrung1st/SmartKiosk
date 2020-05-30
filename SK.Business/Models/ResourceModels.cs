@@ -128,6 +128,11 @@ namespace SK.Business.Models
 
 
     #region Query
+    public class ResourceRelationship : Resource, IDapperRelationship
+    {
+        public string GetTableName() => nameof(Resource);
+    }
+
     public class ResourceQueryResult : Resource
     {
         public new ICollection<CateOfResQueryRow> CategoriesOfResources { get; set; }

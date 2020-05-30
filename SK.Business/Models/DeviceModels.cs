@@ -148,6 +148,7 @@ namespace SK.Business.Models
         public const string INFO = "info";
         public const string AREA = "area";
         public const string FLOOR = "floor";
+        public const string FLOOR_PLAN = "floor.floor_plan";
         public const string LOCATION = "location";
         public const string ACCOUNT = "account";
         public const string SCHEDULE = "schedule";
@@ -180,6 +181,9 @@ namespace SK.Business.Models
                     FLOOR,$"{F}.{nameof(Floor.Id)} as [{F}.{nameof(Floor.Id)}]," +
                     $"{F}.{nameof(Floor.Code)} as [{F}.{nameof(Floor.Code)}]," +
                     $"{F}.{nameof(Floor.Name)} as [{F}.{nameof(Floor.Name)}]"
+                },
+                {
+                    FLOOR_PLAN,$"{F}.{nameof(Floor.FloorPlanSvg)} as [{F}.{nameof(Floor.FloorPlanSvg)}]"
                 },
                 {
                     BUILDING,$"{B}.{nameof(Building.Id)} as [{B}.{nameof(Building.Id)}]," +
