@@ -157,7 +157,7 @@ namespace SK.Business.Services
                 ProcessExtras(queryResult, resources);
                 if (options.single_only)
                 {
-                    var single = queryResult.SingleOrDefault();
+                    var single = queryResult.FirstOrDefault();
                     if (single == null) return null;
                     var singleResult = GetEntityCategoryDynamic(single, projection, options);
                     return new QueryResult<IDictionary<string, object>>()
@@ -231,7 +231,7 @@ namespace SK.Business.Services
                 }
                 if (options != null && options.single_only)
                 {
-                    var single = queryResult.SingleOrDefault();
+                    var single = queryResult.FirstOrDefault();
                     if (single == null) return null;
                     return new QueryResult<EntityCategoryQueryRow>
                     {

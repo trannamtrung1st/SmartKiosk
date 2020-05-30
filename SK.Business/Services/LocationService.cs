@@ -117,7 +117,7 @@ namespace SK.Business.Services
                 param: query.DynamicParameters);
             if (options.single_only)
             {
-                var single = queryResult.SingleOrDefault();
+                var single = queryResult.FirstOrDefault();
                 if (single == null) return null;
                 var singleResult = GetLocationDynamic(single, projection, options);
                 return new QueryResult<IDictionary<string, object>>()
@@ -170,7 +170,7 @@ namespace SK.Business.Services
                 param: query.DynamicParameters);
             if (options != null && options.single_only)
             {
-                var single = queryResult.SingleOrDefault();
+                var single = queryResult.FirstOrDefault();
                 return new QueryResult<LocationQueryRow>
                 {
                     SingleResult = single

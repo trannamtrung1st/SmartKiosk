@@ -177,7 +177,7 @@ namespace SK.Business.Services
                 ProcessExtras(queryResult, details);
                 if (options.single_only)
                 {
-                    var single = queryResult.SingleOrDefault();
+                    var single = queryResult.FirstOrDefault();
                     if (single == null) return null;
                     var singleResult = GetScheduleDynamic(single, projection, options);
                     return new QueryResult<IDictionary<string, object>>()
@@ -251,7 +251,7 @@ namespace SK.Business.Services
                 }
                 if (options != null && options.single_only)
                 {
-                    var single = queryResult.SingleOrDefault();
+                    var single = queryResult.FirstOrDefault();
                     if (single == null) return null;
                     return new QueryResult<ScheduleQueryRow>
                     {
