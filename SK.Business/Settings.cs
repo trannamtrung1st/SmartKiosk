@@ -9,6 +9,7 @@ namespace SK.Business
 
     public class Settings
     {
+        public string DefaultTimeZone { get; set; }
         private string[] _supportedLangs;
         public string[] SupportedLangs
         {

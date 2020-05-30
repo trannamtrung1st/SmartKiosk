@@ -8,5 +8,6 @@ namespace SK
     {
         public const string VI = "vi";
         public const string EN = "en";
+        public const string JA = "ja";
     }
 }

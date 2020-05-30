@@ -75,11 +75,14 @@ namespace SK.Business
 
     public static class AppTimeZone
     {
+        private static readonly TimeZoneInfo _default = 
+            TimeZoneInfo.FindSystemTimeZoneById(Settings.Instance.DefaultTimeZone);
         public static IDictionary<string, TimeZoneInfo> Map =
             new Dictionary<string, TimeZoneInfo>()
             {
-                { Lang.VI, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time") },
-                { Lang.EN, TimeZoneInfo.Utc },
+                { Lang.VI,  _default},
+                { Lang.EN, _default },
+                { Lang.JA, _default },
             };
     }
 
