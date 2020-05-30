@@ -88,6 +88,11 @@ namespace SK.Business.Queries
                 var paramName = query.AddAutoIncrParam(filter.loc_id);
                 listFilters.Add($"{nameof(Resource)}.{nameof(Resource.LocationId)}=@{paramName}");
             }
+            if (filter.area_id != null)
+            {
+                var paramName = query.AddAutoIncrParam(filter.area_id);
+                listFilters.Add($"{nameof(Resource)}.{nameof(Resource.AreaId)}=@{paramName}");
+            }
             if (listFilters.Any())
             {
                 var whereClause = "WHERE " + string.Join(" AND ", listFilters);

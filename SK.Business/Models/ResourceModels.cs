@@ -349,6 +349,7 @@ namespace SK.Business.Models
         public int? id { get; set; }
         public int? owner_id { get; set; }
         public int? loc_id { get; set; }
+        public int? area_id { get; set; }
         public string name_contains { get; set; }
         public string lang { get; set; }
         //0: false, 1: true, 2: both => default: false
