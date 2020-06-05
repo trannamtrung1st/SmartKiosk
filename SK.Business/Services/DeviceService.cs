@@ -366,6 +366,12 @@ namespace SK.Business.Services
         {
             return ValidationResult.Pass();
         }
+
+        public ValidationResult ValidateTriggerDevices(ClaimsPrincipal principal,
+            TriggerDevicesModel model)
+        {
+            return ValidationResult.Pass();
+        }
         #endregion
 
         public string GetActivationCode(string username)

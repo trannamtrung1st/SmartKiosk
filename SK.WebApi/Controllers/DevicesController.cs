@@ -125,6 +125,9 @@ namespace SK.WebApi.Controllers
         [HttpPost("trigger")]
         public async Task<IActionResult> Trigger(TriggerDevicesModel model)
         {
+            var validationResult = _service.ValidateTriggerDevices(User, model);
+            if (!validationResult.Valid)
+                return BadRequest(validationResult.Result);
             var resp = await _service.TriggerDevicesAsync(model);
             return Ok(new AppResultBuilder().Success(resp));
         }
